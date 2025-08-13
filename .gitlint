@@ -1,0 +1,16 @@
+[general]
+contrib=contrib-title-conventional-commits
+
+ignore=B6,title-trailing-punctuation
+ignore-merge-commits=true
+ignore-revert-commits=true
+ignore-fixup-commits=true
+ignore-fixup-amend-commits=true
+ignore-squash-commits=true
+
+[title-max-length]
+line-length=80
+
+[title-min-length]
+min-length=5
+
