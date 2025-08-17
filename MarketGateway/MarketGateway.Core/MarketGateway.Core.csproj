@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-MarketGateway-db22214f-b9ae-4911-a3d3-75e854ac8e5a</UserSecretsId>
+        <RootNamespace>MarketGateway</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Google.Protobuf" Version="3.32.0" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
+        <PackageReference Include="Grpc.Tools" Version="2.72.0">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.7" />
+        <PackageReference Include="Serilog" Version="4.3.0" />
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\MarketGateway.Data\MarketGateway.Data.csproj" />
+      <ProjectReference Include="..\MarketGateway.Shared\MarketGateway.Shared.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Protobuf Include="protos\common.proto" GrpcServices="None" ProtoRoot="protos" />
+        <Protobuf Include="protos\quote.proto"  GrpcServices="None" ProtoRoot="protos" />
+        <Protobuf Include="protos\ohlcv.proto"  GrpcServices="None" ProtoRoot="protos" />
+        <Protobuf Include="protos\fetch.proto"  GrpcServices="None" ProtoRoot="protos" />
+        <Protobuf Include="protos\gateway.proto" GrpcServices="Server" ProtoRoot="protos" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\IBM_142151.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\IBM_142624.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\IBM_143311.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\IBM_143618.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\IBM_143727.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\IBM_143940.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\_metadata.json" />
+    </ItemGroup>
+</Project>

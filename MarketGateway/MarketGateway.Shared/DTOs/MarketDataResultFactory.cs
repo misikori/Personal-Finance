@@ -6,7 +6,7 @@ public class MarketDataResultFactory
     
     static MarketDataResultFactory()
     {
-        Register(DataType.Quote, () => new QuoteResult());
+        Register(DataType.Quote, () => new QuoteDto());
     }
     
     public static void Register(DataType dataType, Func<MarketDataResultBase> creator) => _creators[dataType] = creator;

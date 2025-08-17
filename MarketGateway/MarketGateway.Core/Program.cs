@@ -82,5 +82,4 @@ foreach (var conf in vendors)
 
 var host = builder.Build();
 
-await AlphaVantageTester.RunTestAsync();
 host.Run();
