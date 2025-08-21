@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Currency.Common.Repositories
 {
-    internal class CurrencyRatesRepository : ICurrencyRatesRepository
+    public class CurrencyRatesRepository : ICurrencyRatesRepository
     {
         private readonly IDistributedCache _cache;
 

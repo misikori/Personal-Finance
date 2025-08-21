@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Currency.Common.Entities
 {
-    internal class CurrencyRateList
+    public class CurrencyRateList
     {
         public string Username { get; set; }
         public List<CurrencyRate> Rates { get; set; } = new List<CurrencyRate>();

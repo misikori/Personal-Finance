@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Currency.Common.Repositories
 {
-    internal interface ICurrencyRatesRepository
+    public interface ICurrencyRatesRepository
     {
         Task<CurrencyRateList> GetRates(string username);
         Task<CurrencyRateList> UpdateRates(CurrencyRateList currencyRateList);

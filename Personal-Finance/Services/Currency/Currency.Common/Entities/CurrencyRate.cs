@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Currency.Common.Entities
 {
-    internal class CurrencyRate
+    public class CurrencyRate
     {
         public string Code { get; set; }
         public DateTime Date { get; set; }
