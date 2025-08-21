@@ -19,7 +19,7 @@ namespace Currency.Common.Extensions
             services.AddStackExchangeRedisCache(options => {
                 options.Configuration = configuration.GetValue<string>("CacheSettings:ConnectionString");
             });
-            services.AddSingleton<ICurrencyRatesRepository,  CurrencyRatesRepository>();
+            services.AddScoped<ICurrencyRatesRepository,  CurrencyRatesRepository>();
         }
     }
 }

@@ -6,19 +6,27 @@ namespace Currency.API.Hosted
 {
     public class CurrencyStartupService : IHostedService
     {
-        private readonly ICurrencyRatesRepository _repository;
+
+
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ICurrencyRatesFetcher _fetcher;
 
-        public CurrencyStartupService(ICurrencyRatesRepository repository, ICurrencyRatesFetcher fetcher)
+        public CurrencyStartupService(IServiceScopeFactory scopeFactory, ICurrencyRatesFetcher fetcher)
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
             _fetcher = fetcher ?? throw new ArgumentNullException(nameof(fetcher));
         }
+
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             var rates = await _fetcher.FetchRatesAsync();
-            await _repository.UpdateRates(new CurrencyRateList { Username = "TEST", Rates = rates});
+
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var repository = scope.ServiceProvider.GetRequiredService<ICurrencyRatesRepository>();
+                await repository.UpdateRates(new CurrencyRateList { Username = "TEST", Rates = rates });
+            }
         }
 
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
