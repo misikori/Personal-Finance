@@ -1,4 +1,5 @@
 ﻿using Currency.API.Hosted.Fetchers;
+using Currency.Common.DTOs;
 using Currency.Common.Entities;
 using Currency.Common.Repositories;
 
@@ -25,7 +26,7 @@ namespace Currency.API.Hosted
             using (var scope = _scopeFactory.CreateScope())
             {
                 var repository = scope.ServiceProvider.GetRequiredService<ICurrencyRatesRepository>();
-                await repository.UpdateRates(new CurrencyRateList { Username = "TEST", Rates = rates });
+                await repository.UpdateRates(new CurrencyRateListDTO { Key = "rates:global", Rates = rates });
             }
         }
 

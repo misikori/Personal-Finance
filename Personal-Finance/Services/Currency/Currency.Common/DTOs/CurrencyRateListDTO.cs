@@ -1,14 +1,15 @@
-﻿using System;
+﻿using Currency.Common.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Currency.Common.Entities
+namespace Currency.Common.DTOs
 {
-    public class CurrencyRateList
+    public class CurrencyRateListDTO
     {
-        public string Username { get; set; }
+        public string Key { get; set; }
         public List<CurrencyRate> Rates { get; set; } = new List<CurrencyRate>();
     }
 }

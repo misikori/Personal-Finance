@@ -1,4 +1,4 @@
-﻿using Currency.Common.Entities;
+﻿using Currency.Common.DTOs;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using System;
@@ -19,29 +19,29 @@ namespace Currency.Common.Repositories
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        public async Task<CurrencyRateList> GetRates(string username)
+        public async Task<CurrencyRateListDTO> GetRates()
         {
-            var rates = await _cache.GetStringAsync(username);
+            var rates = await _cache.GetStringAsync("rates:global");
 
             if (string.IsNullOrEmpty(rates)) {
                 return null;
             }
 
-            return JsonConvert.DeserializeObject<CurrencyRateList>(rates);
+            return JsonConvert.DeserializeObject<CurrencyRateListDTO>(rates);
         }
 
-        public async Task<CurrencyRateList> UpdateRates(CurrencyRateList currencyRateList)
+        public async Task<CurrencyRateListDTO> UpdateRates(CurrencyRateListDTO currencyRateList)
         {
             var ratesString = JsonConvert.SerializeObject(currencyRateList);
 
-            await _cache.SetStringAsync(currencyRateList.Username, ratesString);
+            await _cache.SetStringAsync("rates:global", ratesString);
 
-            return await GetRates(currencyRateList.Username);
+            return await GetRates();
         }
 
-        public async Task DeleteRates(string username)
+        public async Task DeleteRates()
         {
-            await _cache.RemoveAsync(username);
+            await _cache.RemoveAsync("rates:global");
         }
     }
 }
