@@ -37,5 +37,20 @@ namespace Currency.API.Controllers
 
             return Ok(rates.Rates);
         }
+
+        [HttpPut]
+        [ProducesResponseType(typeof(CurrencyRateList), StatusCodes.Status200OK)]
+        public async Task<ActionResult<CurrencyRateList>> UpdateRates([FromBody]CurrencyRateList rates)
+        {
+            return Ok(await _repository.UpdateRates(rates));
+        }
+
+        [HttpDelete("{username}")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeleteRates(string username)
+        {
+            await _repository.DeleteRates(username);
+            return Ok();
+        }
     }
 }
