@@ -1,4 +1,4 @@
-﻿using Currency.Common.Entities;
+﻿using Currency.Common.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace Currency.Common.Repositories
 {
-    internal interface ICurrencyRatesRepository
+    public interface ICurrencyRatesRepository
     {
-        Task<CurrencyRateList> GetRates(string username);
-        Task<CurrencyRateList> UpdateRates(CurrencyRateList currencyRateList);
-
-        Task DeleteRates(string username);
+        Task<CurrencyRateListDTO> GetRates();
+        Task<CurrencyRateListDTO> UpdateRates(CurrencyRateListDTO currencyRateList);
+        Task DeleteRates();
     }
 }
