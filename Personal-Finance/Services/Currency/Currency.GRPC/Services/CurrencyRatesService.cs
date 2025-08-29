@@ -1,7 +1,9 @@
-﻿using Currency.Common.Helpers;
+﻿using Currency.Common.Entities;
+using Currency.Common.Helpers;
 using Currency.Common.Repositories;
 using Currency.GRPC.Protos;
 using Grpc.Core;
+using System.Runtime.InteropServices;
 
 namespace Currency.GRPC.Services
 {
@@ -23,6 +25,7 @@ namespace Currency.GRPC.Services
             var toCurrency = rates.Rates.FirstOrDefault(y => y.Code == request.To);
 
             if (fromCurrency == null && toCurrency == null) {
+                _logger.LogError($"Conversion from {request.From} to {request.To} unavailable.");
                 throw new RpcException(new Status(StatusCode.NotFound, $"Conversion from {request.From} to {request.To} unavailable."));
             }
             _logger.LogInformation($"Converting {request.Amount} from {request.From} to {request.To}.");
@@ -43,8 +46,25 @@ namespace Currency.GRPC.Services
         {
             //return base.GetSpecificCurrencyRates(request, context);
             var rates = await _repository.GetRates();
+            var baseCurrencyCode = string.IsNullOrWhiteSpace(request.BaseCurrency) ? "RSD" : request.BaseCurrency;
+
+            double baseCurrencyRate = 0;
+            foreach (var rate in rates.Rates) {
+                if ( rate.Code == baseCurrencyCode)
+                {
+                    baseCurrencyRate = (double)rate.ExchangeMiddle;
+                    break;
+                }
+            }
+
+            if ( baseCurrencyRate == 0)
+            {
+                _logger.LogError($"Cannot recognize currency with code {baseCurrencyCode}.");
+                throw new RpcException(new Status(StatusCode.NotFound, $"Error cannot recognize currency with code {baseCurrencyCode}."));
+            }
 
             var response = new GetSpecificCurrencyRatesResponse();
+            _logger.LogInformation($"Returning list of currency rates for base currency: {baseCurrencyCode}.");
             foreach (var rate in rates.Rates)
             {
                 var protoRate = new GetSpecificCurrencyRatesResponse.Types.CurrencyRate
@@ -54,7 +74,7 @@ namespace Currency.GRPC.Services
                         rate.Date.ToDateTime(TimeOnly.MinValue).ToUniversalTime()
                     ),
                     Parity = rate.Parity,
-                    ExchangeMiddle = (double)rate.ExchangeMiddle
+                    ExchangeMiddle = (double)rate.ExchangeMiddle / baseCurrencyRate
                 };
 
                 response.Rates.Add(protoRate);
