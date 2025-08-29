@@ -23,20 +23,37 @@ namespace Currency.API.Controllers
         [ProducesResponseType(typeof(List<CurrencyRate>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<List<CurrencyRate>>> GetRates()
+        public async Task<ActionResult<List<CurrencyRate>>> GetRates([FromQuery] string baseCurrencyCode = "RSD")
         {
-            //username should not be in query but just for testing for now it will be implemented like this
-            //username should be provided from Auth (jwt...)
             var rates = await _repository.GetRates();
-
-            //if (string.IsNullOrEmpty(username))
-            //    return Unauthorized();
 
             if (rates == null)
             {
                 return NotFound();
             }
 
+            decimal baseCurrencyRate = 0;
+
+            if (baseCurrencyCode != "RSD")
+            {
+                foreach (var rate in rates.Rates)
+                {
+                    if (rate.Code == baseCurrencyCode)
+                    {
+                        baseCurrencyRate = rate.ExchangeMiddle;
+                    }
+                }
+
+                if ( baseCurrencyRate == 0)
+                {
+                    return BadRequest();
+                }
+
+                foreach (var rate in rates.Rates)
+                {
+                    rate.ExchangeMiddle /= baseCurrencyRate;
+                }
+            }
             return Ok(rates);
         }
 

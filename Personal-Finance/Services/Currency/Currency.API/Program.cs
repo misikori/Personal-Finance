@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<ICurrencyRatesFetcher, CurrencyRatesFetcher>();
 builder.Services.AddCurrencyCommonServices(builder.Configuration);
-builder.Services.AddHostedService<CurrencyStartupService>();
+builder.Services.AddHostedService<CurrencyHostedService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
