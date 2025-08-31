@@ -22,24 +22,25 @@ namespace Currency.API.Hosted
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            _timer?.Dispose();
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Currency hosted service for fething rates running");
 
             _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromDays(1));
+
+            return Task.CompletedTask;
         }
 
         private async void DoWork(object? state)
         {
-            _logger.LogInformation("Fetching rates from https://kurs.resenje.org/api/v1/rates/today.");
             var rates = await _fetcher.FetchRatesAsync();
 
-            if (rates == null)
+            if (!rates.Any())
             {
-                _logger.LogError("Fetching rates from https://kurs.resenje.org/api/v1/rates/today unseccessful.");
+                _logger.LogError("Fetching rates unseccessful.");
                 return;
             }
 

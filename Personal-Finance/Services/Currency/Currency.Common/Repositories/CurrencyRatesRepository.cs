@@ -1,4 +1,5 @@
 ﻿using Currency.Common.DTOs;
+using Currency.Common.Entities;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using System;
@@ -24,10 +25,10 @@ namespace Currency.Common.Repositories
             var rates = await _cache.GetStringAsync("rates:global");
 
             if (string.IsNullOrEmpty(rates)) {
-                return null;
+                return new CurrencyRateListDTO { Rates = new List<CurrencyRate>() };
             }
 
-            return JsonConvert.DeserializeObject<CurrencyRateListDTO>(rates);
+            return JsonConvert.DeserializeObject<CurrencyRateListDTO>(rates) ?? new CurrencyRateListDTO { Rates = new List<CurrencyRate>() };
         }
 
         public async Task<CurrencyRateListDTO> UpdateRates(CurrencyRateListDTO currencyRateList)

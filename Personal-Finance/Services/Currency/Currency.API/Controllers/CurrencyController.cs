@@ -27,32 +27,21 @@ namespace Currency.API.Controllers
         {
             var rates = await _repository.GetRates();
 
-            if (rates == null)
+            if (!rates.Rates.Any())
             {
                 return NotFound();
             }
 
-            decimal baseCurrencyRate = 0;
-
             if (baseCurrencyCode != "RSD")
             {
-                foreach (var rate in rates.Rates)
-                {
-                    if (rate.Code == baseCurrencyCode)
-                    {
-                        baseCurrencyRate = rate.ExchangeMiddle;
-                    }
-                }
+                var baseCurrencyRate = rates.Rates.FirstOrDefault(r => r.Code == baseCurrencyCode)?.ExchangeMiddle ?? 0;
 
                 if ( baseCurrencyRate == 0)
                 {
                     return BadRequest();
                 }
 
-                foreach (var rate in rates.Rates)
-                {
-                    rate.ExchangeMiddle /= baseCurrencyRate;
-                }
+                rates.Rates.ForEach(r => r.ExchangeMiddle /= baseCurrencyRate);
             }
             return Ok(rates);
         }
@@ -67,7 +56,7 @@ namespace Currency.API.Controllers
             [FromQuery] decimal amount)
         {
             var rates = await _repository.GetRates();
-            if (rates == null)
+            if (!rates.Rates.Any())
             {
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
             }

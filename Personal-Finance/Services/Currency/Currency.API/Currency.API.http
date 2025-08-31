@@ -1,6 +1,40 @@
 @Currency.API_HostAddress = http://localhost:5044
 
-GET {{Currency.API_HostAddress}}/weatherforecast/
+### Get all rates (default RSD)
+GET {{Currency.API_HostAddress}}/api/currency
 Accept: application/json
+
+### Get all rates for specific base currency
+GET {{Currency.API_HostAddress}}/api/currency?baseCurrencyCode=EUR
+Accept: application/json
+
+### Convert amount from one currency to another
+GET {{Currency.API_HostAddress}}/api/currency/convert?from=USD&to=EUR&amount=100
+Accept: application/json
+
+### Update rates (requires JSON body)
+PUT {{Currency.API_HostAddress}}/api/currency
+Content-Type: application/json
+
+{
+    "Key": "rates:global",
+    "Rates": [
+        {
+            "Code": "USD",
+            "ExchangeMiddle": 106.5,
+            "Parity": 1,
+            "Date": "2025-08-31"
+        },
+        {
+            "Code": "EUR",
+            "ExchangeMiddle": 118.2,
+            "Parity": 1,
+            "Date": "2025-08-31"
+        }
+    ]
+}
+
+### Delete rates
+DELETE {{Currency.API_HostAddress}}/api/currency
 
 ###

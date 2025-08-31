@@ -24,7 +24,7 @@ namespace Currency.GRPC.Services
             var fromCurrency = rates.Rates.FirstOrDefault(x => x.Code == request.From);
             var toCurrency = rates.Rates.FirstOrDefault(y => y.Code == request.To);
 
-            if (fromCurrency == null && toCurrency == null) {
+            if (fromCurrency == null || toCurrency == null) {
                 _logger.LogError($"Conversion from {request.From} to {request.To} unavailable.");
                 throw new RpcException(new Status(StatusCode.NotFound, $"Conversion from {request.From} to {request.To} unavailable."));
             }
@@ -44,7 +44,6 @@ namespace Currency.GRPC.Services
 
         public async override Task<GetSpecificCurrencyRatesResponse> GetSpecificCurrencyRates(GetSpecificCurrencyRatesRequest request, ServerCallContext context)
         {
-            //return base.GetSpecificCurrencyRates(request, context);
             var rates = await _repository.GetRates();
             var baseCurrencyCode = string.IsNullOrWhiteSpace(request.BaseCurrency) ? "RSD" : request.BaseCurrency;
 

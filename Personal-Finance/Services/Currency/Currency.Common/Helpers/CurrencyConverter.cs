@@ -14,10 +14,7 @@ namespace Currency.Common.Helpers
             if (fromRate == null) throw new ArgumentNullException(nameof(fromRate));
             if (toRate == null) throw new ArgumentNullException(nameof(toRate));
 
-            decimal rsdValue = amount * (fromRate.ExchangeMiddle / fromRate.Parity);
-            decimal converted = rsdValue * (toRate.Parity / toRate.ExchangeMiddle);
-
-            return converted;
+            return amount * (fromRate.ExchangeMiddle / fromRate.Parity) * (toRate.Parity / toRate.ExchangeMiddle);
         }
     }
 }
