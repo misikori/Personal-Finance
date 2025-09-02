@@ -1,4 +1,4 @@
-using MarketGateway.Shared.Configuration;
+using MarketGateway.Providers.Configuration;
 using MarketGateway.Shared.DTOs;
 
 namespace MarketGateway.Tests.TestConfig;
@@ -32,7 +32,7 @@ public static class AlphaVantageConfigFactory
                 {
                     RootPath = "Global Quote",
                     TimestampKey = "07. latest trading day",
-                    FieldMappings = new Dictionary<string, object>
+                    FieldMappings = new Dictionary<string, string>
                     {
                         ["Price"] = "05. price",
                         ["High"] = "03. high",

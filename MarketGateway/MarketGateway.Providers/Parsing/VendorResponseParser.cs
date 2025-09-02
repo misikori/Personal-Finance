@@ -1,9 +1,9 @@
 using System.Text.Json;
-using MarketGateway.Interfaces;
-using MarketGateway.Shared.Configuration;
+using MarketGateway.Providers.Configuration;
+using MarketGateway.Providers.Interfaces;
 using MarketGateway.Shared.DTOs;
 
-namespace MarketGateway.Application;
+namespace MarketGateway.Providers.Parsing;
 
 public sealed class VendorResponseParser : IVendorResponseParser
 {

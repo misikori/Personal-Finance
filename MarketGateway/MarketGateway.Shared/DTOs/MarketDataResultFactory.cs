@@ -8,8 +8,8 @@ public class MarketDataResultFactory
     {
         Register(DataType.Quote, () => new QuoteDto());
     }
-    
-    public static void Register(DataType dataType, Func<MarketDataResultBase> creator) => _creators[dataType] = creator;
+
+    private static void Register(DataType dataType, Func<MarketDataResultBase> creator) => _creators[dataType] = creator;
 
     public static MarketDataResultBase Create(DataType dataType)
     {

@@ -1,7 +1,7 @@
 syntax = "proto3";
 package marketdata;
 import "google/protobuf/timestamp.proto";
-option csharp_namespace = "Marketdata";
+option csharp_namespace = "MarketGateway.Contracts";
 
 enum BarGranularity { BAR_G_UNSPECIFIED = 0; M1 = 1; M5 = 2; H1 = 3; D1 = 4; W1 = 5; }
 enum PriceAdjustment { ADJ_UNSPECIFIED = 0; NONE = 1; SPLITS = 2; SPLITS_DIVS = 3; }

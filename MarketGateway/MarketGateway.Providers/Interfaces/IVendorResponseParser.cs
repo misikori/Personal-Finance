@@ -1,7 +1,7 @@
-using MarketGateway.Shared.Configuration;
+using MarketGateway.Providers.Configuration;
 using MarketGateway.Shared.DTOs;
 
-namespace MarketGateway.Interfaces;
+namespace MarketGateway.Providers.Interfaces;
 
 public interface IVendorResponseParser
 {

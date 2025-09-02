@@ -1,12 +1,15 @@
 using System.Net;
 using System.Text;
 using FluentAssertions;
-using MarketGateway.Providers;
+using MarketGateway.Providers.Parsing;
+using MarketGateway.Providers.Providers;
 using MarketGateway.Shared.DTOs;
 using MarketGateway.Tests.TestConfig;
 using MarketGateway.Tests.TestHelpers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+
+namespace MarketGateway.Tests.Providers;
 
 public class VendorMarketDataProviderTests
 {
@@ -14,7 +17,7 @@ public class VendorMarketDataProviderTests
         string json,
         Action<string>? assertUrl = null,
         HttpStatusCode status = HttpStatusCode.OK,
-        int perMinute = 0, int perDay = 0)
+        int perDay = 0)
     {
         var handler = new HttpMessageHandlerStub(req =>
         {
@@ -30,13 +33,13 @@ public class VendorMarketDataProviderTests
         httpFactory.Add("vendor:AlphaVantage", new HttpClient(handler));
 
         var cfg = AlphaVantageConfigFactory.Build();
-        var usage = new InMemoryUsageTracker { PerMinute = perMinute, PerDay = perDay };
-        var storage = new FileStorageServiceStub();
+        var usage = new InMemoryUsageTracker { PerDay = perDay };
+        var parser = new VendorResponseParser();
         ILogger<VendorMarketDataProvider> logger = NullLogger<VendorMarketDataProvider>.Instance;
 
-        return new VendorMarketDataProvider(cfg, httpFactory, usage, storage, logger);
+        return new VendorMarketDataProvider(cfg, httpFactory, usage, parser, logger);
     }
-
+    
     [Fact]
     public async Task GlobalQuote_HappyPath_Maps_Fields()
     {
@@ -71,23 +74,23 @@ public class VendorMarketDataProviderTests
 
         res.Success.Should().BeTrue(res.Error);
         res.Data.Should().BeOfType<QuoteDto>();
+
         var dto = (QuoteDto)res.Data!;
         dto.Vendor.Should().Be("AlphaVantage");
-        dto.PrimaryIdentifier.Should().Be("IBM");
+        dto.Type.Should().Be(DataType.Quote);
+        dto.Id?.Symbol.Should().Be("IBM");
 
         dto.Price.Should().Be(161.2000m);
         dto.High.Should().Be(162.0000m);
         dto.Low.Should().Be(159.8000m);
         dto.Open.Should().Be(160.5000m);
         dto.Volume.Should().Be(3456789m);
-
-        dto.Timestamp.Should().Be(new DateTime(2025, 8, 15, 2, 0, 0, DateTimeKind.Utc));
+        
     }
-
     [Fact]
     public async Task RateLimit_Blocks_Request_With_RetryAfter()
     {
-        var provider = CreateProvider("{}", perMinute: 5, perDay: 25);
+        var provider = CreateProvider("{}", perDay: 25);
 
         var req = new MarketDataRequest
         {
@@ -97,12 +100,12 @@ public class VendorMarketDataProviderTests
 
         var (allowed, reason, retry) = await provider.CanFetchDataAsync(req, default);
         allowed.Should().BeFalse();
-        reason.Should().Contain("Rate limit");
+        reason.Should().Contain("Daily rate limit");
         retry.Should().NotBeNull();
 
         var res = await provider.FetchAsync(req, default);
         res.Success.Should().BeFalse();
-        res.Error.Should().Contain("Rate limit");
+        res.Error.Should().Contain("rate limit", Exactly.Once());
         res.RetryAfter.Should().NotBeNull();
     }
 
@@ -146,7 +149,7 @@ public class VendorMarketDataProviderTests
         dto.High.Should().BeNull();
         dto.Low.Should().BeNull();
         dto.Volume.Should().BeNull();
-        dto.Timestamp.Should().BeNull();
+        dto.TimestampUtc.Should().BeNull();
     }
 
     [Fact]

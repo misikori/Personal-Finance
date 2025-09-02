@@ -2,7 +2,7 @@ namespace MarketGateway.Shared.DTOs;
 
 public sealed class OhlcvBarDto
 {
-    public DateTimeOffset Ts { get; set; }
+    public DateTimeOffset TsUtc { get; set; }     
     public decimal Open { get; set; }
     public decimal High { get; set; }
     public decimal Low { get; set; }
@@ -16,5 +16,7 @@ public sealed record OhlcvSeriesDto : MarketDataResultBase
     public BarGranularity Granularity { get; set; }
     public PriceAdjustment Adjustment { get; set; }
     public bool Partial { get; set; }
+
+    /// <summary>Chronologically sorted bars (UTC).</summary>
     public List<OhlcvBarDto> Bars { get; set; } = new();
 }

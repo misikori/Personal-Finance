@@ -1,13 +1,13 @@
+using MarketGateway.Providers.Interfaces;
+using MarketGateway.Shared.DTOs;
+
 namespace MarketGateway.Interfaces;
 
 public interface IMarketDataProviderResolver
 {
-    IMarketDataProvider Get(string vendor);
-}
+    bool TryGet(string vendor, out IMarketDataProvider provider);
+    IReadOnlyDictionary<string, IMarketDataProvider> GetAll();
 
-public sealed class MarketDataProviderResolver : IMarketDataProviderResolver
-{
-    private readonly IReadOnlyDictionary<string, IMarketDataProvider> _map;
-    public MarketDataProviderResolver(IReadOnlyDictionary<string, IMarketDataProvider> map) => _map = map;
-    public IMarketDataProvider Get(string vendor) => _map[vendor];
+    /// <summary>Find providers that can handle this request (type, params).</summary>
+    IEnumerable<IMarketDataProvider> FindByRequest(MarketDataRequest request);
 }

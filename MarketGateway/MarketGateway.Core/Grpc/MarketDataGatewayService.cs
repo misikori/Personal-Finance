@@ -4,10 +4,12 @@ using Grpc.Core;
 using MarketGateway.Contracts;
 using MarketGateway.Interfaces;
 using MarketGateway.Shared.DTOs;
+
+
 using static MarketGateway.Shared.ProtoJson;
 using DataType = MarketGateway.Shared.DTOs.DataType;
 
-namespace MarketGateway.Services;
+namespace MarketGateway.Grpc;
 
 public class MarketDataGatewayService : MarketDataGateway.MarketDataGatewayBase
 {
@@ -27,7 +29,11 @@ public class MarketDataGatewayService : MarketDataGateway.MarketDataGatewayBase
     public override async Task<FetchReply> Fetch(FetchRequest req, ServerCallContext ctx)
     {
         var requestId = Guid.NewGuid().ToString("N");
-
+        using var scope = _log.BeginScope(new Dictionary<string, object?>
+        {
+            ["requestId"] = requestId
+        });
+        
         var ids = req.Ids.Select(i =>
                 new IdentifierDto(i.Symbol?.Trim() ?? string.Empty,
                     string.IsNullOrWhiteSpace(i.Exchange) ? null : i.Exchange,
@@ -38,9 +44,28 @@ public class MarketDataGatewayService : MarketDataGateway.MarketDataGatewayBase
             req.Range?.Start?.ToDateTime().ToUniversalTime(),
             req.Range?.End?.ToDateTime().ToUniversalTime());
         
+        var mappedType = MapDataType(req.DataType);
+        _log.LogInformation("Fetch received: protoType={ProtoType} mappedType={MappedType} ids={Ids} " +
+                            "range=({Start}..{End}) preferredVendors={PreferredVendors} hasParams={HasParams}",
+            req.DataType, mappedType, string.Join(",", ids.Select(x => x.Symbol)),
+            range.Start, range.End,
+            req.Options?.PreferredVendors?.Count ?? 0,
+            req.Parameters?.Fields?.Count > 0);
+        
+        if (mappedType == 0)
+        {
+            _log.LogWarning("Rejecting request: data_type unspecified.");
+            return new FetchReply
+            {
+                Ok = false,
+                Error = "data_type must be set (e.g., QUOTE or STOCK_PRICE)",
+                RequestId = requestId
+            };
+        }
+        
         var dto = new MarketDataRequest
         {
-            Type = (DataType)req.DataType,
+            Type = mappedType,
             Ids  = ids,
             Range = range,
             Parameters = ToDictionary(req.Parameters),
@@ -69,6 +94,14 @@ public class MarketDataGatewayService : MarketDataGateway.MarketDataGatewayBase
         }
         return reply;
     }
+    
+    private static DataType MapDataType(MarketGateway.Contracts.DataType t)
+        => t switch
+        {
+            MarketGateway.Contracts.DataType.Quote       => MarketGateway.Shared.DTOs.DataType.Quote,
+            MarketGateway.Contracts.DataType.StockPrice => MarketGateway.Shared.DTOs.DataType.StockPrice,
+            _ => 0
+        };
 
 
 }

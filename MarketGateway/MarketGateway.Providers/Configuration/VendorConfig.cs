@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using DataType = MarketGateway.Shared.DTOs.DataType;
 
-namespace MarketGateway.Shared.Configuration;
+namespace MarketGateway.Providers.Configuration;
 
 public class VendorConfig
 {

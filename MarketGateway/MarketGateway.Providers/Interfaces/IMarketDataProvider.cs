@@ -1,8 +1,8 @@
+using MarketGateway.Providers.Configuration;
 using MarketGateway.Shared.API;
-    using MarketGateway.Shared.Configuration;
-    using MarketGateway.Shared.DTOs;
+using MarketGateway.Shared.DTOs;
 
-    namespace MarketGateway.Interfaces;
+namespace MarketGateway.Providers.Interfaces;
 
     
     /// <summary>
@@ -17,5 +17,5 @@ using MarketGateway.Shared.API;
         Task<FetchGate> CanFetchDataAsync(MarketDataRequest request, CancellationToken cancellationToken = default);
 
         /// <summary>Perform a live fetch. Caller should honor the gate first.</summary>
-        Task<APIResult<MarketDataResultBase>> FetchAsync(MarketDataRequest request, CancellationToken cancellationToken = default);
+        Task<ApiResult<MarketDataResultBase>> FetchAsync(MarketDataRequest request, CancellationToken cancellationToken = default);
     }

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
+#
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketGateway.Core", "MarketGateway.Core\MarketGateway.Core.csproj", "{AB3A34BF-138B-47C2-93ED-6631C4FD617B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketGateway.Shared", "MarketGateway.Shared\MarketGateway.Shared.csproj", "{91CDD532-D3DA-4FF5-A688-66059BC48A81}"
@@ -8,6 +8,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketGateway.Data", "MarketGateway.Data\MarketGateway.Data.csproj", "{F302CC9F-0E22-4982-8B33-2737C8B92712}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketGateway.Tests", "MarketGateway.Tests\MarketGateway.Tests.csproj", "{92FE446D-02A9-4420-B2B4-5603C0B5E1B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketGateway.Providers", "MarketGateway.Providers\MarketGateway.Providers.csproj", "{AA7F119A-3E11-4416-BE4A-E0FED9335A4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketGateway.Contracts", "MarketGateway.Contracts\MarketGateway.Contracts.csproj", "{3706C1E6-C301-4876-A1F6-0205966891A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,5 +35,13 @@ Global
 		{92FE446D-02A9-4420-B2B4-5603C0B5E1B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92FE446D-02A9-4420-B2B4-5603C0B5E1B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92FE446D-02A9-4420-B2B4-5603C0B5E1B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA7F119A-3E11-4416-BE4A-E0FED9335A4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA7F119A-3E11-4416-BE4A-E0FED9335A4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA7F119A-3E11-4416-BE4A-E0FED9335A4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA7F119A-3E11-4416-BE4A-E0FED9335A4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3706C1E6-C301-4876-A1F6-0205966891A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3706C1E6-C301-4876-A1F6-0205966891A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3706C1E6-C301-4876-A1F6-0205966891A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3706C1E6-C301-4876-A1F6-0205966891A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

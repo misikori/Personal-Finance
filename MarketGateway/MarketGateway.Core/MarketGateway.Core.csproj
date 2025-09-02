@@ -9,12 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Google.Protobuf" Version="3.32.0" />
-        <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
-        <PackageReference Include="Grpc.Tools" Version="2.72.0">
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-          <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
+        <PackageReference Include="AutoMapper" Version="12.0.1" />
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.*" />
+        <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.*" />
+
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
@@ -27,24 +26,9 @@
 
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\MarketGateway.Contracts\MarketGateway.Contracts.csproj" />
       <ProjectReference Include="..\MarketGateway.Data\MarketGateway.Data.csproj" />
+      <ProjectReference Include="..\MarketGateway.Providers\MarketGateway.Providers.csproj" />
       <ProjectReference Include="..\MarketGateway.Shared\MarketGateway.Shared.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-        <Protobuf Include="protos\common.proto" GrpcServices="None" ProtoRoot="protos" />
-        <Protobuf Include="protos\quote.proto"  GrpcServices="None" ProtoRoot="protos" />
-        <Protobuf Include="protos\ohlcv.proto"  GrpcServices="None" ProtoRoot="protos" />
-        <Protobuf Include="protos\fetch.proto"  GrpcServices="None" ProtoRoot="protos" />
-        <Protobuf Include="protos\gateway.proto" GrpcServices="Server" ProtoRoot="protos" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\IBM_142151.json" />
-      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\IBM_142624.json" />
-      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\IBM_143311.json" />
-      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\IBM_143618.json" />
-      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\IBM_143727.json" />
-      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\IBM_143940.json" />
-      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-07-26\_metadata.json" />
     </ItemGroup>
 </Project>

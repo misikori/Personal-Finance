@@ -1,6 +1,6 @@
 syntax = "proto3";
 package marketdata;
-option csharp_namespace = "Marketdata";
+option csharp_namespace = "MarketGateway.Contracts";
 import "fetch.proto";
 
 service MarketDataGateway {
