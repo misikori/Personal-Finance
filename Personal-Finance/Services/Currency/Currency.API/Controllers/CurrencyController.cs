@@ -22,7 +22,7 @@ namespace Currency.API.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(List<CurrencyRate>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<CurrencyRate>>> GetRates([FromQuery] string baseCurrencyCode = "RSD")
         {
             var rates = await _repository.GetRates();
