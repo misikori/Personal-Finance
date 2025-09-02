@@ -1,0 +1,18 @@
+syntax = "proto3";
+package marketdata;
+import "google/protobuf/timestamp.proto";
+option csharp_namespace = "Marketdata";
+
+enum BarGranularity { BAR_G_UNSPECIFIED = 0; M1 = 1; M5 = 2; H1 = 3; D1 = 4; W1 = 5; }
+enum PriceAdjustment { ADJ_UNSPECIFIED = 0; NONE = 1; SPLITS = 2; SPLITS_DIVS = 3; }
+
+message Identifier {
+  string symbol = 1;
+  string exchange = 2;
+  string asset_type = 3;
+}
+
+message TimeRange {
+  google.protobuf.Timestamp start = 1;
+  google.protobuf.Timestamp end   = 2;
+}

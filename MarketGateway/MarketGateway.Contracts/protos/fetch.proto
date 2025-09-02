@@ -1,0 +1,40 @@
+syntax = "proto3";
+package marketdata;
+option csharp_namespace = "Marketdata";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "common.proto";
+import "quote.proto";
+import "ohlcv.proto";
+
+enum DataType {
+  DATA_TYPE_UNSPECIFIED = 0;
+  QUOTE = 1;
+  STOCK_PRICE = 2;
+  // future: FX_QUOTE = 3; FUNDAMENTALS = 4; ...
+}
+
+message CommonQueryOptions {
+  repeated string preferred_vendors = 1;
+  google.protobuf.Struct vendor_hints = 2;
+}
+
+
+message FetchRequest {
+  DataType data_type = 1;
+  repeated Identifier ids = 2;
+  TimeRange range = 3;
+  google.protobuf.Struct parameters = 4; 
+  CommonQueryOptions options = 9;
+}
+message FetchReply {
+  bool ok = 1;
+  string error = 2;
+  google.protobuf.Timestamp retry_after = 3;
+  string request_id = 4;
+
+  oneof payload {
+    Quote quote = 10;
+    OhlcvSeries stock_price = 11;
+  }
+}

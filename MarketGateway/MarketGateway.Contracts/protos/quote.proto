@@ -1,0 +1,18 @@
+syntax = "proto3";
+package marketdata;
+option csharp_namespace = "Marketdata";
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+
+message Quote {
+  Identifier id = 1;
+  double price = 2;
+  double open  = 3;
+  double high  = 4;
+  double low   = 5;
+  double prev_close = 6;
+  double volume = 7;
+  string currency = 8;
+  google.protobuf.Timestamp asof = 9;
+  string vendor = 10;
+}
