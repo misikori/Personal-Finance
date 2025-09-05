@@ -15,6 +15,10 @@ public static class KestrelExtensions
                 o.Protocols = HttpProtocols.Http2;
             });
             
+            options.ListenAnyIP(8080, listen =>
+            {
+                listen.Protocols = HttpProtocols.Http1;
+            });
         });
     }
 }

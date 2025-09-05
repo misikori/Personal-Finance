@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
-using MarketGateway.Data;
+using MarketGateway.Data.Entities;
 using MarketGateway.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace MarketGateway.Services;
+namespace MarketGateway.Data;
 
 
 /// <summary>
@@ -51,7 +51,7 @@ public class ApiUsageTracker : IApiUsageTracker
     {
         var dateKey = timestampUtc.Date;
         var cacheKey = $"{vendor}:{dateKey:yyyy-MM-dd}";
-        
+
         var affected = await _dbContext.ApiUsages
             .Where(u => u.Vendor == vendor && u.Date == dateKey)
             .ExecuteUpdateAsync(setters => setters.SetProperty(u => u.CallsMade, u => u.CallsMade + 1), ct)
@@ -59,27 +59,22 @@ public class ApiUsageTracker : IApiUsageTracker
 
         if (affected == 0)
         {
-            _dbContext.ApiUsages.Add(new ApiUsage
-            {
-                Vendor = vendor,
-                Date = dateKey,
-                CallsMade = 1
-            });
+            _dbContext.ApiUsages.Add(new ApiUsage { Vendor = vendor, Date = dateKey, CallsMade = 1 });
             await _dbContext.SaveChangesAsync(ct).ConfigureAwait(false);
         }
-        
-        var current = await _dbContext.ApiUsages
-            .AsNoTracking()
+
+        var current = await _dbContext.ApiUsages.AsNoTracking()
             .Where(u => u.Vendor == vendor && u.Date == dateKey)
             .Select(u => u.CallsMade)
             .FirstAsync(ct)
             .ConfigureAwait(false);
 
         _dailyCache[cacheKey] = (dateKey, current);
-
-        await GetCallsLastMinuteAsync(vendor);
+        
+        var queue = _minuteWindows.GetOrAdd(vendor, _ => new ConcurrentQueue<DateTime>());
+        queue.Enqueue(timestampUtc);
+        CleanupOldEntries(queue, TimeSpan.FromMinutes(1));
     }
-
     private Task<int> GetCallsLastMinuteAsync(string vendor)
     {
         var queue = _minuteWindows.GetOrAdd(vendor, _ => new ConcurrentQueue<DateTime>());

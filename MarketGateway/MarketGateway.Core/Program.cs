@@ -6,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSerilogLogging();
 builder.Services.AddMarketGateway(builder.Configuration);
+builder.Services.AddStorage(builder.Configuration);
+
 builder.Services.AddGrpc();
 
 #if DEBUG
@@ -16,6 +18,7 @@ builder.ConfigureKestrelForGrpc();
 
 var app = builder.Build();
 app.MapMarketGatewayEndpoints();
+
 #if DEBUG
 app.MapGrpcReflectionService();
 #endif
