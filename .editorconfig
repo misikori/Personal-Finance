@@ -1,0 +1,64 @@
+# top-most EditorConfig file
+root = true
+
+# Global settings
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Indentation
+indent_style = space
+indent_size = 4
+
+# Max line length
+max_line_length = 120
+
+# -------------------------------------------------------
+# C# files
+[*.cs]
+
+# Use expression-bodied members where appropriate
+csharp_style_expression_bodied_methods = true:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+
+# Require 'this.' qualification for members
+dotnet_style_qualification_for_field = true:suggestion
+dotnet_style_qualification_for_property = true:suggestion
+dotnet_style_qualification_for_method = true:suggestion
+dotnet_style_qualification_for_event = true:suggestion
+
+# Naming conventions
+dotnet_naming_rule.interface_should_start_with_i.symbols  = all_interfaces
+dotnet_naming_rule.interface_should_start_with_i.style    = prefix_i
+dotnet_naming_rule.interface_should_start_with_i.severity = suggestion
+
+dotnet_naming_symbols.all_interfaces.applicable_kinds = interface
+dotnet_naming_style.prefix_i.capitalization = pascal_case
+dotnet_naming_style.prefix_i.required_prefix = I
+
+# Newlines & braces
+csharp_new_line_before_open_brace = all
+csharp_new_line_between_query_expression_clauses = true
+csharp_new_line_between_members_in_type = true
+
+# Spacing
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_after_cast = true
+csharp_space_around_binary_operators = before_and_after
+csharp_space_after_comma = true
+csharp_space_after_dot = false
+
+# Using directives
+dotnet_sort_system_directives_first = true
+file_header_template = unset
+
+# Analyzer severity
+dotnet_analyzer_diagnostic.category-Style.severity = warning
+dotnet_analyzer_diagnostic.category-Naming.severity = warning
+dotnet_analyzer_diagnostic.category-Maintainability.severity = warning
+dotnet_analyzer_diagnostic.category-Reliability.severity = warning
+dotnet_analyzer_diagnostic.category-Performance.severity = warning
+dotnet_analyzer_diagnostic.category-Security.severity = warning
+
