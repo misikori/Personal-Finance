@@ -1,3 +1,4 @@
+using MarketGateway.Data.Interfaces;
 using MarketGateway.Interfaces;
 
 namespace MarketGateway.Tests.TestHelpers;

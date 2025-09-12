@@ -25,4 +25,10 @@
     <ItemGroup>
       <ProjectReference Include="..\MarketGateway.Shared\MarketGateway.Shared.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Migrations\20250726134045_AddApiUsageTable.cs">
+        <DependentUpon>20250726134508_InitMarketDb.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
 </Project>

@@ -2,7 +2,6 @@ using AutoMapper;
 using FluentAssertions;
 using MarketGateway.Contracts;
 using MarketGateway.Mapping;
-using Microsoft.Extensions.Logging;
 
 namespace MarketGateway.Tests.Mapping;
 using MarketGateway.Shared.DTOs;
@@ -10,7 +9,7 @@ using MarketGateway.Shared.DTOs;
 public class ProtoMappingProfileTests
 {
     private readonly IMapper _mapper;
-    private readonly ILoggerFactory _logger;
+
     public ProtoMappingProfileTests()
     {
         var cfg = new MapperConfiguration(c => c.AddProfile<ProtoMappingProfile>());

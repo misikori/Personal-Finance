@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using MarketGateway.Data.Entities;
-using MarketGateway.Interfaces;
+using MarketGateway.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace MarketGateway.Data;
+namespace MarketGateway.Data.Services;
 
 
 /// <summary>

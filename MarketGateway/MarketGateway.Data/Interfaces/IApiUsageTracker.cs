@@ -1,4 +1,4 @@
-namespace MarketGateway.Interfaces;
+namespace MarketGateway.Data.Interfaces;
 
 /// <summary>
 /// Tracks vendor API usage for rate-limit enforcement and reporting.

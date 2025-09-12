@@ -4,9 +4,14 @@ namespace MarketGateway.Data.Interfaces;
 
 public interface IStorageService
 {
-    Task SaveApiResponseAsync(string vendor, string identifier, string json, CancellationToken ct = default);
-    Task<string?> TryReadLatestAsync(string vendor, string identifier, DateTime? dateUtc = null, CancellationToken ct = default);
-    Task<IEnumerable<string>> GetSavedFilesAsync(string vendor, DateTime dateUtc, CancellationToken ct = default);
-    Task SaveParsedResultAsync(MarketDataResultBase result); 
+    /// <summary>Persist a successfully parsed DTO into its normalized table.</summary>
+    Task SaveParsedResultAsync(MarketDataResultBase result, CancellationToken ct = default);
 
+    /// <summary>Record that parsing/mapping failed (no raw JSON persisted).</summary>
+    Task RecordParseFailureAsync(string vendor, DataType type, string identifier, string error,
+        DateTime? occurredUtc = null, CancellationToken ct = default);
+    
+    Task<MarketDataResultBase?> TryReadAsync(MarketDataRequest request, CancellationToken ct = default);
+
+    
 }
