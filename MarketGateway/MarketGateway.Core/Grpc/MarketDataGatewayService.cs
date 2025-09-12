@@ -6,7 +6,7 @@ using MarketGateway.Interfaces;
 using MarketGateway.Shared.DTOs;
 
 
-using static MarketGateway.Shared.ProtoJson;
+using static MarketGateway.Contracts.Utils.ProtoJson;
 using DataType = MarketGateway.Shared.DTOs.DataType;
 
 namespace MarketGateway.Grpc;
@@ -98,8 +98,8 @@ public class MarketDataGatewayService : MarketDataGateway.MarketDataGatewayBase
     private static DataType MapDataType(MarketGateway.Contracts.DataType t)
         => t switch
         {
-            MarketGateway.Contracts.DataType.Quote       => MarketGateway.Shared.DTOs.DataType.Quote,
-            MarketGateway.Contracts.DataType.StockPrice => MarketGateway.Shared.DTOs.DataType.StockPrice,
+            MarketGateway.Contracts.DataType.Quote       => DataType.Quote,
+            MarketGateway.Contracts.DataType.StockPrice => DataType.StockPrice,
             _ => 0
         };
 

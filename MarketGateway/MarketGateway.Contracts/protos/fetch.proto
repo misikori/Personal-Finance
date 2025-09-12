@@ -14,18 +14,14 @@ enum DataType {
   // future: FX_QUOTE = 3; FUNDAMENTALS = 4; ...
 }
 
-message CommonQueryOptions {
-  repeated string preferred_vendors = 1;
-  google.protobuf.Struct vendor_hints = 2;
-}
-
 
 message FetchRequest {
-  DataType data_type = 1;
-  repeated Identifier ids = 2;
-  TimeRange range = 3;
-  google.protobuf.Struct parameters = 4; 
-  CommonQueryOptions options = 9;
+  RequestContext ctx = 1;
+  DataType data_type = 2;
+  repeated Identifier ids = 3;
+  TimeRange range = 4;
+  google.protobuf.Struct parameters = 5;
+  QueryOptions options = 6;
 }
 message FetchReply {
   bool ok = 1;

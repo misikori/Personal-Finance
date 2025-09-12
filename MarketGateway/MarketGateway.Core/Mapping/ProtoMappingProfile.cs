@@ -9,6 +9,11 @@ public sealed class ProtoMappingProfile : Profile
 {
     public ProtoMappingProfile()
     {
+        CreateMap<IdentifierDto, Identifier>()
+            .ForMember(d => d.Symbol,   o => o.MapFrom(s => s.Symbol))
+            .ForMember(d => d.Exchange, o => o.MapFrom(s => s.Exchange ?? string.Empty))
+            .ForMember(d => d.AssetType,o => o.MapFrom(s => s.AssetType ?? string.Empty));
+
         CreateMap<QuoteDto, Quote>()
             .ForMember(d => d.Id,
                 m => m.MapFrom(s => new Identifier { Symbol = s.Id.Symbol }))
@@ -23,13 +28,14 @@ public sealed class ProtoMappingProfile : Profile
             .ForMember(d => d.Volume,
                 m => m.MapFrom(s => (double?)s.Volume ?? 0d))
             .ForMember(d => d.Currency,
-                m => m.MapFrom(s => s.Currency ?? ""))         
+                m => m.MapFrom(s => s.Currency ?? ""))
             .ForMember(d => d.Vendor,
-                m => m.MapFrom(s => s.Vendor))         
+                m => m.MapFrom(s => s.Vendor))
             .ForMember(d => d.Asof,
                 m => m.MapFrom(s =>
                     s.TimestampUtc.HasValue
                         ? Timestamp.FromDateTime(DateTime.SpecifyKind(s.TimestampUtc.Value.DateTime, DateTimeKind.Utc))
-                        : new Timestamp()));        
+                        : new Timestamp()))
+            .ForMember(d => d.Meta, o => o.MapFrom(_ => new ResultMeta()));
     }
 }

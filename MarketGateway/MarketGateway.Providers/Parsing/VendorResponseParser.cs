@@ -19,7 +19,7 @@ public sealed class VendorResponseParser : IVendorResponseParser
         result.Vendor = config.Vendor;
         result.Type   = endpoint.DataType;
 
-        // Optional timestamp
+        
         if (!string.IsNullOrWhiteSpace(endpoint.Response.TimestampKey))
         {
             var tsProp  = result.GetType().GetProperty("Timestamp");

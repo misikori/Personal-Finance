@@ -15,4 +15,16 @@ message Quote {
   string currency = 8;
   google.protobuf.Timestamp asof = 9;
   string vendor = 10;
+
+  ResultMeta meta = 20;
+}
+
+message GetQuoteRequest {
+  RequestContext ctx = 1;
+  Identifier id = 2;
+  QueryOptions options = 3;
+}
+
+message GetQuoteReply {
+  Quote quote = 1;
 }

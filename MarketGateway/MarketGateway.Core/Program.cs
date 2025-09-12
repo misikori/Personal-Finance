@@ -7,7 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddSerilogLogging();
 builder.Services.AddMarketGateway(builder.Configuration);
 builder.Services.AddStorage(builder.Configuration);
-
 builder.Services.AddGrpc();
 
 #if DEBUG
@@ -22,5 +21,6 @@ app.MapMarketGatewayEndpoints();
 #if DEBUG
 app.MapGrpcReflectionService();
 #endif
-
+await app.InitDatabaseAsync();
 app.Run();
+

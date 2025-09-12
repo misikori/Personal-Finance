@@ -33,31 +33,16 @@ public sealed class MarketDataBroker : IMarketDataBroker
             return ApiResult<MarketDataResultBase>.Fail($"No providers support {request.Type}");
 
         var identifier = GetRequestIdentifier(request);
-
-        foreach (var p in candidates)
+        
+        var cached = await _storage.TryReadAsync(request, ct);
+        if (cached is not null)
         {
-            var raw = await _storage.TryReadLatestAsync(p.VendorName, identifier, null, ct);
-            if (string.IsNullOrWhiteSpace(raw)) continue;
-
-            try
-            {
-                var parsed = _parser.Parse(p.Config, request, raw);
-                if (IsFreshEnough(request, parsed))
-                {
-                    _log.LogDebug("Storage hit (fresh) for {Vendor}/{Type}/{Identifier}",
-                        p.VendorName, request.Type, identifier);
-
-                    return ApiResult<MarketDataResultBase>.Ok(parsed);
-                }
-
-                _log.LogDebug("Storage hit but stale for {Vendor}/{Type}/{Identifier}",
-                    p.VendorName, request.Type, identifier);
-            }
-            catch (Exception ex)
-            {
-                _log.LogInformation(ex, "Stored JSON parse failed for {Vendor}/{Identifier}", p.VendorName, identifier);
-            }
+            _log.LogDebug("DB cache hit (fresh) for {Type}/{Identifier}", request.Type, identifier);
+            return ApiResult<MarketDataResultBase>.Ok(cached);
         }
+        _log.LogDebug("DB cache miss for {Type}/{Identifier}", request.Type, identifier);
+
+        // 2) Otherwise, try pr
         
         DateTimeOffset? bestRetry = null;
         var errors = new List<string>(capacity: candidates.Count);
@@ -80,23 +65,13 @@ public sealed class MarketDataBroker : IMarketDataBroker
             {
                 try
                 {
-                  //  await _storage.SaveApiResponseAsync(p.VendorName, identifier, res.ToString(), ct);
-                    switch (res.Data)
-                    {
-                        case QuoteDto q:
-                            await _storage.SaveParsedResultAsync(q);
-                            return ApiResult<MarketDataResultBase>.Ok(q);
-                            break;
-                        // TODO: add other DTO types here as you support them
-                    }
-
-                    break; // I should hit only one vendor ?
+                    await _storage.SaveParsedResultAsync(res.Data, ct);
                 }
                 catch (Exception ex)
                 {
-                    _log.LogWarning(ex, "Failed to persist parsed result for {Vendor}/{Identifier}", p.VendorName,
-                        identifier);
+                    _log.LogWarning(ex, "Persist failed for {Vendor}/{Type}/{Identifier}", p.VendorName, request.Type, identifier);
                 }
+                
                 return res;
             }
 

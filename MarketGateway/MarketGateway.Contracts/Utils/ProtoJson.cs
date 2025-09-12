@@ -1,6 +1,6 @@
 using Google.Protobuf.WellKnownTypes;
 
-namespace MarketGateway.Shared;
+namespace MarketGateway.Contracts.Utils;
 
 
 public static class ProtoJson

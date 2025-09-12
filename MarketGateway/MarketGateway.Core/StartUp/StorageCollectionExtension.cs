@@ -12,7 +12,14 @@ public static class StorageCollectionExtension
     {
         var section = cfg.GetSection("Storage");
         services.Configure<StorageOptions>(section);
+
         var opts = section.Get<StorageOptions>() ?? new();
+        var loggerFactory = LoggerFactory.Create(b => b.AddConsole());
+        var log = loggerFactory.CreateLogger("Storage");
+
+        log.LogInformation("Storage mode: {Mode}", opts.Mode);
+        log.LogInformation("Storage DatabasePath: {DbPath}", opts.DatabasePath);
+        log.LogInformation("Storage RootDirectory: {Root}", opts.RootDirectory);
 
         if (string.Equals(opts.Mode, "File", StringComparison.OrdinalIgnoreCase))
         {
@@ -22,7 +29,7 @@ public static class StorageCollectionExtension
         {
             services.AddScoped<IStorageService, DatabaseStorageService>();
         }
-        
+
         return services;
     }
     

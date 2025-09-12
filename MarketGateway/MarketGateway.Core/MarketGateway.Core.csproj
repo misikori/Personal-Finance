@@ -31,4 +31,21 @@
       <ProjectReference Include="..\MarketGateway.Providers\MarketGateway.Providers.csproj" />
       <ProjectReference Include="..\MarketGateway.Shared\MarketGateway.Shared.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-09-02\IBM_195418319.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-09-02\IBM_200016074.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-09-02\_metadata.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_195418368.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_200016123.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_201026974.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_201254376.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_201640745.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_201851786.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_202354794.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_202427186.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_202734091.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_202807160.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_203105010.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\_parsed_metadata.json" />
+    </ItemGroup>
 </Project>

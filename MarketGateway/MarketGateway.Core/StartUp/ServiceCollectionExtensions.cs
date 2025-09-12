@@ -62,9 +62,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IApiUsageTracker, ApiUsageTracker>();
         services.AddDbContextPool<MarketDbContext>(options =>
         {
-            options.UseSqlite(
-                config.GetConnectionString("MarketDb"),
-                sqlite => sqlite.MigrationsAssembly("MarketGateway.Data"));
+            var cs = config.GetConnectionString("MarketDb");
+            if (string.IsNullOrWhiteSpace(cs))
+                throw new InvalidOperationException("ConnectionStrings:MarketDb is missing/empty.");
+
+            options.UseSqlite(cs, sqlite => sqlite.MigrationsAssembly("MarketGateway.Data"));
+            #if DEBUG
+            options.EnableDetailedErrors();
+            options.EnableSensitiveDataLogging();
+            #endif
         });
         
         return services;

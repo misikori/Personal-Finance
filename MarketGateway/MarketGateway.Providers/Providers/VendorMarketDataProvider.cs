@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using MarketGateway.Interfaces;
+using MarketGateway.Data.Interfaces;
 using MarketGateway.Providers.Configuration;
 using MarketGateway.Providers.Interfaces;
 using MarketGateway.Shared.API;
