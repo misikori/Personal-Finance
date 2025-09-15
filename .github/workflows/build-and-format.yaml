@@ -25,5 +25,5 @@ jobs:
         run: pre-commit install --install-hooks
 
       - name: Run pre-commit hooks
-        run: pre-commit run --all-files --show-diff-on-failure
+        run: pre-commit run --files $(git diff --name-only ${{ github.sha }} ${{ github.event.before }})
 
