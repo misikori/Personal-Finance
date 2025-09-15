@@ -1,0 +1,32 @@
+services:
+
+  currency-db:
+    container_name: currency-db
+    restart: always
+    ports:
+      - "6379:6379"
+    
+  currency.api:
+    container_name: currency.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "CacheSettings:ConnectionString=currency-db:6379"
+      - "CurrencyApi:RatesUrl=https://kurs.resenje.org/api/v1/rates/today"
+
+    depends_on:
+      - currency-db
+
+    ports:
+      - "8001:8080"
+
+  currency.grpc:
+    container_name: currency.grpc
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "CacheSettings:ConnectionString=currency-db:6379"
+
+    depends_on:
+      - currency-db
+
+    ports:
+      - "8002:8080"
