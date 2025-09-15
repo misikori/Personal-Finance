@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/jorisroovers/gitlint
-    rev: v0.19.1  # check for latest version
+    rev: v0.19.1
     hooks:
       - id: gitlint
         stages: [commit-msg]
@@ -9,7 +9,8 @@ repos:
     hooks:
       - id: dotnet-format
         name: dotnet-format
-        entry: dotnet format
+        entry: dotnet format Personal-Finance/Personal-Finance.sln --verify-no-changes
         language: system
-        types_or: [c#, vb]
+        pass_filenames: false
+        types_or: [c#]
         stages: [pre-commit]
