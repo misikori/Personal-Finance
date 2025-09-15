@@ -34,6 +34,13 @@ Unified, config-driven **market data gateway** that exposes a normalized **gRPC 
 ```bash
     dotnet run --project MarketGateway.Core
 ```
+## Add Migration
+```bash
+  dotnet ef migrations add AddOhlcvDaily \   
+  -p MarketGateway.Data \
+  -s MarketGateway.Core \
+  -o Migrations
+```
 
 ## Add a New Data Type
 

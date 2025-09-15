@@ -7,6 +7,7 @@ public class MarketDataResultFactory
     static MarketDataResultFactory()
     {
         Register(DataType.Quote, () => new QuoteDto());
+        Register(DataType.OHLCV, ()=> new OhlcvSeriesDto());
     }
 
     private static void Register(DataType dataType, Func<MarketDataResultBase> creator) => _creators[dataType] = creator;

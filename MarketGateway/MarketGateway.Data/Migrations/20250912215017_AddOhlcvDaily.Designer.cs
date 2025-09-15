@@ -3,6 +3,7 @@ using System;
 using MarketGateway.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarketGateway.Data.Migrations
 {
     [DbContext(typeof(MarketDbContext))]
-    partial class MarketDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250912215017_AddOhlcvDaily")]
+    partial class AddOhlcvDaily
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.7");
@@ -97,25 +100,27 @@ namespace MarketGateway.Data.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Close")
-                        .HasPrecision(18, 6)
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("High")
-                        .HasPrecision(18, 6)
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Low")
-                        .HasPrecision(18, 6)
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Open")
-                        .HasPrecision(18, 6)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("SeriesId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Ticker")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("TimestampUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Vendor")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<long?>("Volume")
@@ -123,54 +128,10 @@ namespace MarketGateway.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SeriesId", "TimestampUtc")
+                    b.HasIndex("Ticker", "TimestampUtc")
                         .IsUnique();
 
                     b.ToTable("OhlcvDaily", (string)null);
-                });
-
-            modelBuilder.Entity("MarketGateway.Data.Entities.OhlcvSeriesEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Adjustment")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Currency")
-                        .HasMaxLength(16)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Exchange")
-                        .HasMaxLength(32)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Granularity")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("Partial")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Symbol")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Vendor")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Vendor", "Symbol", "Granularity", "Adjustment")
-                        .IsUnique();
-
-                    b.ToTable("OhlcvSeries", (string)null);
                 });
 
             modelBuilder.Entity("MarketGateway.Data.Entities.ParseFailure", b =>
@@ -286,17 +247,6 @@ namespace MarketGateway.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Vendors", (string)null);
-                });
-
-            modelBuilder.Entity("MarketGateway.Data.Entities.OhlcvDailyEntity", b =>
-                {
-                    b.HasOne("MarketGateway.Data.Entities.OhlcvSeriesEntity", "Series")
-                        .WithMany()
-                        .HasForeignKey("SeriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Series");
                 });
 #pragma warning restore 612, 618
         }

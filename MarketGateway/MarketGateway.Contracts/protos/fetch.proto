@@ -10,7 +10,7 @@ import "ohlcv.proto";
 enum DataType {
   DATA_TYPE_UNSPECIFIED = 0;
   QUOTE = 1;
-  STOCK_PRICE = 2;
+  OHLCV = 2;
   // future: FX_QUOTE = 3; FUNDAMENTALS = 4; ...
 }
 
@@ -31,6 +31,6 @@ message FetchReply {
 
   oneof payload {
     Quote quote = 10;
-    OhlcvSeries stock_price = 11;
+    OhlcvSeries ohlcvSeries = 11;
   }
 }

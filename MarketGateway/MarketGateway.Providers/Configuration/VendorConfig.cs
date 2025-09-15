@@ -119,11 +119,24 @@ public class ResponseConfig
     /// For date-only fields, parser should coerce to UTC midnight.
     /// </summary>
     public string? TimestampKey { get; set; }
+    public bool Collection { get; set; } = false;
+    
+    /// <summary>
+    /// If true, the JSON object's property name (map key) under RootPath is the timestamp.
+    /// AlphaVantage time series use this (e.g., "2024-12-31": { "1. open": ... }).
+    /// </summary>
+    public bool KeyIsTimestamp { get; set; } = false;
 
+    /// <summary>
+    /// Optional exact timestamp format for fast/strict parsing (e.g., "yyyy-MM-dd").
+    /// Falls back to DateTime.TryParse if not set or parsing fails.
+    /// </summary>
+    public string? TimestampFormat { get; set; }
     /// <summary>
     /// Map from DTO property names to JSON paths in the vendor payload.
     /// Example: "Price" -> "05. price"
     /// </summary>
     public Dictionary<string, string> FieldMappings { get; set; }
         = new(StringComparer.OrdinalIgnoreCase);
+    
 }

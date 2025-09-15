@@ -31,21 +31,14 @@ public static class DatabaseStartupExtensions
             await db.Database.MigrateAsync();
         }
     }
-    
-    
-    public static async Task DebugEfSqliteAsync(MarketDbContext db, ILogger logger)
+
+
+    private static async Task DebugEfSqliteAsync(MarketDbContext db, ILogger logger)
     {
-        // 1) Where are we connected?
         var conn = (SqliteConnection)db.Database.GetDbConnection();
         logger.LogInformation("SQLite connection string: {Conn}", conn.ConnectionString);
         logger.LogInformation("SQLite file exists: {Exists}", File.Exists(conn.DataSource));
-
-        // 2) What table name does EF think for QuoteEntity?
-        var et = db.Model.FindEntityType(typeof(QuoteEntity));
-        var efTable = et?.GetTableName();
-        logger.LogInformation("EF mapped table for QuoteEntity: {Table}", efTable);
-
-        // 3) What tables actually exist in the file?
+        
         await db.Database.OpenConnectionAsync();
         try
         {

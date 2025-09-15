@@ -28,6 +28,8 @@ public class MarketDataGatewayService : MarketDataGateway.MarketDataGatewayBase
 
     public override async Task<FetchReply> Fetch(FetchRequest req, ServerCallContext ctx)
     {
+        _log.LogInformation("Fetching market data");
+        _log.LogInformation($"Fetching market data for {req}");
         var requestId = Guid.NewGuid().ToString("N");
         using var scope = _log.BeginScope(new Dictionary<string, object?>
         {
@@ -89,6 +91,9 @@ public class MarketDataGatewayService : MarketDataGateway.MarketDataGatewayBase
             case QuoteDto q:
                 reply.Quote = _mapper.Map<Quote>(q);
                 break;
+            case OhlcvSeriesDto q:
+                reply.OhlcvSeries = _mapper.Map<OhlcvSeries>(q);
+                break;
             default:
                 return new FetchReply { Ok = false, Error = "Unsupported result type", RequestId = requestId };
         }
@@ -99,7 +104,7 @@ public class MarketDataGatewayService : MarketDataGateway.MarketDataGatewayBase
         => t switch
         {
             MarketGateway.Contracts.DataType.Quote       => DataType.Quote,
-            MarketGateway.Contracts.DataType.StockPrice => DataType.StockPrice,
+            MarketGateway.Contracts.DataType.Ohlcv => DataType.OHLCV,
             _ => 0
         };
 

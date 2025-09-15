@@ -37,5 +37,25 @@ public sealed class ProtoMappingProfile : Profile
                         ? Timestamp.FromDateTime(DateTime.SpecifyKind(s.TimestampUtc.Value.DateTime, DateTimeKind.Utc))
                         : new Timestamp()))
             .ForMember(d => d.Meta, o => o.MapFrom(_ => new ResultMeta()));
+        
+        CreateMap<OhlcvBarDto, OhlcvBar>()
+            .ForMember(d => d.Ts, m => m.MapFrom(s => Timestamp.FromDateTimeOffset(s.TsUtc)))
+            .ForMember(d => d.Volume, m => m.MapFrom(s => s.Volume ?? 0));
+
+        CreateMap<OhlcvSeriesDto, OhlcvSeries>()
+            .ForMember(d => d.Id,
+                m => m.MapFrom(s => new Identifier
+                {
+                    Symbol   = s.Id.Symbol ?? string.Empty,
+                    Exchange = s.Id.Exchange ?? string.Empty,
+                    AssetType= s.Id.AssetType ?? string.Empty
+                }))
+            .ForMember(d => d.Vendor,      m => m.MapFrom(s => s.Vendor))
+            .ForMember(d => d.Granularity, m => m.MapFrom(s => s.Granularity))
+            .ForMember(d => d.Adjustment,  m => m.MapFrom(s => s.Adjustment))
+            .ForMember(d => d.Currency,    m => m.MapFrom(s => s.Currency ?? ""))
+            .ForMember(d => d.Bars,        m => m.MapFrom(s => s.Bars))
+            .ForMember(d => d.Partial,     m => m.MapFrom(s => s.Partial));
+        
     }
 }

@@ -13,6 +13,8 @@ namespace MarketGateway.Data
         public DbSet<ApiCall> ApiCalls => Set<ApiCall>();
 
         public DbSet<QuoteEntity> Quotes => Set<QuoteEntity>();
+        public DbSet<OhlcvSeriesEntity> OhlcvSeries => Set<OhlcvSeriesEntity>();
+        public DbSet<OhlcvDailyEntity>  OhlcvDaily  => Set<OhlcvDailyEntity>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

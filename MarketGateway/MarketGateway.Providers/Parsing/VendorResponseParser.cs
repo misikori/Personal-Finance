@@ -15,23 +15,28 @@ public sealed class VendorResponseParser : IVendorResponseParser
         using var doc = JsonDocument.Parse(json);
         var root = ResolveRoot(doc.RootElement, endpoint.Response.RootPath!);
 
+        if (endpoint.Response.Collection)
+        {
+            return ParseCollection(config, endpoint, root);
+        }
+
         var result = MarketDataResultFactory.Create(endpoint.DataType);
         result.Vendor = config.Vendor;
-        result.Type   = endpoint.DataType;
+        result.Type = endpoint.DataType;
 
-        
+
         if (!string.IsNullOrWhiteSpace(endpoint.Response.TimestampKey))
         {
-            var tsProp  = result.GetType().GetProperty("Timestamp");
+            var tsProp = result.GetType().GetProperty("Timestamp");
             var tsValue = ReadByPath(root, endpoint.Response.TimestampKey);
             if (tsProp != null && !string.IsNullOrWhiteSpace(tsValue)
-                && DateTime.TryParse(tsValue, System.Globalization.CultureInfo.InvariantCulture,
-                                     System.Globalization.DateTimeStyles.AssumeUniversal, out var dt))
+                               && DateTime.TryParse(tsValue, System.Globalization.CultureInfo.InvariantCulture,
+                                   System.Globalization.DateTimeStyles.AssumeUniversal, out var dt))
             {
                 tsProp.SetValue(result, DateTime.SpecifyKind(dt, DateTimeKind.Utc));
             }
         }
-        
+
         foreach (var kv in endpoint.Response.FieldMappings)
         {
             var targetProp = result.GetType().GetProperty(kv.Key);
@@ -54,6 +59,7 @@ public sealed class VendorResponseParser : IVendorResponseParser
             }
         }
 
+
         return result;
     }
 
@@ -63,12 +69,19 @@ public sealed class VendorResponseParser : IVendorResponseParser
         var cur = root;
         foreach (var seg in rootPath.Split('.', StringSplitOptions.RemoveEmptyEntries))
         {
-            if (cur.ValueKind == JsonValueKind.Object && cur.TryGetProperty(seg, out var next)) { cur = next; continue; }
+            if (cur.ValueKind == JsonValueKind.Object && cur.TryGetProperty(seg, out var next))
+            {
+                cur = next;
+                continue;
+            }
+
             var match = cur.ValueKind == JsonValueKind.Object
                 ? cur.EnumerateObject().FirstOrDefault(p => p.Name.Equals(seg, StringComparison.OrdinalIgnoreCase))
                 : default;
-            if (!match.Equals(default(JsonProperty))) cur = match.Value; else return root;
+            if (!match.Equals(default(JsonProperty))) cur = match.Value;
+            else return root;
         }
+
         return cur;
     }
 
@@ -87,16 +100,25 @@ public sealed class VendorResponseParser : IVendorResponseParser
         foreach (var seg in path.Split('.', StringSplitOptions.RemoveEmptyEntries))
         {
             if (cur.ValueKind == JsonValueKind.Array && int.TryParse(seg, out var idx))
-            { if (idx < 0 || idx >= cur.GetArrayLength()) return null; cur = cur[idx]; continue; }
+            {
+                if (idx < 0 || idx >= cur.GetArrayLength()) return null;
+                cur = cur[idx];
+                continue;
+            }
 
             if (cur.ValueKind == JsonValueKind.Object && cur.TryGetProperty(seg, out var next))
-            { cur = next; continue; }
+            {
+                cur = next;
+                continue;
+            }
 
             var match = cur.ValueKind == JsonValueKind.Object
                 ? cur.EnumerateObject().FirstOrDefault(p => p.Name.Equals(seg, StringComparison.OrdinalIgnoreCase))
                 : default;
-            if (!match.Equals(default(JsonProperty))) cur = match.Value; else return null;
+            if (!match.Equals(default(JsonProperty))) cur = match.Value;
+            else return null;
         }
+
         return Stringify(cur);
 
         static string? Stringify(JsonElement el) => el.ValueKind switch
@@ -108,7 +130,7 @@ public sealed class VendorResponseParser : IVendorResponseParser
             _ => el.ToString()
         };
     }
-    
+
     private static bool IsNullable(Type t)
         => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
 
@@ -122,12 +144,21 @@ public sealed class VendorResponseParser : IVendorResponseParser
         var underlying = isNullable ? Nullable.GetUnderlyingType(targetType)! : targetType;
 
         // string
-        if (underlying == typeof(string)) { value = valueStr; return true; }
+        if (underlying == typeof(string))
+        {
+            value = valueStr;
+            return true;
+        }
 
         // bool
         if (underlying == typeof(bool))
         {
-            if (bool.TryParse(valueStr, out var b)) { value = b; return true; }
+            if (bool.TryParse(valueStr, out var b))
+            {
+                value = b;
+                return true;
+            }
+
             return false;
         }
 
@@ -135,13 +166,22 @@ public sealed class VendorResponseParser : IVendorResponseParser
         if (underlying == typeof(int))
         {
             if (int.TryParse(valueStr, System.Globalization.NumberStyles.Integer, culture, out var i))
-            { value = i; return true; }
+            {
+                value = i;
+                return true;
+            }
+
             return false;
         }
+
         if (underlying == typeof(long))
         {
             if (long.TryParse(valueStr, System.Globalization.NumberStyles.Integer, culture, out var l))
-            { value = l; return true; }
+            {
+                value = l;
+                return true;
+            }
+
             return false;
         }
 
@@ -149,20 +189,38 @@ public sealed class VendorResponseParser : IVendorResponseParser
         if (underlying == typeof(decimal))
         {
             if (decimal.TryParse(valueStr, System.Globalization.NumberStyles.Number, culture, out var m))
-            { value = m; return true; }
+            {
+                value = m;
+                return true;
+            }
+
             return false;
         }
+
         if (underlying == typeof(double))
         {
-            if (double.TryParse(valueStr, System.Globalization.NumberStyles.Float | System.Globalization.NumberStyles.AllowThousands, culture, out var d))
-            { value = d; return true; }
+            if (double.TryParse(valueStr,
+                    System.Globalization.NumberStyles.Float | System.Globalization.NumberStyles.AllowThousands, culture,
+                    out var d))
+            {
+                value = d;
+                return true;
+            }
+
             return false;
         }
+
         if (underlying == typeof(DateTime))
         {
-            if (TryParseTimestamp(valueStr, out var ts)) { value = ts; return true; }
+            if (TryParseTimestamp(valueStr, out var ts))
+            {
+                value = ts;
+                return true;
+            }
+
             return false;
         }
+
         try
         {
             value = Convert.ChangeType(valueStr, underlying, culture);
@@ -206,22 +264,102 @@ public sealed class VendorResponseParser : IVendorResponseParser
                 return null;
         }
     }
+
+    private MarketDataResultBase ParseCollection(
+        VendorConfig config,
+        EndpointConfig endpoint,
+        JsonElement collectionRoot)
+    {
+        if (endpoint.DataType != DataType.OHLCV)
+            throw new NotSupportedException($"Collection parsing not implemented for {endpoint.DataType}");
+
+        var series = (OhlcvSeriesDto)MarketDataResultFactory.Create(endpoint.DataType);
+        series.Vendor = config.Vendor;
+        series.Type = endpoint.DataType;
+
+        if (collectionRoot.ValueKind != JsonValueKind.Object)
+            throw new InvalidOperationException("Expected JSON object for collection root.");
+
+        var bars = new List<OhlcvBarDto>();
+
+        foreach (var prop in collectionRoot.EnumerateObject())
+        {
+            DateTime tsUtc;
+
+            if (endpoint.Response.KeyIsTimestamp)
+            {
+                if (!TryParseTimestamp(prop.Name, endpoint.Response.TimestampFormat, out tsUtc))
+                    continue;
+            }
+            else
+            {
+                var tsStr = endpoint.Response.TimestampKey != null
+                    ? ReadByPath(prop.Value, endpoint.Response.TimestampKey)
+                    : null;
+
+                if (!TryParseTimestamp(tsStr, endpoint.Response.TimestampFormat, out tsUtc))
+                    continue;
+            }
+            //TODO: Should this be tsUtc or basic Timestamp and then just save it in db as TsUtc?
+            var bar = new OhlcvBarDto { TsUtc = tsUtc };
+
+            foreach (var kv in endpoint.Response.FieldMappings)
+            {
+                var targetName = kv.Key;
+                var sourcePath = kv.Value;
+
+                var valueStr = ExtractMappedValue(prop.Value, sourcePath);
+                if (valueStr is null) continue;
+
+                switch (targetName.ToLowerInvariant())
+                {
+                    case "open":
+                        if (TryConvert(valueStr, typeof(decimal?), out var o)) bar.Open = (decimal?)o;
+                        break;
+                    case "high":
+                        if (TryConvert(valueStr, typeof(decimal?), out var h)) bar.High = (decimal?)h;
+                        break;
+                    case "low":
+                        if (TryConvert(valueStr, typeof(decimal?), out var l)) bar.Low = (decimal?)l;
+                        break;
+                    case "close":
+                        if (TryConvert(valueStr, typeof(decimal?), out var c)) bar.Close = (decimal?)c;
+                        break;
+                    case "volume":
+                        if (TryConvert(valueStr, typeof(long?), out var v)) bar.Volume = (long?)v;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            bars.Add(bar);
+        }
+
+
+        series.Bars = bars.OrderBy(b => b.TsUtc).ToList();
+        return series;
+    }
+
     private static bool TryParseTimestamp(string? text, out DateTime tsUtc)
     {
         tsUtc = default;
         if (string.IsNullOrWhiteSpace(text)) return false;
-        
+
         if (DateTime.TryParseExact(text, "yyyy-MM-dd",
                 System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal,
+                System.Globalization.DateTimeStyles.AssumeUniversal |
+                System.Globalization.DateTimeStyles.AdjustToUniversal,
                 out var d))
         {
             tsUtc = DateTime.SpecifyKind(d.Date, DateTimeKind.Utc);
             return true;
         }
+
         if (DateTime.TryParse(text,
                 System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal,
+                System.Globalization.DateTimeStyles.AssumeUniversal |
+                System.Globalization.DateTimeStyles.AdjustToUniversal,
                 out var dt))
         {
             tsUtc = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
@@ -230,4 +368,26 @@ public sealed class VendorResponseParser : IVendorResponseParser
 
         return false;
     }
+
+    private static bool TryParseTimestamp(string? text, string? exactFormat, out DateTime tsUtc)
+    {
+        tsUtc = default;
+        if (string.IsNullOrWhiteSpace(text)) return false;
+
+        if (!string.IsNullOrWhiteSpace(exactFormat))
+        {
+            if (DateTime.TryParseExact(
+                    text, exactFormat,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.AssumeUniversal |
+                    System.Globalization.DateTimeStyles.AdjustToUniversal,
+                    out var ex))
+            {
+                tsUtc = DateTime.SpecifyKind(ex, DateTimeKind.Utc);
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
