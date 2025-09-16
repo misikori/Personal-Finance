@@ -37,7 +37,7 @@ export const USER_ROUTES: RouteMeta[] = [
   {
     path: ROUTES.PRIVATE.DASHBOARD,
     Component: lazy(() => import("../pages/Dashboard")),
-    guard: "guest",
+    guard: "auth",
     roles: ["Users", "Admins"], 
     label: "Dashboard",
   },

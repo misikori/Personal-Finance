@@ -1,4 +1,3 @@
-// routes/AppRoutes.tsx
 import {
   BrowserRouter as Router,
   Routes,
@@ -8,7 +7,7 @@ import { JSX, Suspense } from "react";
 import { PUBLIC_ROUTES, USER_ROUTES } from "./RoutesConfig";
 import { RouteMeta } from "./RouteMeta";
 import Loader from "../components/Loader";
-import { PrivateRoute, PublicRoute } from "./guards";
+import { PrivateRoute, PublicRoute } from "./Guards";
 import Forbidden from "../components/Forbidden";
 import NotFound from "../components/NotFound";
 import PrivateLayout from "../layouts/PrivateLayout";
