@@ -1,13 +1,15 @@
 import './App.css'
+import { AuthProvider } from './auth/AuthContext';
 import { ConfigProvider } from './config/ConfigProvider';
-import Dashboard from './pages/Dashboard';
+import AppRoutes from './core/AppRoutes';
 
 
 function App() {
-
   return (
     <ConfigProvider>
-      <Dashboard/>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </ConfigProvider>
   );
 }
