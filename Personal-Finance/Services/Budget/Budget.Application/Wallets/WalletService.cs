@@ -17,13 +17,13 @@ namespace Budget.Application.Wallets
             _walletRepo = walletRepo;
         }
 
-        public async Task<Wallet> CreateWalletAsync(CreateWalletDto dto)
+        public async Task<Wallet> CreateWalletAsync(CreateWalletDto walletDto)
         {
             var newWallet = new Wallet
             {
-                UserId = dto.UserId,
-                Name = dto.Name,
-                Currency = dto.Currency,
+                UserId = walletDto.UserId,
+                Name = walletDto.Name,
+                Currency = walletDto.Currency,
                 CurrentBalance = 0
             };
 

@@ -13,14 +13,14 @@ namespace Budget.API.Controllers
 
         public WalletsController(IWalletService walletService, IWalletRepository walletRepository)
         {
-            _walletService = walletService;
-            _walletRepository = walletRepository;
+            _walletService = walletService ?? throw new ArgumentNullException(nameof(walletService));
+            _walletRepository = walletRepository ?? throw new ArgumentNullException(nameof(walletRepository));
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateWallet([FromBody] CreateWalletDto dto)
+        public async Task<IActionResult> CreateWallet([FromBody] CreateWalletDto walletDto)
         {
-            var wallet = await _walletService.CreateWalletAsync(dto);
+            var wallet = await _walletService.CreateWalletAsync(walletDto);
             return CreatedAtAction(nameof(GetWalletById), new { walletId = wallet.Id }, wallet);
         }
 

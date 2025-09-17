@@ -10,8 +10,8 @@ namespace Budget.Domain.Entities
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
-        public string Name { get; set; }
-        public string Currency {  get; set; }
+        public required string Name { get; set; }
+        public required string Currency { get; set; }
         public decimal CurrentBalance { get; set; }
         public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 
