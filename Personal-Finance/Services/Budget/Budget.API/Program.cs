@@ -1,4 +1,5 @@
 using Budget.Application.Interfaces;
+using Budget.Application.Transactions;
 using Budget.Application.Wallets;
 using Budget.Infrastructure.Persistence;
 using Budget.Infrastructure.Persistence.Repositories;
@@ -15,6 +16,7 @@ builder.Services.AddDbContext<BudgetDbContext>(options =>
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

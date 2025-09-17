@@ -24,5 +24,10 @@ namespace Budget.Infrastructure.Persistence.Repositories
         {
             await _context.Transactions.AddAsync(transaction);
         }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }
