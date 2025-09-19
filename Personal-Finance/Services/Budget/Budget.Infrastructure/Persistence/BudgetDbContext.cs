@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Budget.Domain.Entities;
+﻿using Budget.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Infrastructure.Persistence
@@ -16,6 +11,8 @@ namespace Budget.Infrastructure.Persistence
 
         public DbSet<Wallet> Wallets { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+
+        public DbSet<RecurringTransaction> RecurringTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
