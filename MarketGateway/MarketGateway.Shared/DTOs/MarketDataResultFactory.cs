@@ -1,6 +1,6 @@
 namespace MarketGateway.Shared.DTOs;
 
-public class MarketDataResultFactory
+public abstract class MarketDataResultFactory
 {
     private static readonly Dictionary<DataType, Func<MarketDataResultBase>> _creators = new();
     

@@ -80,7 +80,6 @@ public partial class  VendorMarketDataProvider:IMarketDataProvider
             
             using var response = await _httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, token);
             var body = await response.Content.ReadAsStringAsync(token);
-            _log.LogWarning("This is body: {body}",body);
             if (!response.IsSuccessStatusCode)
             {
                 return APIResult.Fail(

@@ -39,7 +39,7 @@ Endpoints:
       Required:
         symbol: "{symbol}"
       Optional:
-        outputsize: "{outputsize}"  
+        outputsize: "full" 
         datatype: "{datatype}"      
     Metadata:
       TemporalResolutions: ["1d"]
