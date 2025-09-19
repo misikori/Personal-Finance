@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Serilog;
 using DataType = MarketGateway.Shared.DTOs.DataType;
 
 namespace MarketGateway.Providers.Configuration;
@@ -49,6 +50,11 @@ public class VendorConfig
             if (string.IsNullOrWhiteSpace(ep.HttpMethod))
                 throw new ValidationException($"Endpoint '{key}' missing HttpMethod.");
         }
+        
+        var requiresKey = Vendor.Equals("AlphaVantage", StringComparison.OrdinalIgnoreCase);
+        if (requiresKey && string.IsNullOrWhiteSpace(ApiKey))
+            throw new ValidationException("ApiKey is required for AlphaVantage (set ALPHAVANTAGE_API_KEY).");
+
     }
 }
 

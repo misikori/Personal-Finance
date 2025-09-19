@@ -51,3 +51,11 @@ Unified, config-driven **market data gateway** that exposes a normalized **gRPC 
 5. Define Entity in ```MarketGateway.Data``` and set EF configuration file.
 6. Create new Migration
 7. Set new Contract in ```MarketGateway.Contracts```
+
+
+## Setting Env and Keys
+Create ```MarketGateway.Core/.env``` and et your keys like:
+```bash
+ALPHAVANTAGE_API_KEY="demo"
+FINNHUB_API_KEY="demo"
+```

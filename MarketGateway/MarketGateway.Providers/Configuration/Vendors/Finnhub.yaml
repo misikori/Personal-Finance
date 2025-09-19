@@ -1,10 +1,10 @@
 Vendor: Finnhub
 
-apiKey: "{YourApiKey}"
+ApiKey: "${FINNHUB_API_KEY}"
 
-rateLimits:
-  perMinute: 30
-  perDay: 1000
+RateLimits:
+  PerMinute: 30
+  PerDay: 1000
   
 
 BaseUrl: "https://finnhub.io/api/v1"

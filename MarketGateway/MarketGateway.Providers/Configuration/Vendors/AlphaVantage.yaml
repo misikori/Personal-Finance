@@ -1,5 +1,5 @@
 Vendor: AlphaVantage
-ApiKey: "demo"
+ApiKey: "${ALPHAVANTAGE_API_KEY}"
 
 RateLimits:
   PerMinute: 5

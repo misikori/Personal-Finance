@@ -1,8 +1,15 @@
+using dotenv.net;
 using MarketGateway.StartUp;
 using Microsoft.AspNetCore.Builder;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+DotEnv.Load(options:new DotEnvOptions(probeForEnv:true,overwriteExistingVars:false));
+
+builder.Configuration
+    .AddJsonFile("appsettings.Development.json", false, true)
+    .AddEnvironmentVariables();
 
 builder.AddSerilogLogging();
 builder.Services.AddMarketGateway(builder.Configuration);
