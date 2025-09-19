@@ -1,5 +1,7 @@
 import { lazy } from "react";
 import { RouteMeta } from "./RouteMeta";
+import SpaceDashboardIcon from "@mui/icons-material/SpaceDashboard";
+
 
 export const ROUTES = {
   PUBLIC: {
@@ -38,8 +40,10 @@ export const USER_ROUTES: RouteMeta[] = [
     path: ROUTES.PRIVATE.DASHBOARD,
     Component: lazy(() => import("../pages/Dashboard")),
     guard: "auth",
-    roles: ["Users", "Admins"], 
+    roles: ["Users"],
     label: "Dashboard",
+    icon: <SpaceDashboardIcon />,
+    showInSidebar: true,
   },
 ];
 
