@@ -3,6 +3,7 @@ import { Box, Container } from "@mui/system";
 import { PropsWithChildren } from "react";
 import { Outlet } from "react-router-dom";
 export default function PublicLayout({ children }: PropsWithChildren) {
+  console.log("nesto")
   return (
     <Box sx={{ minHeight: "100vh" }}>
       <CssBaseline />
