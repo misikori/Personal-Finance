@@ -22,6 +22,7 @@ export const PermanentDrawer = styled(Drawer)({
   "& .MuiDrawer-paper": {
     overflowX: "hidden",
     whiteSpace: "nowrap",
+    role: "permanent"
   },
 });
 
