@@ -2,7 +2,7 @@ import { lazy } from "react";
 import { RouteMeta } from "./RouteMeta";
 import SpaceDashboardIcon from "@mui/icons-material/SpaceDashboard";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-import { AirlineSeatFlatRounded } from "@mui/icons-material"
+import InventoryIcon from "@mui/icons-material/Inventory"; 
 
 
 export const ROUTES = {
@@ -59,13 +59,13 @@ export const USER_ROUTES: RouteMeta[] = [
     showInSidebar: true,
   },
   {
-    path:ROUTES.PRIVATE.PORTFOLIO,
-    Component: lazy(() => import("../pages/LandingPage")),
+    path: ROUTES.PRIVATE.PORTFOLIO,
+    Component: lazy(() => import("../pages/portfolio")),
     guard: "auth",
     roles: ["Users"],
     label: "Portfolio",
-    icon: <AirlineSeatFlatRounded />,
+    icon: <InventoryIcon />,
     showInSidebar: true,
-  }
+  },
 ];
 
