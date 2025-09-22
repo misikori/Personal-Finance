@@ -1,0 +1,46 @@
+name: Epic
+description: Track a larger feature or initiative made of multiple sub-issues
+title: "[Epic]: "
+labels: [epic]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Epic Template
+        Use this issue to track a larger body of work.
+        Link sub-issues with `- [ ] #issue_number` so progress is automatically updated.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: A short description of what this epic is about.
+      placeholder: "High-level goal of this epic"
+  
+  - type: textarea
+    id: goals
+    attributes:
+      label: Goals
+      description: What should this epic achieve?
+      placeholder: |
+        - Goal 1
+        - Goal 2
+        - Goal 3
+  
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks
+      description: List the sub-issues that belong to this epic.
+      placeholder: |
+        - [ ] #123 Sub-issue one
+        - [ ] #124 Sub-issue two
+        - [ ] #125 Sub-issue three
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Any additional context, risks, or dependencies.
+      placeholder: "Extra notes..."

@@ -1,0 +1,26 @@
+name: Feature Request
+description: Suggest an idea for this project
+title: "[Feature]: "
+labels: ["enhancement"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this feature request! Please describe in detail below.
+  - type: input
+    id: feature-title
+    attributes:
+      label: Short feature title
+      placeholder: A quick summary of the feature
+    validations:
+      required: true
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: What feature would you like to see?
+      placeholder: Describe the feature you're proposing
+    validations:
+      required: true
