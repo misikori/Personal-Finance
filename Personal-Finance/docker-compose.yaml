@@ -1,0 +1,15 @@
+services:
+
+  currency-db:
+    image: redis:alpine
+
+  currency.api:
+    build:
+      context: .
+      dockerfile: Services/Currency/Currency.API/Dockerfile
+
+  currency.grpc:
+    build:
+      context: .
+      dockerfile: Services/Currency/Currency.GRPC/Dockerfile
+  
