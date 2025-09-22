@@ -1,9 +1,7 @@
----
 name: Epic
 description: Track a larger feature or initiative made of multiple sub-issues
 title: "[Epic]: "
 labels: [epic]
----
 
 body:
   - type: markdown
