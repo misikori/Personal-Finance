@@ -6,10 +6,10 @@ labels: [epic]
 body:
   - type: markdown
     attributes:
-    value: |
-      ## Epic Template
-      Use this issue to track a larger body of work.
-      Link sub-issues with `- [ ] #issue_number` so progress is automatically updated.
+      value: |
+        ## Epic Template
+        Use this issue to track a larger body of work.
+        Link sub-issues with `- [ ] #issue_number` so progress is automatically updated.
 
   - type: input
     id: summary
@@ -34,9 +34,9 @@ body:
       label: Tasks
       description: List the sub-issues that belong to this epic.
       placeholder: |
-      - [ ] #123 Sub-issue one
-      - [ ] #124 Sub-issue two
-      - [ ] #125 Sub-issue three
+        - [ ] #123 Sub-issue one
+        - [ ] #124 Sub-issue two
+        - [ ] #125 Sub-issue three
 
   - type: textarea
     id: notes
