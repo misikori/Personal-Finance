@@ -68,10 +68,16 @@ public class AuthenticationService : IAuthenticationService
 
     private SigningCredentials GetSigningCredentials()
     {
-        var key = Encoding.UTF8.GetBytes(_configuration.GetValue<string>("JwtSettings:secretKey"));
-        var secret = new SymmetricSecurityKey(key);
+        var secretKey = _configuration.GetValue<string>("JwtSettings:secretKey");
+        if (string.IsNullOrWhiteSpace(secretKey))
+        {
+            throw new InvalidOperationException("Missing configuration: JwtSettings:secretKey");
+        }
 
-        return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
+        var keyBytes = Encoding.UTF8.GetBytes(secretKey);
+        var symmetricKey = new SymmetricSecurityKey(keyBytes);
+
+        return new SigningCredentials(symmetricKey, SecurityAlgorithms.HmacSha256);
     }
 
     private async Task<IEnumerable<Claim>> GetClaims(User user)

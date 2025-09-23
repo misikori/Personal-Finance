@@ -42,8 +42,12 @@ public static class IdentityExtensions
     public static IServiceCollection ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
     {
         var jwtSettings = configuration.GetSection("JwtSettings");
-        var secretKey = jwtSettings.GetSection("secretKey").Value;
+        var secretKey = jwtSettings["secretKey"];
 
+        if (string.IsNullOrWhiteSpace(secretKey))
+        {
+            throw new InvalidOperationException("JwtSettings:secretKey is required");
+        }
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

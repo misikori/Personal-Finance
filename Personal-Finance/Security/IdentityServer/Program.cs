@@ -1,5 +1,5 @@
-using IdentityServer.Entities;
 using IdentityServer.Extensions;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,21 +7,53 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-//builder.Services.AddAuthentication();
 
 builder.Services.ConfigureJWT(builder.Configuration);
 builder.Services.ConfigurePersistence(builder.Configuration);
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureMiscellaneousServices();
 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "IdentityServer",
+        Version = "v1"
+    });
+
+    // 🔑 Define the BearerAuth scheme
+    c.AddSecurityDefinition("bearerAuth", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Enter JWT token only (without 'Bearer ' prefix)"
+    });
+
+    // 📌 Require the scheme globally (or per endpoint)
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "bearerAuth"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseCors("CorsPolicy");

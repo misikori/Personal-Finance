@@ -2,6 +2,6 @@ namespace IdentityServer.DTOs;
 
 public class RefreshTokenModel
 {
-    public string UserName { get; set; }
-    public string RefreshToken { get; set; }
+    public required string UserName { get; set; }
+    public required string RefreshToken { get; set; }
 }
