@@ -40,6 +40,8 @@ services:
   
   identityserver:
     container_name: identityserver
+    depends_on:
+      - mssql
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ConnectionStrings:IdentityConnectionString=Server=mssql;Database=IdentityDb;User Id=sa;Password=MATF12345678rs2;"
