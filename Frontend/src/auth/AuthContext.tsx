@@ -1,13 +1,22 @@
 import { createContext, useMemo, useState, ReactNode, useEffect } from "react";
-import { mockLogin, mockLogout, getCurrentUser, isAuthenticated } from "../auth/services/authService";
+import { getCurrentUser, isAuthenticated as isAuthedFromStore, authStore } from "./store/authStore";
+import { login as svcLogin, logout as svcLogout, me as svcMe, signup as svcSignup } from "./services/authService";
 
-export type MockUser = { id: string; email: string; roles: string[] };
+export type User = { id: string; email: string; roles: string[] };
 
 type AuthContextType = {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: MockUser | null;
-  login: (roles?: string[]) => Promise<void>;
+  user: User | null;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (dto: {
+    firstName: string;
+    lastName: string;
+    userName: string;
+    password: string;
+    email: string;
+    phoneNumber: string;
+  }) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -15,35 +24,45 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setLoading] = useState(true);
-  const [user, setUser] = useState<MockUser | null>(null);
-  const [authed, setAuthed] = useState(false);
+  const [user, setUser] = useState<User | null>(getCurrentUser());
+  const [authed, setAuthed] = useState<boolean>(isAuthedFromStore());
 
   useEffect(() => {
-    setUser(getCurrentUser() as MockUser | null);
-    setAuthed(isAuthenticated());
-    setLoading(false);
+    const unsub = authStore.subscribe((s) => {
+      setUser(s.user);
+      setAuthed(!!s.accessToken);
+    });
+
+    (async () => {
+      try {
+        if (isAuthedFromStore()) await svcMe();
+      } catch {} finally {
+        setLoading(false);
+      }
+    })();
+
+    return () => {                // return void cleanup
+      unsub();                    // ignore boolean result
+    };
   }, []);
 
-  const login = async (roles: string[] = ["Users"]) => {
-    await mockLogin(roles);
-    setUser(getCurrentUser() as MockUser | null);
-    setAuthed(true);
+  const login = async (email: string, password: string) => {
+    await svcLogin({ email, password });
+  };
+
+  const signup = async (dto: {
+    firstName: string; lastName: string; userName: string;
+    password: string; email: string; phoneNumber: string;
+  }) => {
+    await svcSignup(dto);
   };
 
   const logout = async () => {
-    await mockLogout();
-    setUser(null);
-    setAuthed(false);
+    await svcLogout();
   };
 
   const value = useMemo(
-    () => ({
-      isAuthenticated: authed,
-      isLoading,
-      user,
-      login,
-      logout,
-    }),
+    () => ({ isAuthenticated: authed, isLoading, user, login, logout, signup }),
     [authed, isLoading, user]
   );
 

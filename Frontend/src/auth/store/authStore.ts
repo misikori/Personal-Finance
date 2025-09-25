@@ -1,4 +1,4 @@
-type AuthSnapshot = {
+export type AuthSnapshot = {
   accessToken: string | null;
   refreshToken: string | null;
   user: { id: string; email: string; roles: string[] } | null;
@@ -7,20 +7,14 @@ type AuthSnapshot = {
 const STORAGE_KEY = "auth:snapshot";
 
 class AuthStore {
-  private state: AuthSnapshot = {
-    accessToken: null,
-    refreshToken: null,
-    user: null,
-  };
-
+  private state: AuthSnapshot = { accessToken: null, refreshToken: null, user: null };
   private listeners = new Set<(s: AuthSnapshot) => void>();
 
   constructor() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) this.state = JSON.parse(raw);
-    } catch {
-    }
+    } catch {}
   }
 
   private persist() {
@@ -43,9 +37,7 @@ class AuthStore {
 
   setTokens(accessToken: string | null, refreshToken?: string | null) {
     this.state.accessToken = accessToken ?? null;
-    if (typeof refreshToken !== "undefined") {
-      this.state.refreshToken = refreshToken ?? null;
-    }
+    if (typeof refreshToken !== "undefined") this.state.refreshToken = refreshToken ?? null;
     this.persist();
   }
 
@@ -60,9 +52,15 @@ class AuthStore {
     this.emit();
   }
 
-  get accessToken() { return this.state.accessToken; }
+  get accessToken()  { return this.state.accessToken; }
   get refreshToken() { return this.state.refreshToken; }
-  get user()        { return this.state.user; }
+  get user()         { return this.state.user; }
 }
 
 export const authStore = new AuthStore();
+
+// Helpers
+export const isAuthenticated = () => !!authStore.accessToken;
+export const getAccessToken = () => authStore.accessToken;
+export const getRefreshToken = () => authStore.refreshToken;
+export const getCurrentUser  = () => authStore.user;
