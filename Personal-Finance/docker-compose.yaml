@@ -1,5 +1,8 @@
 services:
 
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+
   currency-db:
     image: redis:alpine
 
@@ -12,4 +15,11 @@ services:
     build:
       context: .
       dockerfile: Services/Currency/Currency.GRPC/Dockerfile
-  
+
+  identityserver:
+    build:
+      context: .
+      dockerfile: Security/IdentityServer/Dockerfile
+      
+volumes:
+  mssql_data:
