@@ -4,8 +4,7 @@ using Grpc.Core;
 using MarketGateway.Contracts;
 using MarketGateway.Interfaces;
 using MarketGateway.Shared.DTOs;
-
-
+using Serilog;
 using static MarketGateway.Contracts.Utils.ProtoJson;
 using DataType = MarketGateway.Shared.DTOs.DataType;
 
@@ -73,7 +72,7 @@ public class MarketDataGatewayService : MarketDataGateway.MarketDataGatewayBase
             Parameters = ToDictionary(req.Parameters),
             PreferredVendors = req.Options?.PreferredVendors?.ToList() ?? new()
         };
-
+        Log.Information("This is MarketDataRequest: {Request}", dto);
         var result = await _broker.FetchAsync(dto, ctx.CancellationToken);
 
         if (!result.Success || result.Data is null)

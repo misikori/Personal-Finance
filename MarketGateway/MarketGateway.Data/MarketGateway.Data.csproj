@@ -31,4 +31,10 @@
         <DependentUpon>20250726134508_InitMarketDb.cs</DependentUpon>
       </Compile>
     </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Serilog">
+        <HintPath>..\..\..\..\.nuget\packages\serilog\4.3.0\lib\net8.0\Serilog.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 </Project>

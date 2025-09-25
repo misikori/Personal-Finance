@@ -1,6 +1,10 @@
+using System.Globalization;
 using MarketGateway.Data;
 using MarketGateway.Data.Interfaces;
 using MarketGateway.Data.Services;
+using MarketGateway.Data.Services.Ohlcv;
+using MarketGateway.Data.Services.Quotes;
+using MarketGateway.Data.Time;
 using MarketGateway.Interfaces;
 using Microsoft.Extensions.Options;
 
@@ -29,6 +33,24 @@ public static class StorageCollectionExtension
         {
             services.AddScoped<IStorageService, DatabaseStorageService>();
         }
+
+        services.Configure<AppDateOptions>(cfg.GetSection("AppDate"));
+        services.AddScoped<IQuoteStorage, QuoteStorage>();
+        services.AddScoped<IOhlcvStorage, OhlcvStorage>();
+
+        services.AddSingleton<IAppDate>(sp =>
+        {
+            var opt = sp.GetRequiredService<IOptions<AppDateOptions>>().Value;
+            if (string.Equals(opt.Mode, "Fixed", StringComparison.OrdinalIgnoreCase))
+            {
+                if (string.IsNullOrWhiteSpace(opt.FixedDate))
+                    throw new InvalidOperationException("AppDate:FixedDate is required when Mode=Fixed.");
+                var date = DateOnly.ParseExact(opt.FixedDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                return new FixedAppDate(date);
+            }
+
+            return new UtcAppDate();
+        });
 
         return services;
     }
