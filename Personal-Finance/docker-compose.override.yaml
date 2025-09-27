@@ -1,0 +1,50 @@
+services:
+
+  mssql:
+    container_name: mssql
+    user: root
+    environment:
+      - SA_PASSWORD=MATF12345678rs2
+      - ACCEPT_EULA=Y
+    restart: always
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql/data
+
+  currency-db:
+    container_name: currency-db
+    restart: always
+    ports:
+      - "6379:6379"
+
+  currency.api:
+    container_name: currency.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "CacheSettings:ConnectionString=currency-db:6379"
+      - "CurrencyApi:RatesUrl=https://kurs.resenje.org/api/v1/rates/today"
+    depends_on:
+      - currency-db
+    ports:
+      - "8001:8080"
+
+  currency.grpc:
+    container_name: currency.grpc
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "CacheSettings:ConnectionString=currency-db:6379"
+    depends_on:
+      - currency-db
+    ports:
+      - "8002:8080"
+  
+  identityserver:
+    container_name: identityserver
+    depends_on:
+      - mssql
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings:IdentityConnectionString=Server=mssql;Database=IdentityDb;User Id=sa;Password=MATF12345678rs2;TrustServerCertificate=True;"
+    ports:
+      - "8003:8080"

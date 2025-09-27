@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option csharp_namespace = "Currency.GRPC.Protos";
+
+import "google/protobuf/timestamp.proto";
+
+service CurrencyRatesProtoService {
+	rpc GetConversion(GetConversionRequest) returns (GetConversionResponse);
+	rpc GetSpecificCurrencyRates(GetSpecificCurrencyRatesRequest) returns (GetSpecificCurrencyRatesResponse);
+}
+
+message GetConversionRequest{
+	string from = 1;
+	string to = 2;
+	double amount = 3;
+}
+
+message GetConversionResponse{
+	string from = 1;
+	string to = 2;
+	double amount = 3;
+	double rate = 4;
+	double converted = 5;
+}
+
+message GetSpecificCurrencyRatesRequest{
+	string baseCurrency = 1;
+}
+
+message GetSpecificCurrencyRatesResponse{
+	 message CurrencyRate {
+		 string code = 1;
+		 google.protobuf.Timestamp date = 2;
+		 int32 parity = 3;
+		 double exchangeMiddle = 4;
+	 }
+	 repeated CurrencyRate rates = 1;
+}
