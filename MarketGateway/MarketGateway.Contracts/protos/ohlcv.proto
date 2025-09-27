@@ -1,0 +1,24 @@
+syntax = "proto3";
+package marketdata;
+option csharp_namespace = "MarketGateway.Contracts";
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+
+message OhlcvBar {
+  google.protobuf.Timestamp ts = 1;
+  double open  = 2;
+  double high  = 3;
+  double low   = 4;
+  double close = 5;
+  double volume = 6;
+}
+
+message OhlcvSeries {
+  Identifier id = 1;
+  BarGranularity granularity = 2;
+  PriceAdjustment adjustment = 3;
+  string currency = 4;
+  string vendor = 5;
+  repeated OhlcvBar bars = 6;
+  bool partial = 7;
+}
