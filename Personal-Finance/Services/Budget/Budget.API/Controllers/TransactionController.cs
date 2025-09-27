@@ -1,25 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
 using Budget.Application.Transactions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Budget.API.Controllers
 {
 
     [ApiController]
     [Route("api/[controller]")]
-    public class TransactionController : ControllerBase
+    public class TransactionController(ITransactionService transactionService) : ControllerBase
     {
-        private readonly ITransactionService _transactionService;
-
-        public TransactionController(ITransactionService transactionService)
-        {
-            _transactionService = transactionService ?? throw new ArgumentNullException(nameof(transactionService));
-        }
+        private readonly ITransactionService _transactionService = transactionService ?? throw new ArgumentNullException(nameof(transactionService));
 
         [HttpPost]
         public async Task<IActionResult> CreateTransaction([FromBody] CreateTransactionDto transactionDto)
         {
-            await _transactionService.CreateTransactionAsync(transactionDto);
-            return Ok();
+            await this._transactionService.CreateTransactionAsync(transactionDto);
+            return this.Ok();
         }
 
     }

@@ -1,5 +1,3 @@
-﻿using Budget.Domain.Entities;
-
 namespace Budget.Application.RecurringTransactions
 {
     public record CreateRecurringTransactionDto(
@@ -13,5 +11,5 @@ namespace Budget.Application.RecurringTransactions
         DateTime StartDate,
         DateTime? EndDate
     );
-    
+
 }

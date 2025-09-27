@@ -1,4 +1,4 @@
-﻿
+
 namespace Budget.Domain.Entities
 {
     public enum RecurrenceFrequency

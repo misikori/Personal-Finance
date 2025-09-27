@@ -1,28 +1,34 @@
-﻿using Budget.Application.Interfaces;
+using Budget.Application.Interfaces;
 using Budget.Domain.Entities;
+
 
 namespace Budget.Application.Transactions
 {
-    public class TransactionService : ITransactionService
+    public class TransactionService(ITransactionRepository transactionRepository, IWalletRepository walletRepository, ICurrencyConverter currencyConverter) : ITransactionService
     {
-        private readonly ITransactionRepository _transactionRepository;
-        private readonly IWalletRepository _walletRepository;
-
-        public TransactionService(ITransactionRepository transactionRepository, IWalletRepository walletRepository)
-        {
-            _transactionRepository = transactionRepository ?? throw new ArgumentNullException(nameof(transactionRepository));
-            _walletRepository = walletRepository ?? throw new ArgumentNullException(nameof(walletRepository));
-        }
+        private readonly ITransactionRepository _transactionRepository = transactionRepository ?? throw new ArgumentNullException(nameof(transactionRepository));
+        private readonly IWalletRepository _walletRepository = walletRepository ?? throw new ArgumentNullException(nameof(walletRepository));
+        private readonly ICurrencyConverter _currencyConverter = currencyConverter ?? throw new ArgumentNullException(nameof(currencyConverter));
 
         public async Task CreateTransactionAsync(CreateTransactionDto transactionDto)
         {
-            var wallet = await _walletRepository.GetByIdAsync(transactionDto.WalletId) ?? 
+            Wallet wallet = await this._walletRepository.GetByIdAsync(transactionDto.WalletId) ??
                 throw new Exception("Wallet not found.");
 
-            if (!Enum.TryParse<TransactionType>(transactionDto.Type, true, out var transactionType))
+            if (!Enum.TryParse(transactionDto.Type, true, out TransactionType transactionType))
+            {
                 throw new ArgumentException("Invalid transaction type.");
+            }
 
-            var transaction = new Transaction
+            decimal amountToDebit = transactionDto.Amount;
+            if (transactionDto.Currency != wallet.Currency)
+            {
+                amountToDebit = await this._currencyConverter.ConvertAsync(
+                    fromCurrency: transactionDto.Currency,
+                    toCurrency: wallet.Currency,
+                    amount: transactionDto.Amount);
+            }
+            Transaction transaction = new()
             {
                 UserId = transactionDto.UserId,
                 WalletId = transactionDto.WalletId,
@@ -34,14 +40,18 @@ namespace Budget.Application.Transactions
             };
 
             if (transaction.TransactionType == TransactionType.Income)
-                wallet.CurrentBalance += transaction.Amount;
+            {
+                wallet.CurrentBalance += amountToDebit;
+            }
             else
-                wallet.CurrentBalance -= transaction.Amount;
+            {
+                wallet.CurrentBalance -= amountToDebit;
+            }
 
-            await _transactionRepository.AddAsync(transaction);
-            _walletRepository.Update(wallet);
+            await this._transactionRepository.AddAsync(transaction);
+            this._walletRepository.Update(wallet);
 
-            await _transactionRepository.SaveChangesAsync();
+            await this._transactionRepository.SaveChangesAsync();
         }
     }
 }

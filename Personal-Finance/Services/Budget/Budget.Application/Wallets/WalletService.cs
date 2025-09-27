@@ -1,25 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Budget.Domain.Entities;
 using Budget.Application.Interfaces;
+using Budget.Domain.Entities;
 
 namespace Budget.Application.Wallets
 {
-    public class WalletService : IWalletService
+    public class WalletService(IWalletRepository walletRepo) : IWalletService
     {
-        private readonly IWalletRepository _walletRepo;
-
-        public WalletService(IWalletRepository walletRepo)
-        {
-            _walletRepo = walletRepo;
-        }
+        private readonly IWalletRepository _walletRepo = walletRepo;
 
         public async Task<Wallet> CreateWalletAsync(CreateWalletDto walletDto)
         {
-            var newWallet = new Wallet
+            Wallet newWallet = new()
             {
                 UserId = walletDto.UserId,
                 Name = walletDto.Name,
@@ -27,8 +17,8 @@ namespace Budget.Application.Wallets
                 CurrentBalance = 0
             };
 
-            await _walletRepo.AddAsync(newWallet);
-            await _walletRepo.SaveChangesAsync();
+            await this._walletRepo.AddAsync(newWallet);
+            await this._walletRepo.SaveChangesAsync();
 
             return newWallet;
         }

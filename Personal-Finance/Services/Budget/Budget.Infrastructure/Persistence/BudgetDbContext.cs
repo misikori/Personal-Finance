@@ -1,14 +1,10 @@
-﻿using Budget.Domain.Entities;
+using Budget.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Infrastructure.Persistence
 {
-    public class BudgetDbContext : DbContext
+    public class BudgetDbContext(DbContextOptions<BudgetDbContext> options) : DbContext(options)
     {
-        public BudgetDbContext(DbContextOptions<BudgetDbContext> options) : base(options) 
-        { 
-        }
-
         public DbSet<Wallet> Wallets { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
 
@@ -20,7 +16,7 @@ namespace Budget.Infrastructure.Persistence
 
             // configure relationships
 
-            modelBuilder.Entity<Wallet>()
+            _ = modelBuilder.Entity<Wallet>()
                 .HasMany(w => w.Transactions)
                 .WithOne(t => t.Wallet)
                 .HasForeignKey(t => t.WalletId);

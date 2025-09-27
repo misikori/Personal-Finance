@@ -1,9 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Budget.Domain.Entities
 {
     public class Transaction
@@ -13,7 +7,7 @@ namespace Budget.Domain.Entities
         public decimal Amount { get; set; }
         public TransactionType TransactionType { get; set; }
         public string Description { get; set; } = string.Empty;
-        public DateTime Date {  get; set; }
+        public DateTime Date { get; set; }
         public required string Currency { get; set; }
 
         // foreign key to Wallet

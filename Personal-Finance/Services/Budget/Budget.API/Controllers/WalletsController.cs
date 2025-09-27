@@ -1,41 +1,35 @@
-﻿using Microsoft.AspNetCore.Mvc;
 using Budget.Application.Interfaces;
 using Budget.Application.Wallets;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Budget.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class WalletsController : ControllerBase
+    public class WalletsController(IWalletService walletService, IWalletRepository walletRepository) : ControllerBase
     {
-        private readonly IWalletService _walletService;
-        private readonly IWalletRepository _walletRepository;
-
-        public WalletsController(IWalletService walletService, IWalletRepository walletRepository)
-        {
-            _walletService = walletService ?? throw new ArgumentNullException(nameof(walletService));
-            _walletRepository = walletRepository ?? throw new ArgumentNullException(nameof(walletRepository));
-        }
+        private readonly IWalletService _walletService = walletService ?? throw new ArgumentNullException(nameof(walletService));
+        private readonly IWalletRepository _walletRepository = walletRepository ?? throw new ArgumentNullException(nameof(walletRepository));
 
         [HttpPost]
         public async Task<IActionResult> CreateWallet([FromBody] CreateWalletDto walletDto)
         {
-            var wallet = await _walletService.CreateWalletAsync(walletDto);
-            return CreatedAtAction(nameof(GetWalletById), new { walletId = wallet.Id }, wallet);
+            Domain.Entities.Wallet wallet = await this._walletService.CreateWalletAsync(walletDto);
+            return this.CreatedAtAction(nameof(GetWalletById), new { walletId = wallet.Id }, wallet);
         }
 
         [HttpGet("{walletId:guid}")]
         public async Task<IActionResult> GetWalletById(Guid walletId)
         {
-            var wallet = await _walletRepository.GetByIdAsync(walletId);
-            return wallet == null ? NotFound() : Ok(wallet);
+            Domain.Entities.Wallet? wallet = await this._walletRepository.GetByIdAsync(walletId);
+            return wallet == null ? this.NotFound() : this.Ok(wallet);
         }
 
         [HttpGet("user/{userId:guid}")]
         public async Task<IActionResult> GetWalletsByUserId(Guid userId)
         {
-            var wallets = await _walletRepository.GetByUserIdAsync(userId);
-            return Ok(wallets);
+            IEnumerable<Domain.Entities.Wallet> wallets = await this._walletRepository.GetByUserIdAsync(userId);
+            return this.Ok(wallets);
         }
     }
 }

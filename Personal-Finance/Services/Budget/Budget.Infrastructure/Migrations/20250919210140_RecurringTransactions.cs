@@ -1,4 +1,3 @@
-﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -9,9 +8,7 @@ namespace Budget.Infrastructure.Migrations
     public partial class RecurringTransactions : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.CreateTable(
+        protected override void Up(MigrationBuilder migrationBuilder) => _ = migrationBuilder.CreateTable(
                 name: "RecurringTransactions",
                 columns: table => new
                 {
@@ -30,15 +27,11 @@ namespace Budget.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RecurringTransactions", x => x.Id);
+                    _ = table.PrimaryKey("PK_RecurringTransactions", x => x.Id);
                 });
-        }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropTable(
+        protected override void Down(MigrationBuilder migrationBuilder) => _ = migrationBuilder.DropTable(
                 name: "RecurringTransactions");
-        }
     }
 }
