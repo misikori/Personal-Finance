@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-MarketGateway-db22214f-b9ae-4911-a3d3-75e854ac8e5a</UserSecretsId>
+        <RootNamespace>MarketGateway</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="12.0.1" />
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+        <PackageReference Include="dotenv.net" Version="4.0.0" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.*" />
+        <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.*" />
+
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.7" />
+        <PackageReference Include="Serilog" Version="4.3.0" />
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\MarketGateway.Contracts\MarketGateway.Contracts.csproj" />
+      <ProjectReference Include="..\MarketGateway.Data\MarketGateway.Data.csproj" />
+      <ProjectReference Include="..\MarketGateway.Providers\MarketGateway.Providers.csproj" />
+      <ProjectReference Include="..\MarketGateway.Shared\MarketGateway.Shared.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-09-02\IBM_195418319.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-09-02\IBM_200016074.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\AlphaVantage\2025-09-02\_metadata.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_195418368.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_200016123.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_201026974.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_201254376.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_201640745.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_201851786.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_202354794.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_202427186.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_202734091.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_202807160.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\AlphaVantage-Quote_203105010.json" />
+      <_ContentIncludedByDefault Remove="DataStorage\parsed\AlphaVantage\Quote\2025-09-02\_parsed_metadata.json" />
+    </ItemGroup>
+</Project>

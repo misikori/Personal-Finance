@@ -1,0 +1,10 @@
+syntax = "proto3";
+package marketdata;
+option csharp_namespace = "MarketGateway.Contracts";
+import "fetch.proto";
+
+service MarketDataGateway {
+  rpc Fetch(FetchRequest) returns (FetchReply);
+  
+  // TODO: Maybe add static APIs
+}

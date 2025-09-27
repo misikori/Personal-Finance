@@ -1,0 +1,35 @@
+Vendor: Finnhub
+
+ApiKey: "${FINNHUB_API_KEY}"
+
+RateLimits:
+  PerMinute: 30
+  PerDay: 1000
+  
+
+BaseUrl: "https://finnhub.io/api/v1"
+
+
+Endpoints:
+  Quote:
+    DataType: Quote
+    path: "/quote"
+    httpMethod: GET
+    queryParams:
+      required:
+        symbol: ""
+    metadata:
+      temporalResolutions: ["realtime"]
+      notes: "Provides real-time quote snapshot (U.S. stocks free tier)."
+
+    response:
+      rootPath: ""  # top-level JSON
+      fieldMappings:
+        Price: "c"          # Current price
+        Change: "d"         # Price change
+        ChangePercent: "dp" # Change in percent
+        High: "h"
+        Low: "l"
+        Open: "o"
+        PrevClose: "pc"
+        Timestamp: "t"

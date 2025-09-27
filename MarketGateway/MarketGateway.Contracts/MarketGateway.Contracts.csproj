@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>true</IsPackable>
+        <PackageId>MarketGateway.Contracts</PackageId>
+        <Description>gRPC contracts (messages + stubs) for MarketGateway</Description>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Google.Protobuf" Version="3.*" />
+        <PackageReference Include="Grpc.Core.Api" Version="2.*" />
+        <PackageReference Include="Grpc.Tools" Version="2.*" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Generate both client and server stubs so either side can consume this assembly -->
+        <Protobuf Include="protos\common.proto"  GrpcServices="Both" ProtoRoot="protos" />
+        <Protobuf Include="protos\fetch.proto"   GrpcServices="Both" ProtoRoot="protos" />
+        <Protobuf Include="protos\gateway.proto" GrpcServices="Both" ProtoRoot="protos" />
+        <Protobuf Include="protos\ohlcv.proto"   GrpcServices="Both" ProtoRoot="protos" />
+        <Protobuf Include="protos\quote.proto"   GrpcServices="Both" ProtoRoot="protos" />
+    </ItemGroup>
+
+</Project>
