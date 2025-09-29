@@ -55,11 +55,12 @@ dotnet_sort_system_directives_first = true
 file_header_template = unset
 
 # Analyzer severity
-dotnet_analyzer_diagnostic.category-Style.severity = warning
-dotnet_analyzer_diagnostic.category-Naming.severity = warning
-dotnet_analyzer_diagnostic.category-Maintainability.severity = warning
-dotnet_analyzer_diagnostic.category-Reliability.severity = warning
-dotnet_analyzer_diagnostic.category-Performance.severity = warning
-dotnet_analyzer_diagnostic.category-Security.severity = warning
+
+dotnet_analyzer_diagnostic.category-Style.severity = silent
+dotnet_analyzer_diagnostic.category-Naming.severity = silent
+dotnet_analyzer_diagnostic.category-Maintainability.severity = silent
+dotnet_analyzer_diagnostic.category-Reliability.severity = silent
+dotnet_analyzer_diagnostic.category-Performance.severity = silent
+dotnet_analyzer_diagnostic.category-Security.severity = silent
 dotnet_diagnostic.CA1848.severity = none
 

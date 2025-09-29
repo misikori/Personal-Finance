@@ -1,0 +1,57 @@
+Vendor: AlphaVantage
+ApiKey: "${ALPHAVANTAGE_API_KEY}"
+
+RateLimits:
+  PerMinute: 5
+  PerHour: 0
+  PerDay: 25
+
+BaseUrl: "https://www.alphavantage.co/query"
+
+Endpoints:
+  Quote:
+    DataType: Quote
+    Function: GLOBAL_QUOTE
+    HttpMethod: GET
+    QueryParams:
+      Required:
+        symbol: "{symbol}"
+      Optional:
+        datatype: "{datatype}"
+    Metadata:
+      TemporalResolutions: ["1min"]
+      Notes: "Simulates real-time quote using the latest bar."
+    Response:
+      RootPath: "Global Quote"
+      TimestampKey: "07. latest trading day"
+      FieldMappings:
+        Price: "05. price"
+        High: "03. high"
+        Low: "04. low"
+        Open: "02. open"
+        Volume: "06. volume"
+        
+  DailyTimeSeries:
+    DataType: OHLCV 
+    Function: TIME_SERIES_DAILY
+    HttpMethod: GET
+    QueryParams:
+      Required:
+        symbol: "{symbol}"
+      Optional:
+        outputsize: "full" 
+        datatype: "{datatype}"      
+    Metadata:
+      TemporalResolutions: ["1d"]
+      Notes: "Raw, unadjusted daily OHLCV. Use TIME_SERIES_DAILY_ADJUSTED for split/dividend-adjusted."
+    Response:
+      RootPath: "Time Series (Daily)"
+      Collection: true
+      KeyIsTimestamp: true
+      TimestampFormat: "yyyy-MM-dd"
+      FieldMappings:
+        Open:   "1. open"
+        High:   "2. high"
+        Low:    "3. low"
+        Close:  "4. close"
+        Volume: "5. volume"
