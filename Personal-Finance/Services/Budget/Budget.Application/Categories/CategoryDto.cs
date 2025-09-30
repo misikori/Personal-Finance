@@ -1,7 +1,7 @@
 namespace Budget.Application.Categories;
 
 public record CategoryDto(
-    Guid Id,
+    Guid UserId,
     string Name
 );
 

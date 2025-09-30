@@ -31,4 +31,9 @@ public class CategoryRepository : ICategoryRepository
             .OrderBy(c => c.Name)
             .ToListAsync();
     }
+
+    public async Task SaveChangesAsync()
+    {
+        await this._context.SaveChangesAsync();
+    }
 }
