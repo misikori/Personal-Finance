@@ -7,7 +7,8 @@ namespace Budget.Application.Transactions
         string Type,
         string Description,
         DateTime Date,
-        string Currency
+        string Currency,
+        string CategoryName
     );
 
 

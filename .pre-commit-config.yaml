@@ -9,8 +9,9 @@ repos:
     hooks:
       - id: dotnet-format
         name: dotnet-format
-        entry: bash -c 'dotnet format style --verify-no-changes --include $(git diff --cached --name-only --diff-filter=ACM | tr "\n" " ")'
+        entry: bash -c 'dotnet format style Personal-Finance/Personal-Finance.sln --include $(git diff --cached --name-only --diff-filter=ACM | tr "\n" " ")'
         language: system
         pass_filenames: false
         types_or: [c#]
         stages: [pre-commit]
+        

@@ -22,6 +22,7 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IRecurringTransactionRepository, RecurringTransactionRepository>();
 builder.Services.AddScoped<ICurrencyConverter, GrpcCurrencyConverter>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddSingleton(sp =>
 {
     string? currencyServiceUrl = builder.Configuration["ServiceUrls:CurrencyService"];
