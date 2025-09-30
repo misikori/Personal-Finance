@@ -12,6 +12,8 @@ namespace Budget.Infrastructure.Persistence
 
         public DbSet<Category> Categories { get; set; }
 
+        public DbSet<SpendingLimit> SpendingLimits { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
