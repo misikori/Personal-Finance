@@ -133,10 +133,22 @@ builder.Logging.AddDebug();
 
 var app = builder.Build();
 
-// NOTE: Automatic database migrations are DISABLED to prevent startup failures
-// Apply migrations manually with:
-//   cd Portfolio.API
-//   dotnet ef database update --project ../Portfolio.Data/Portfolio.Data.csproj --context PortfolioDbContext
+// Apply database migrations automatically on startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var dbContext = services.GetRequiredService<PortfolioDbContext>();
+        dbContext.Database.Migrate();
+        app.Logger.LogInformation("Portfolio database migrated successfully");
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "An error occurred while migrating the Portfolio database");
+        throw;
+    }
+}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
