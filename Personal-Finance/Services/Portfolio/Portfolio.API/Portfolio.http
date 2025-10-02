@@ -1,0 +1,160 @@
+### Portfolio API - Test Requests
+### Make sure Portfolio API is running on http://localhost:5100
+### And MarketGateway is running on http://localhost:5288
+
+@host = http://localhost:5100
+@username = john_doe
+
+###############################################
+# HEALTH CHECK
+###############################################
+
+### Health Check
+GET {{host}}/api/portfolio/health
+
+###############################################
+# STOCK PRICES
+###############################################
+
+### Get Current Price - AAPL
+GET {{host}}/api/portfolio/price/AAPL
+
+### Get Current Price - TSLA
+GET {{host}}/api/portfolio/price/TSLA
+
+### Get Current Price - MSFT
+GET {{host}}/api/portfolio/price/MSFT
+
+###############################################
+# PRICE PREDICTIONS
+###############################################
+
+### Get Price Prediction - AAPL
+GET {{host}}/api/portfolio/predict/AAPL
+
+### Get Price Prediction - TSLA
+GET {{host}}/api/portfolio/predict/TSLA
+
+###############################################
+# BUY STOCKS
+###############################################
+
+### Buy AAPL Stock
+POST {{host}}/api/portfolio/buy
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "symbol": "AAPL",
+  "quantity": 10
+}
+
+### Buy TSLA Stock
+POST {{host}}/api/portfolio/buy
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "symbol": "TSLA",
+  "quantity": 5
+}
+
+### Buy MSFT Stock
+POST {{host}}/api/portfolio/buy
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "symbol": "MSFT",
+  "quantity": 8
+}
+
+###############################################
+# PORTFOLIO SUMMARY
+###############################################
+
+### Get Portfolio Summary
+GET {{host}}/api/portfolio/summary/{{username}}
+
+###############################################
+# SELL STOCKS
+###############################################
+
+### Sell AAPL Stock (Partial)
+POST {{host}}/api/portfolio/sell
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "symbol": "AAPL",
+  "quantity": 5
+}
+
+### Sell TSLA Stock (All)
+POST {{host}}/api/portfolio/sell
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "symbol": "TSLA",
+  "quantity": 5
+}
+
+###############################################
+# MULTIPLE USERS
+###############################################
+
+### Buy for Alice
+POST {{host}}/api/portfolio/buy
+Content-Type: application/json
+
+{
+  "username": "alice",
+  "symbol": "AAPL",
+  "quantity": 15
+}
+
+### Buy for Bob
+POST {{host}}/api/portfolio/buy
+Content-Type: application/json
+
+{
+  "username": "bob",
+  "symbol": "TSLA",
+  "quantity": 20
+}
+
+### Alice's Portfolio
+GET {{host}}/api/portfolio/summary/alice
+
+### Bob's Portfolio
+GET {{host}}/api/portfolio/summary/bob
+
+###############################################
+# ERROR SCENARIOS
+###############################################
+
+### Try to Sell Stock User Doesn't Own
+POST {{host}}/api/portfolio/sell
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "symbol": "NVDA",
+  "quantity": 5
+}
+
+### Try to Sell More Than Owned
+POST {{host}}/api/portfolio/sell
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "symbol": "AAPL",
+  "quantity": 1000
+}
+
+### Invalid Symbol
+GET {{host}}/api/portfolio/price/INVALID_SYMBOL
+
+
