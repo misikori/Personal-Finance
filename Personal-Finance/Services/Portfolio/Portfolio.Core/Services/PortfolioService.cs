@@ -252,6 +252,88 @@ public class PortfolioService : IPortfolioService
     }
 
     /// <summary>
+    /// Gets portfolio distribution for pie chart visualization
+    /// Returns percentage breakdown of each stock's current value
+    /// </summary>
+    public async Task<PortfolioDistributionResponse> GetPortfolioDistributionAsync(string username)
+    {
+        _logger.LogInformation("Generating portfolio distribution for {Username}", username);
+
+        var positions = await _repository.GetUserPositionsAsync(username);
+
+        if (!positions.Any())
+        {
+            return new PortfolioDistributionResponse
+            {
+                Username = username,
+                TotalValue = 0,
+                Holdings = new List<StockDistribution>()
+            };
+        }
+
+        // Predefined color palette for pie chart (visually distinct colors)
+        var colors = new[]
+        {
+            "#3B82F6", // Blue
+            "#10B981", // Green
+            "#F59E0B", // Amber
+            "#EF4444", // Red
+            "#8B5CF6", // Purple
+            "#EC4899", // Pink
+            "#14B8A6", // Teal
+            "#F97316", // Orange
+            "#6366F1", // Indigo
+            "#84CC16"  // Lime
+        };
+
+        var holdings = new List<StockDistribution>();
+        decimal totalPortfolioValue = 0;
+
+        // First pass: calculate total portfolio value
+        var positionValues = new List<(PortfolioPosition position, decimal currentPrice, decimal value)>();
+        
+        foreach (var position in positions)
+        {
+            var priceInfo = await _marketDataService.GetCurrentPriceAsync(position.Symbol);
+            var currentValue = position.Quantity * priceInfo.Price;
+            totalPortfolioValue += currentValue;
+            
+            positionValues.Add((position, priceInfo.Price, currentValue));
+        }
+
+        // Second pass: calculate percentages and assign colors
+        var colorIndex = 0;
+        foreach (var (position, currentPrice, value) in positionValues.OrderByDescending(x => x.value))
+        {
+            var percentage = totalPortfolioValue > 0 ? (value / totalPortfolioValue) * 100 : 0;
+            
+            holdings.Add(new StockDistribution
+            {
+                Symbol = position.Symbol,
+                Quantity = position.Quantity,
+                Value = value,
+                Percentage = Math.Round(percentage, 2),
+                CurrentPrice = currentPrice,
+                Color = colors[colorIndex % colors.Length]
+            });
+
+            colorIndex++;
+        }
+
+        var response = new PortfolioDistributionResponse
+        {
+            Username = username,
+            TotalValue = totalPortfolioValue,
+            Holdings = holdings
+        };
+
+        _logger.LogInformation("Portfolio distribution for {Username}: {Count} holdings, Total value=${TotalValue}", 
+            username, holdings.Count, totalPortfolioValue);
+
+        return response;
+    }
+
+    /// <summary>
     /// Checks if user has sufficient budget for a purchase
     /// </summary>
     public async Task<bool> CheckBudgetAsync(string username, decimal amount)
@@ -259,5 +341,3 @@ public class PortfolioService : IPortfolioService
         return await _budgetService.HasSufficientFundsAsync(username, amount);
     }
 }
-
-

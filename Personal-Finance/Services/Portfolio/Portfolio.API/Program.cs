@@ -16,7 +16,7 @@ builder.Services.AddControllers();
 
 // Configure SQL Server Database
 var connectionString = builder.Configuration.GetConnectionString("PortfolioDb")
-    ?? "Server=localhost;Database=PortfolioDb;Trusted_Connection=True;TrustServerCertificate=True;";
+    ?? "Server=127.0.0.1,1433;Database=PortfolioDb;User Id=sa;Password=MATF12345678rs2;TrustServerCertificate=True;Encrypt=False;";
 
 builder.Services.AddDbContext<PortfolioDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -29,7 +29,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Portfolio API",
         Version = "v1",
-        Description = "Portfolio management service with SQL Server, budget tracking, and JWT authentication",
+        Description = "Portfolio management service with SQL Server and JWT authentication. NOTE: Budget service is a placeholder.",
         Contact = new OpenApiContact
         {
             Name = "Portfolio Service",
@@ -73,7 +73,7 @@ builder.Services.AddSwaggerGen(c =>
 
 // Configure JWT Authentication (integrate with IdentityServer)
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"] ?? "YourSuperSecretKeyForJWTTokenGeneration123!";
+var secretKey = jwtSettings["SecretKey"] ?? "MyVerySecretSecretSecretMessage1";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -88,8 +88,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"] ?? "IdentityServer",
-        ValidAudience = jwtSettings["Audience"] ?? "PortfolioAPI",
+        ValidIssuer = jwtSettings["Issuer"] ?? "Personal-Finance Identity",
+        ValidAudience = jwtSettings["Audience"] ?? "Personal-Finance",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
 });
@@ -133,22 +133,10 @@ builder.Logging.AddDebug();
 
 var app = builder.Build();
 
-// Apply database migrations automatically
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var dbContext = services.GetRequiredService<PortfolioDbContext>();
-        dbContext.Database.Migrate();
-        app.Logger.LogInformation("Portfolio database migrated successfully");
-    }
-    catch (Exception ex)
-    {
-        app.Logger.LogError(ex, "An error occurred while migrating the Portfolio database");
-        throw;
-    }
-}
+// NOTE: Automatic database migrations are DISABLED to prevent startup failures
+// Apply migrations manually with:
+//   cd Portfolio.API
+//   dotnet ef database update --project ../Portfolio.Data/Portfolio.Data.csproj --context PortfolioDbContext
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

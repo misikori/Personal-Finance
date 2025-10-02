@@ -21,6 +21,13 @@ public interface IMarketDataService
     /// <param name="days">Number of days of historical data</param>
     /// <returns>List of historical prices</returns>
     Task<List<decimal>> GetHistoricalPricesAsync(string symbol, int days);
+
+    /// <summary>
+    /// Gets full OHLCV candlestick data for charting
+    /// Perfect for rendering candlestick charts in the frontend
+    /// </summary>
+    /// <param name="symbol">Stock symbol</param>
+    /// <param name="days">Number of days of data to fetch</param>
+    /// <returns>Complete OHLCV data for candlestick visualization</returns>
+    Task<CandlestickDataResponse> GetCandlestickDataAsync(string symbol, int days);
 }
-
-

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Portfolio.Core.DTOs;
 using Portfolio.Core.Services;
+using Portfolio.Core.Repositories;
 
 namespace Portfolio.API.Controllers;
 
@@ -14,17 +15,20 @@ public class PortfolioController : ControllerBase
     private readonly IPortfolioService _portfolioService;
     private readonly IMarketDataService _marketDataService;
     private readonly IPredictionService _predictionService;
+    private readonly IPortfolioRepository _repository;
     private readonly ILogger<PortfolioController> _logger;
 
     public PortfolioController(
         IPortfolioService portfolioService,
         IMarketDataService marketDataService,
         IPredictionService predictionService,
+        IPortfolioRepository repository,
         ILogger<PortfolioController> logger)
     {
         _portfolioService = portfolioService;
         _marketDataService = marketDataService;
         _predictionService = predictionService;
+        _repository = repository;
         _logger = logger;
     }
 
@@ -42,6 +46,13 @@ public class PortfolioController : ControllerBase
     {
         try
         {
+            // Input validation
+            if (string.IsNullOrWhiteSpace(request.Symbol))
+                return BadRequest(new { error = "Stock symbol is required" });
+
+            if (request.Quantity <= 0)
+                return BadRequest(new { error = "Quantity must be greater than zero" });
+
             _logger.LogInformation("Received BUY request from {Username} for {Quantity} shares of {Symbol}", 
                 request.Username, request.Quantity, request.Symbol);
 
@@ -69,6 +80,13 @@ public class PortfolioController : ControllerBase
     {
         try
         {
+            // Input validation
+            if (string.IsNullOrWhiteSpace(request.Symbol))
+                return BadRequest(new { error = "Stock symbol is required" });
+
+            if (request.Quantity <= 0)
+                return BadRequest(new { error = "Quantity must be greater than zero" });
+
             _logger.LogInformation("Received SELL request from {Username} for {Quantity} shares of {Symbol}", 
                 request.Username, request.Quantity, request.Symbol);
 
@@ -84,7 +102,6 @@ public class PortfolioController : ControllerBase
 
     /// <summary>
     /// Get complete portfolio summary for a user
-    /// Shows all positions with current values, gains/losses, and overall portfolio performance
     /// </summary>
     /// <param name="username">Username of the portfolio owner</param>
     /// <returns>Portfolio summary with all positions and performance metrics</returns>
@@ -95,6 +112,9 @@ public class PortfolioController : ControllerBase
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(username))
+                return BadRequest(new { error = "Username is required" });
+
             _logger.LogInformation("Fetching portfolio summary for {Username}", username);
 
             var summary = await _portfolioService.GetPortfolioSummaryAsync(username);
@@ -108,13 +128,108 @@ public class PortfolioController : ControllerBase
     }
 
     /// <summary>
+    /// Get transaction history for a user
+    /// Returns chronological list of all buy/sell transactions
+    /// </summary>
+    /// <param name="username">Username</param>
+    /// <returns>List of transactions ordered by date (newest first)</returns>
+    /// <response code="200">Transaction history retrieved successfully</response>
+    [HttpGet("transactions/{username}")]
+    [ProducesResponseType(typeof(List<Core.Entities.Transaction>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTransactions(string username)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(username))
+                return BadRequest(new { error = "Username is required" });
+
+            _logger.LogInformation("Fetching transaction history for {Username}", username);
+
+            var transactions = await _repository.GetUserTransactionsAsync(username);
+            return Ok(transactions);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching transactions");
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get portfolio distribution for pie chart visualization
+    /// Returns percentage breakdown of each stock holding by current value
+    /// Perfect for rendering pie charts in the frontend
+    /// </summary>
+    /// <param name="username">Username of the portfolio owner</param>
+    /// <returns>Portfolio distribution with percentages and suggested colors</returns>
+    /// <response code="200">Distribution data retrieved successfully</response>
+    [HttpGet("distribution/{username}")]
+    [ProducesResponseType(typeof(PortfolioDistributionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetPortfolioDistribution(string username)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(username))
+                return BadRequest(new { error = "Username is required" });
+
+            _logger.LogInformation("Fetching portfolio distribution for {Username}", username);
+
+            var distribution = await _portfolioService.GetPortfolioDistributionAsync(username);
+            return Ok(distribution);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching portfolio distribution");
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get ML-powered stock recommendations with buy/sell/hold suggestions
+    /// </summary>
+    /// <param name="symbols">Comma-separated stock symbols to analyze (e.g., "AAPL,TSLA,MSFT")</param>
+    /// <returns>ML-based buy, sell, and hold recommendations sorted by strongest signals</returns>
+    /// <response code="200">Recommendations generated successfully</response>
+    [HttpGet("recommendations")]
+    [ProducesResponseType(typeof(StockRecommendationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetRecommendations([FromQuery] string symbols)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(symbols))
+            {
+                return BadRequest(new { error = "Please provide symbols parameter (e.g., ?symbols=AAPL,TSLA,MSFT)" });
+            }
+
+            var symbolList = symbols.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim().ToUpper())
+                .Distinct()
+                .ToList();
+
+            if (symbolList.Count == 0)
+            {
+                return BadRequest(new { error = "No valid symbols provided" });
+            }
+
+            _logger.LogInformation("Generating ML recommendations for symbols: {Symbols}", string.Join(", ", symbolList));
+
+            var recommendations = await _predictionService.GetRecommendationsAsync(symbolList);
+            return Ok(recommendations);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating recommendations");
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
     /// Get current market price for a stock
-    /// Fetches real-time price data from MarketGateway
     /// </summary>
     /// <param name="symbol">Stock symbol (e.g., "AAPL", "TSLA", "MSFT")</param>
-    /// <returns>Current price information including open, high, low, volume</returns>
-    /// <response code="200">Price retrieved successfully</response>
-    /// <response code="400">Invalid symbol or market data unavailable</response>
+    /// <returns>Current price information</returns>
     [HttpGet("price/{symbol}")]
     [ProducesResponseType(typeof(StockPriceResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -122,6 +237,9 @@ public class PortfolioController : ControllerBase
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(symbol))
+                return BadRequest(new { error = "Stock symbol is required" });
+
             _logger.LogInformation("Fetching current price for {Symbol}", symbol);
 
             var price = await _marketDataService.GetCurrentPriceAsync(symbol);
@@ -135,13 +253,41 @@ public class PortfolioController : ControllerBase
     }
 
     /// <summary>
-    /// Get price prediction for a stock
-    /// Uses historical data and trend analysis to predict future price movement
+    /// Get candlestick chart data for a stock
+    /// </summary>
+    /// <param name="symbol">Stock symbol (e.g., "AAPL")</param>
+    /// <param name="days">Number of days of data (default: 30)</param>
+    /// <returns>Candlestick data ready for charting libraries</returns>
+    [HttpGet("candlestick/{symbol}")]
+    [ProducesResponseType(typeof(CandlestickDataResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetCandlestickData(string symbol, [FromQuery] int days = 30)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(symbol))
+                return BadRequest(new { error = "Stock symbol is required" });
+
+            if (days <= 0)
+                return BadRequest(new { error = "Days must be greater than zero" });
+
+            _logger.LogInformation("Fetching {Days} days of candlestick data for {Symbol}", days, symbol);
+
+            var data = await _marketDataService.GetCandlestickDataAsync(symbol, days);
+            return Ok(data);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching candlestick data for {Symbol}", symbol);
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get ML price prediction
     /// </summary>
     /// <param name="symbol">Stock symbol to predict (e.g., "AAPL")</param>
-    /// <returns>Price prediction with confidence level and methodology</returns>
-    /// <response code="200">Prediction generated successfully</response>
-    /// <response code="400">Insufficient historical data or invalid symbol</response>
+    /// <returns>ML predicted price target with confidence level</returns>
     [HttpGet("predict/{symbol}")]
     [ProducesResponseType(typeof(PricePredictionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -149,7 +295,10 @@ public class PortfolioController : ControllerBase
     {
         try
         {
-            _logger.LogInformation("Generating price prediction for {Symbol}", symbol);
+            if (string.IsNullOrWhiteSpace(symbol))
+                return BadRequest(new { error = "Stock symbol is required" });
+
+            _logger.LogInformation("Generating ML price prediction for {Symbol}", symbol);
 
             var prediction = await _predictionService.PredictPriceAsync(symbol);
             return Ok(prediction);
@@ -170,5 +319,3 @@ public class PortfolioController : ControllerBase
         return Ok(new { status = "healthy", service = "Portfolio.API", timestamp = DateTime.UtcNow });
     }
 }
-
-

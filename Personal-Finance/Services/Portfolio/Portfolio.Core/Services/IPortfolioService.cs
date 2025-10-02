@@ -24,10 +24,14 @@ public interface IPortfolioService
     Task<PortfolioSummaryResponse> GetPortfolioSummaryAsync(string username);
     
     /// <summary>
+    /// Gets portfolio distribution for pie chart visualization
+    /// Returns percentage breakdown of holdings by current value
+    /// </summary>
+    Task<PortfolioDistributionResponse> GetPortfolioDistributionAsync(string username);
+    
+    /// <summary>
     /// Checks if user has sufficient budget to buy stocks
     /// NOTE: This will integrate with Budget service when available
     /// </summary>
     Task<bool> CheckBudgetAsync(string username, decimal amount);
 }
-
-
