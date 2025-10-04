@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Budget.Infrastructure.Migrations
 {
     [DbContext(typeof(BudgetDbContext))]
-    [Migration("20250930024445_AddSpendingLimits")]
-    partial class AddSpendingLimits
+    [Migration("20251004012221_CreateWithSeed")]
+    partial class CreateWithSeed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,6 +36,26 @@ namespace Budget.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("cf77eee4-07bf-407f-8643-17933f94eacb"),
+                            Name = "Bills",
+                            UserId = new Guid("c327a4c2-635a-42e4-a76e-05590708eece")
+                        },
+                        new
+                        {
+                            Id = new Guid("35a39ee9-e8b6-4646-a716-b979f5295a9e"),
+                            Name = "Groceries",
+                            UserId = new Guid("c327a4c2-635a-42e4-a76e-05590708eece")
+                        },
+                        new
+                        {
+                            Id = new Guid("417de232-ff5d-472a-aa4e-e47fd104daaa"),
+                            Name = "Salary",
+                            UserId = new Guid("c327a4c2-635a-42e4-a76e-05590708eece")
+                        });
                 });
 
             modelBuilder.Entity("Budget.Domain.Entities.RecurringTransaction", b =>
@@ -148,6 +168,32 @@ namespace Budget.Infrastructure.Migrations
                     b.HasIndex("WalletId");
 
                     b.ToTable("Transactions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("21ab4bab-9e03-48f3-ac91-0c7b77bcb66d"),
+                            Amount = 125m,
+                            CategoryName = "Groceries",
+                            Currency = "USD",
+                            Date = new DateTime(2025, 10, 3, 1, 22, 20, 518, DateTimeKind.Utc).AddTicks(1170),
+                            Description = "Weekly grocery run",
+                            TransactionType = 1,
+                            UserId = new Guid("c327a4c2-635a-42e4-a76e-05590708eece"),
+                            WalletId = new Guid("39a72b70-69e2-490a-98c1-fc1d316c55d8")
+                        },
+                        new
+                        {
+                            Id = new Guid("c2accf38-664f-4a62-acd3-bce1084a1763"),
+                            Amount = 50m,
+                            CategoryName = "Bills",
+                            Currency = "USD",
+                            Date = new DateTime(2025, 10, 4, 1, 22, 20, 518, DateTimeKind.Utc).AddTicks(1980),
+                            Description = "Internet",
+                            TransactionType = 1,
+                            UserId = new Guid("c327a4c2-635a-42e4-a76e-05590708eece"),
+                            WalletId = new Guid("39a72b70-69e2-490a-98c1-fc1d316c55d8")
+                        });
                 });
 
             modelBuilder.Entity("Budget.Domain.Entities.Wallet", b =>
@@ -173,6 +219,24 @@ namespace Budget.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Wallets");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("39a72b70-69e2-490a-98c1-fc1d316c55d8"),
+                            Currency = "USD",
+                            CurrentBalance = 2500m,
+                            Name = "Main funds",
+                            UserId = new Guid("c327a4c2-635a-42e4-a76e-05590708eece")
+                        },
+                        new
+                        {
+                            Id = new Guid("19b36d12-7547-4bec-b37e-d8c920038686"),
+                            Currency = "EUR",
+                            CurrentBalance = 800m,
+                            Name = "Vacation funds",
+                            UserId = new Guid("c327a4c2-635a-42e4-a76e-05590708eece")
+                        });
                 });
 
             modelBuilder.Entity("Budget.Domain.Entities.Transaction", b =>

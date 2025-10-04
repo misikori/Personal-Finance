@@ -12,7 +12,7 @@ namespace Budget.Application.Transactions
         private readonly ICurrencyConverter _currencyConverter = currencyConverter ?? throw new ArgumentNullException(nameof(currencyConverter));
         private readonly ICategoryRepository _categoryRepo =  categoryRepo ?? throw new ArgumentNullException(nameof(categoryRepo));
 
-        public async Task CreateTransactionAsync(CreateTransactionDto transactionDto)
+        public async Task<Transaction?> CreateTransactionAsync(CreateTransactionDto transactionDto)
         {
             var wallet = await this._walletRepository.GetByIdAsync(transactionDto.WalletId) ??
                 throw new Exception("Wallet not found.");
@@ -67,6 +67,8 @@ namespace Budget.Application.Transactions
             this._walletRepository.Update(wallet);
 
             await this._transactionRepository.SaveChangesAsync();
+            return transaction;
         }
+
     }
 }

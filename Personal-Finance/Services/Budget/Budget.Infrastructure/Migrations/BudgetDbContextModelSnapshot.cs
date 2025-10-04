@@ -33,6 +33,26 @@ namespace Budget.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            Name = "Bills",
+                            UserId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            Name = "Groceries",
+                            UserId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
+                            Name = "Salary",
+                            UserId = new Guid("11111111-1111-1111-1111-111111111111")
+                        });
                 });
 
             modelBuilder.Entity("Budget.Domain.Entities.RecurringTransaction", b =>
@@ -145,6 +165,32 @@ namespace Budget.Infrastructure.Migrations
                     b.HasIndex("WalletId");
 
                     b.ToTable("Transactions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("77777777-7777-7777-7777-777777777777"),
+                            Amount = 125m,
+                            CategoryName = "Groceries",
+                            Currency = "USD",
+                            Date = new DateTime(2025, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Weekly grocery run",
+                            TransactionType = 1,
+                            UserId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            WalletId = new Guid("55555555-5555-5555-5555-555555555555")
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888888"),
+                            Amount = 50m,
+                            CategoryName = "Bills",
+                            Currency = "USD",
+                            Date = new DateTime(2025, 10, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Internet",
+                            TransactionType = 1,
+                            UserId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            WalletId = new Guid("55555555-5555-5555-5555-555555555555")
+                        });
                 });
 
             modelBuilder.Entity("Budget.Domain.Entities.Wallet", b =>
@@ -170,6 +216,24 @@ namespace Budget.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Wallets");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-555555555555"),
+                            Currency = "USD",
+                            CurrentBalance = 2500m,
+                            Name = "Main funds",
+                            UserId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("66666666-6666-6666-6666-666666666666"),
+                            Currency = "EUR",
+                            CurrentBalance = 800m,
+                            Name = "Vacation funds",
+                            UserId = new Guid("11111111-1111-1111-1111-111111111111")
+                        });
                 });
 
             modelBuilder.Entity("Budget.Domain.Entities.Transaction", b =>

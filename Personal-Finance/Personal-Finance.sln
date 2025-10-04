@@ -22,10 +22,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.Infrastructure", "Services\Budget\Budget.Infrastructure\Budget.Infrastructure.csproj", "{575CDBA2-450B-4881-BF0F-2D0191383B5E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.Application", "Services\Budget\Budget.Application\Budget.Application.csproj", "{F712C346-BCEA-4122-97A4-42526959311A}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Security", "Security", "{321F17CC-1DB0-4204-8366-B83493547430}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityServer", "Security\IdentityServer\IdentityServer.csproj", "{FCD69B91-0233-4015-ABEA-A18A06C7A9D4}"
 
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.GRPC", "Services\Budget\Budget.GRPC\Budget.GRPC.csproj", "{E7BA2E3A-E235-448B-969F-36594022F592}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +70,10 @@ Global
 		{FCD69B91-0233-4015-ABEA-A18A06C7A9D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCD69B91-0233-4015-ABEA-A18A06C7A9D4}.Release|Any CPU.Build.0 = Release|Any CPU
 
+		{E7BA2E3A-E235-448B-969F-36594022F592}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7BA2E3A-E235-448B-969F-36594022F592}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7BA2E3A-E235-448B-969F-36594022F592}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7BA2E3A-E235-448B-969F-36594022F592}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
