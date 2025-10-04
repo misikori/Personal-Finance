@@ -14,3 +14,4 @@ repos:
         pass_filenames: false
         types_or: [c#]
         stages: [pre-commit]
+        

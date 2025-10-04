@@ -1,4 +1,4 @@
-﻿using Currency.Common.Entities;
+using Currency.Common.Entities;
 
 namespace Currency.API.Hosted.Fetchers
 {

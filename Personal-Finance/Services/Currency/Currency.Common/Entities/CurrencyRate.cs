@@ -1,9 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Currency.Common.Entities
 {
@@ -17,7 +12,7 @@ namespace Currency.Common.Entities
 
         [JsonProperty("parity")]
         public int Parity { get; set; }
-        
+
         [JsonProperty("exchange_middle")]
         public decimal ExchangeMiddle { get; set; }
     }

@@ -1,9 +1,4 @@
-﻿using Currency.Common.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Currency.Common.DTOs;
 
 namespace Currency.Common.Repositories
 {
