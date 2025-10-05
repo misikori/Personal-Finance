@@ -1,3 +1,5 @@
+import { decodeJwt, getEmailFromPayload, getNameFromPayload, getRolesFromPayload } from "../jwt";
+
 export type AuthSnapshot = {
   accessToken: string | null;
   refreshToken: string | null;
@@ -11,10 +13,16 @@ class AuthStore {
   private listeners = new Set<(s: AuthSnapshot) => void>();
 
   constructor() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) this.state = JSON.parse(raw);
-    } catch {}
+    this.rehydrateFromStorage();
+
+    // Keep in sync if another tab changes it (or some tools fire a storage event)
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", (e) => {
+        if (e.key === STORAGE_KEY) {
+          this.rehydrateFromStorage();
+        }
+      });
+    }
   }
 
   private persist() {
@@ -51,6 +59,16 @@ class AuthStore {
     localStorage.removeItem(STORAGE_KEY);
     this.emit();
   }
+  rehydrateFromStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      this.state = raw ? JSON.parse(raw) : { accessToken: null, refreshToken: null, user: null };
+    } catch {
+      this.state = { accessToken: null, refreshToken: null, user: null };
+    }
+    this.emit();
+  }
+  
 
   get accessToken()  { return this.state.accessToken; }
   get refreshToken() { return this.state.refreshToken; }
@@ -64,3 +82,16 @@ export const isAuthenticated = () => !!authStore.accessToken;
 export const getAccessToken = () => authStore.accessToken;
 export const getRefreshToken = () => authStore.refreshToken;
 export const getCurrentUser  = () => authStore.user;
+
+export function setTokensAndUserFromToken(accessToken: string | null, refreshToken: string | null) {
+  authStore.setTokens(accessToken, refreshToken);
+  const payload = decodeJwt(accessToken || "");
+  if (payload) {
+    const roles = getRolesFromPayload(payload);
+    const email = getEmailFromPayload(payload) ?? "";
+    const name  = getNameFromPayload(payload) ?? email ?? "";
+    const id = payload.sub ?? payload.sid ?? email ?? name ?? crypto.randomUUID();
+
+    authStore.setUser({ id: String(id), email: String(email), roles });
+  }
+}

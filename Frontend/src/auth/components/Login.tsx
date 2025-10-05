@@ -1,23 +1,22 @@
 import { useState } from "react";
 import { Alert, Box, Button, Container, Stack, TextField, Typography } from "@mui/material";
 import { useAuth } from "../../auth/hooks/useAuth";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../core/RoutesConfig";
 
 export default function Login() {
   const { login, isLoading } = useAuth();
-  const [email, setEmail] = useState("demo@demo.test");
+  const [userName, setUserName] = useState("demo@demo.test");
   const [password, setPassword] = useState("demo123!");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const location = useLocation() as any;
-  const redirectTo = location.state?.from ?? "/dashboard";
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     try {
-      await login(email, password);
-      navigate(redirectTo, { replace: true });
+       await login(userName, password);
+      navigate(ROUTES.PRIVATE.DASHBOARD, { replace: true });
     } catch (err: any) {
       setError(err?.message ?? "Login failed");
     }
@@ -30,8 +29,11 @@ export default function Login() {
         <Stack spacing={2}>
           {error && <Alert severity="error">{error}</Alert>}
           <TextField
-            label="Email" type="email" required fullWidth
-            value={email} onChange={e => setEmail(e.target.value)}
+            label="Username"
+            type="text"                                  
+            required fullWidth
+            value={userName}
+            onChange={e => setUserName(e.target.value)} 
           />
           <TextField
             label="Password" type="password" required fullWidth

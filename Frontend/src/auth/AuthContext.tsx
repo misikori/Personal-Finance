@@ -1,6 +1,7 @@
 import { createContext, useMemo, useState, ReactNode, useEffect } from "react";
 import { getCurrentUser, isAuthenticated as isAuthedFromStore, authStore } from "./store/authStore";
-import { login as svcLogin, logout as svcLogout, me as svcMe, signup as svcSignup } from "./services/authService";
+import { login as svcLogin, logout as svcLogout,signup as svcSignup } from "./services/authService";
+import { decodeJwt, getEmailFromPayload, getNameFromPayload, getRolesFromPayload, isTokenExpired } from "./jwt";
 
 export type User = { id: string; email: string; roles: string[] };
 
@@ -8,7 +9,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (userName: string, password: string) => Promise<void>;
   signup: (dto: {
     firstName: string;
     lastName: string;
@@ -27,27 +28,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(getCurrentUser());
   const [authed, setAuthed] = useState<boolean>(isAuthedFromStore());
 
+  const computeUserFromToken = (accessToken: string | null | undefined) => {
+      const p = decodeJwt(accessToken || "");
+      if (!p) return null;
+      const email = getEmailFromPayload(p) ?? "";
+      const name  = getNameFromPayload(p) ?? email ?? "";
+      const roles = getRolesFromPayload(p);
+      const id    = String(p.sub ?? p.sid ?? email ?? name);
+      return { id, email, roles } as User;
+  };
+
   useEffect(() => {
+    // 1) make memory match storage
+    authStore.rehydrateFromStorage();
+
+    // 2) initialize local state synchronously from snapshot
+    const snap = authStore.getSnapshot();
+    setUser(snap.user ?? computeUserFromToken(snap.accessToken));
+    setAuthed(!!snap.accessToken && !isTokenExpired(snap.accessToken));
+    setLoading(false);
+
+    // 3) keep in sync on store changes
     const unsub = authStore.subscribe((s) => {
-      setUser(s.user);
-      setAuthed(!!s.accessToken);
+      setUser(s.user ?? computeUserFromToken(s.accessToken));
+      setAuthed(!!s.accessToken && !isTokenExpired(s.accessToken));
     });
 
-    (async () => {
-      try {
-        if (isAuthedFromStore()) await svcMe();
-      } catch {} finally {
-        setLoading(false);
-      }
-    })();
+    // 4) rehydrate when window regains focus (covers same-tab localStorage edits)
+    const onFocus = () => authStore.rehydrateFromStorage();
+    window.addEventListener("focus", onFocus);
 
-    return () => {                // return void cleanup
-      unsub();                    // ignore boolean result
-    };
+    return () => { window.removeEventListener("focus", onFocus); unsub(); };
   }, []);
 
-  const login = async (email: string, password: string) => {
-    await svcLogin({ email, password });
+
+  const login = async (userName: string, password: string) => {
+    await svcLogin({ userName, password });
   };
 
   const signup = async (dto: {
