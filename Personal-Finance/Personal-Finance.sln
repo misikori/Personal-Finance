@@ -17,6 +17,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Security", "Security", "{32
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityServer", "Security\IdentityServer\IdentityServer.csproj", "{FCD69B91-0233-4015-ABEA-A18A06C7A9D4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{3C51E996-14FE-45B6-B201-F29A69FBC6DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus.Messages", "Common\EventBus.Messages\EventBus.Messages.csproj", "{8C5D6E99-BBC8-4E44-B7FB-3A2125D9075B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,10 @@ Global
 		{FCD69B91-0233-4015-ABEA-A18A06C7A9D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCD69B91-0233-4015-ABEA-A18A06C7A9D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCD69B91-0233-4015-ABEA-A18A06C7A9D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C5D6E99-BBC8-4E44-B7FB-3A2125D9075B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C5D6E99-BBC8-4E44-B7FB-3A2125D9075B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C5D6E99-BBC8-4E44-B7FB-3A2125D9075B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C5D6E99-BBC8-4E44-B7FB-3A2125D9075B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,6 +57,7 @@ Global
 		{95CB92F7-34F7-451B-B497-C5E451F0DDBE} = {ECF3C097-3169-4F10-B80B-D1C93B6BA8DD}
 		{E4C3B4D4-D843-4162-A256-B1A1B2BBF8C1} = {ECF3C097-3169-4F10-B80B-D1C93B6BA8DD}
 		{FCD69B91-0233-4015-ABEA-A18A06C7A9D4} = {321F17CC-1DB0-4204-8366-B83493547430}
+		{8C5D6E99-BBC8-4E44-B7FB-3A2125D9075B} = {3C51E996-14FE-45B6-B201-F29A69FBC6DB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C571D7B-A098-459C-8B8D-CEAF18D38B9F}
