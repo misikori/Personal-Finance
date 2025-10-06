@@ -18,6 +18,19 @@ services:
     ports:
       - "6379:6379"
 
+  budget-db:
+    container_name: budget-db
+    restart: on-failure
+    ports:
+        - "5432:5432"
+    environment:
+        - POSTGRES_USER=admin
+        - POSTGRES_PASSWORD=admin1234
+        - POSTGRES_DB=BudgetDb
+    volumes:
+        -   postgres_data:/var/lib/postgresql/data
+
+
   currency.api:
     container_name: currency.api
     environment:
@@ -38,7 +51,7 @@ services:
       - currency-db
     ports:
       - "8002:8080"
-  
+
   identityserver:
     container_name: identityserver
     depends_on:
@@ -48,3 +61,26 @@ services:
       - "ConnectionStrings:IdentityConnectionString=Server=mssql;Database=IdentityDb;User Id=sa;Password=MATF12345678rs2;TrustServerCertificate=True;"
     ports:
       - "8003:8080"
+
+  budget.api:
+    container_name: budget.api
+    environment:
+      - "ConnectionStrings:DefaultConnection=Host=budget-db;Port=5432;Database=BudgetDb;Username=admin;Password=admin1234"
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - budget-db
+
+    ports:
+      - "8004:8080"
+
+
+  budget.grpc:
+    container_name: budget.grpc
+    environment:
+      - "ConnectionStrings:DefaultConnection=Host=budget-db;Port=5432;Database=BudgetDb;Username=admin;Password=admin1234"
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - budget-db
+
+    ports:
+      - "8005:8080"

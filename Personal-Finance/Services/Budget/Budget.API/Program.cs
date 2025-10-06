@@ -15,7 +15,8 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // add sqlite
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BudgetDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseNpgsql(connectionString));
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // Add services to the container.
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
@@ -52,6 +53,10 @@ if (app.Environment.IsDevelopment())
 {
     _ = app.UseSwagger();
     _ = app.UseSwaggerUI();
+
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<BudgetDbContext>();
+    db.Database.Migrate();
 }
 
 app.UseAuthorization();
