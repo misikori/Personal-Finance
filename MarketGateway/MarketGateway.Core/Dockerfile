@@ -24,4 +24,6 @@ RUN dotnet publish "./MarketGateway.Core.csproj" -c $BUILD_CONFIGURATION -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+# Copy Vendor YAML configuration files
+COPY --from=build /src/MarketGateway/MarketGateway.Providers/Configuration/Vendors ./Configuration/Vendors
 ENTRYPOINT ["dotnet", "MarketGateway.Core.dll"]

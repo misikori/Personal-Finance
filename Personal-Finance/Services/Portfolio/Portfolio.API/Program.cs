@@ -157,7 +157,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Portfolio API v1");
-        c.RoutePrefix = string.Empty; // Serve Swagger UI at the app's root
+        c.RoutePrefix = "swagger";
     });
 }
 
@@ -166,5 +166,4 @@ app.UseAuthentication(); // Add authentication middleware
 app.UseAuthorization();
 app.MapControllers();
 
-var port = builder.Configuration.GetValue<int>("Port", 5100);
-app.Run($"http://localhost:{port}");
+app.Run();

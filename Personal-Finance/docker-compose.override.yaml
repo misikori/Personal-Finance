@@ -105,6 +105,7 @@ services:
       - "Storage:DatabasePath=/app/data/market.db"
       - "Storage:RootDirectory=/app/data"
       - "ConnectionStrings:MarketDb=Data Source=/app/data/market.db"
+      - "Vendors:Folder=./Configuration/Vendors"
       - "ALPHAVANTAGE_API_KEY=demo"
       - "FINNHUB_API_KEY=demo"
     volumes:
