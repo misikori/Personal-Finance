@@ -1,48 +1,31 @@
-﻿using Currency.Common.DTOs;
-using Currency.Common.Entities;
+using Currency.Common.DTOs;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 
 namespace Currency.Common.Repositories
 {
-    public class CurrencyRatesRepository : ICurrencyRatesRepository
+    public class CurrencyRatesRepository(IDistributedCache cache) : ICurrencyRatesRepository
     {
-        private readonly IDistributedCache _cache;
-
-        public CurrencyRatesRepository(IDistributedCache cache)
-        {
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-        }
+        private readonly IDistributedCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
 
         public async Task<CurrencyRateListDTO> GetRates()
         {
-            var rates = await _cache.GetStringAsync("rates:global");
+            string? rates = await this._cache.GetStringAsync("rates:global");
 
-            if (string.IsNullOrEmpty(rates)) {
-                return new CurrencyRateListDTO { Rates = new List<CurrencyRate>() };
-            }
-
-            return JsonConvert.DeserializeObject<CurrencyRateListDTO>(rates) ?? new CurrencyRateListDTO { Rates = new List<CurrencyRate>() };
+            return string.IsNullOrEmpty(rates)
+                ? new CurrencyRateListDTO { Rates = [] }
+                : JsonConvert.DeserializeObject<CurrencyRateListDTO>(rates) ?? new CurrencyRateListDTO { Rates = [] };
         }
 
         public async Task<CurrencyRateListDTO> UpdateRates(CurrencyRateListDTO currencyRateList)
         {
-            var ratesString = JsonConvert.SerializeObject(currencyRateList);
+            string ratesString = JsonConvert.SerializeObject(currencyRateList);
 
-            await _cache.SetStringAsync("rates:global", ratesString);
+            await this._cache.SetStringAsync("rates:global", ratesString);
 
-            return await GetRates();
+            return await this.GetRates();
         }
 
-        public async Task DeleteRates()
-        {
-            await _cache.RemoveAsync("rates:global");
-        }
+        public async Task DeleteRates() => await this._cache.RemoveAsync("rates:global");
     }
 }

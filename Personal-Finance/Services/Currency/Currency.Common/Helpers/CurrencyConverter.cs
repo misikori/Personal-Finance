@@ -1,9 +1,4 @@
-﻿using Currency.Common.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Currency.Common.Entities;
 
 namespace Currency.Common.Helpers
 {
@@ -11,10 +6,11 @@ namespace Currency.Common.Helpers
     {
         public static decimal Convert(decimal amount, CurrencyRate fromRate, CurrencyRate toRate)
         {
-            if (fromRate == null) throw new ArgumentNullException(nameof(fromRate));
-            if (toRate == null) throw new ArgumentNullException(nameof(toRate));
+            ArgumentNullException.ThrowIfNull(fromRate);
 
-            return amount * (fromRate.ExchangeMiddle / fromRate.Parity) * (toRate.Parity / toRate.ExchangeMiddle);
+            return toRate == null
+                ? throw new ArgumentNullException(nameof(toRate))
+                : amount * (fromRate.ExchangeMiddle / fromRate.Parity) * (toRate.Parity / toRate.ExchangeMiddle);
         }
     }
 }

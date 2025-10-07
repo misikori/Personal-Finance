@@ -6,6 +6,9 @@ services:
   currency-db:
     image: redis:alpine
 
+  budget-db:
+    image: postgres:17-alpine
+
   currency.api:
     build:
       context: .
@@ -20,6 +23,16 @@ services:
     build:
       context: .
       dockerfile: Security/IdentityServer/Dockerfile
-      
+
+  budget.api:
+    build:
+      context: .
+      dockerfile: Services/Budget/Budget.API/Dockerfile
+
+  budget.grpc:
+    build:
+      context: .
+      dockerfile: Services/Budget/Budget.GRPC/Dockerfile
 volumes:
   mssql_data:
+  postgres_data:

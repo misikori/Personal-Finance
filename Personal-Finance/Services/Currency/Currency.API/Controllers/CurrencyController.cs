@@ -1,23 +1,16 @@
-﻿using Currency.Common.DTOs;
+using Currency.Common.DTOs;
 using Currency.Common.Entities;
 using Currency.Common.Helpers;
 using Currency.Common.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace Currency.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CurrencyController : ControllerBase
+    public class CurrencyController(ICurrencyRatesRepository repository) : ControllerBase
     {
-        private readonly ICurrencyRatesRepository _repository;
-
-        public CurrencyController(ICurrencyRatesRepository repository)
-        {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-        }
+        private readonly ICurrencyRatesRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
         [HttpGet]
         [ProducesResponseType(typeof(List<CurrencyRate>), StatusCodes.Status200OK)]
@@ -25,25 +18,25 @@ namespace Currency.API.Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<CurrencyRate>>> GetRates([FromQuery] string baseCurrencyCode = "RSD")
         {
-            var rates = await _repository.GetRates();
+            CurrencyRateListDTO rates = await this._repository.GetRates();
 
-            if (!rates.Rates.Any())
+            if (rates.Rates.Count == 0)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
             if (baseCurrencyCode != "RSD")
             {
-                var baseCurrencyRate = rates.Rates.FirstOrDefault(r => r.Code == baseCurrencyCode)?.ExchangeMiddle ?? 0;
+                decimal baseCurrencyRate = rates.Rates.FirstOrDefault(r => r.Code == baseCurrencyCode)?.ExchangeMiddle ?? 0;
 
-                if ( baseCurrencyRate == 0)
+                if (baseCurrencyRate == 0)
                 {
-                    return BadRequest();
+                    return this.BadRequest();
                 }
 
                 rates.Rates.ForEach(r => r.ExchangeMiddle /= baseCurrencyRate);
             }
-            return Ok(rates);
+            return this.Ok(rates);
         }
 
         [HttpGet("convert")]
@@ -55,22 +48,23 @@ namespace Currency.API.Controllers
             [FromQuery] string to,
             [FromQuery] decimal amount)
         {
-            var rates = await _repository.GetRates();
-            if (!rates.Rates.Any())
+            CurrencyRateListDTO rates = await this._repository.GetRates();
+            if (rates.Rates.Count == 0)
             {
-                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+                return this.StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
 
-            var fromCurrency = rates.Rates.FirstOrDefault(x => x.Code == from);
-            var toCurrency = rates.Rates.FirstOrDefault(x => x.Code == to);
+            CurrencyRate? fromCurrency = rates.Rates.FirstOrDefault(x => x.Code == from);
+            CurrencyRate? toCurrency = rates.Rates.FirstOrDefault(x => x.Code == to);
 
-            if (fromCurrency == null || toCurrency == null) {
-                return NotFound($"Conversion from {from} to {to} not found!");
+            if (fromCurrency == null || toCurrency == null)
+            {
+                return this.NotFound($"Conversion from {from} to {to} not found!");
             }
 
             decimal converted = CurrencyConverter.Convert(amount, fromCurrency, toCurrency);
 
-            return Ok(new CurrencyConverterResponseDTO
+            return this.Ok(new CurrencyConverterResponseDTO
             {
                 From = fromCurrency.Code,
                 To = toCurrency.Code,
@@ -83,17 +77,14 @@ namespace Currency.API.Controllers
 
         [HttpPut]
         [ProducesResponseType(typeof(CurrencyRateListDTO), StatusCodes.Status200OK)]
-        public async Task<ActionResult<CurrencyRateListDTO>> UpdateRates([FromBody]CurrencyRateListDTO rates)
-        {
-            return Ok(await _repository.UpdateRates(rates));
-        }
+        public async Task<ActionResult<CurrencyRateListDTO>> UpdateRates([FromBody] CurrencyRateListDTO rates) => this.Ok(await this._repository.UpdateRates(rates));
 
         [HttpDelete]
         [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteRates()
         {
-            await _repository.DeleteRates();
-            return Ok();
+            await this._repository.DeleteRates();
+            return this.Ok();
         }
     }
 }
