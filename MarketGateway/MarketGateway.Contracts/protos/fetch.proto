@@ -1,0 +1,36 @@
+syntax = "proto3";
+package marketdata;
+option csharp_namespace = "MarketGateway.Contracts";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "common.proto";
+import "quote.proto";
+import "ohlcv.proto";
+
+enum DataType {
+  DATA_TYPE_UNSPECIFIED = 0;
+  QUOTE = 1;
+  OHLCV = 2;
+  // future: FX_QUOTE = 3; FUNDAMENTALS = 4; ...
+}
+
+
+message FetchRequest {
+  RequestContext ctx = 1;
+  DataType data_type = 2;
+  repeated Identifier ids = 3;
+  TimeRange range = 4;
+  google.protobuf.Struct parameters = 5;
+  QueryOptions options = 6;
+}
+message FetchReply {
+  bool ok = 1;
+  string error = 2;
+  google.protobuf.Timestamp retry_after = 3;
+  string request_id = 4;
+
+  oneof payload {
+    Quote quote = 10;
+    OhlcvSeries ohlcvSeries = 11;
+  }
+}
