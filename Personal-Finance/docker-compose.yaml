@@ -33,6 +33,18 @@ services:
     build:
       context: .
       dockerfile: Services/Budget/Budget.GRPC/Dockerfile
+
+  portfolio.api:
+    build:
+      context: ..
+      dockerfile: Personal-Finance/Services/Portfolio/Portfolio.API/Dockerfile
+
+  marketgateway.core:
+    build:
+      context: ..
+      dockerfile: MarketGateway/MarketGateway.Core/Dockerfile
+
 volumes:
   mssql_data:
   postgres_data:
+  marketgateway_data:
