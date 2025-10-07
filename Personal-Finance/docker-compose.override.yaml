@@ -84,3 +84,31 @@ services:
 
     ports:
       - "8005:8080"
+
+  portfolio.api:
+    container_name: portfolio.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings:PortfolioDb=Server=mssql;Database=PortfolioDb;User Id=sa;Password=MATF12345678rs2;TrustServerCertificate=True;Encrypt=False;Timeout=30;"
+      - "MarketGatewayUrl=http://marketgateway.core:8080"
+    depends_on:
+      - mssql
+      - marketgateway.core
+    ports:
+      - "8006:8080"
+
+  marketgateway.core:
+    container_name: marketgateway.core
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "Storage:Mode=Database"
+      - "Storage:DatabasePath=/app/data/market.db"
+      - "Storage:RootDirectory=/app/data"
+      - "ConnectionStrings:MarketDb=Data Source=/app/data/market.db"
+      - "Vendors:Folder=./Configuration/Vendors"
+      - "ALPHAVANTAGE_API_KEY=demo"
+      - "FINNHUB_API_KEY=demo"
+    volumes:
+      - marketgateway_data:/app/data
+    ports:
+      - "8007:8080"
