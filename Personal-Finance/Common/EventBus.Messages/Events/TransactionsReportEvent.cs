@@ -26,6 +26,8 @@ namespace EventBus.Messages.Events
 
     public class TransactionsReportEvent
     {
+        public string EmailAddress { get; set; }
+
         public string UserId { get; set; }
         public string UserName { get; set; }
         public IEnumerable<TransactionItem> TransactionItems { get; set; }
