@@ -7,10 +7,13 @@ import type { SidebarProps } from "./props";
 import { BrandTitle, HeaderBar, PermanentDrawer, TemporaryDrawer, NavItemWrapper } from "./styles";
 import { USER_ROUTES } from "../../core/RoutesConfig";
 import { DRAWER_MINI_PX, DRAWER_OPEN_PX } from "../../layouts/PrivateLayout/constants";
+import { useAuth } from "../../auth/hooks/useAuth";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 export default function Sidebar({ open, onToggle, permanent }: SidebarProps) {
   const location = useLocation();
   const items = useMemo(() => USER_ROUTES.filter(r => r.showInSidebar), []);
+  const { logout } = useAuth();
 
   const content = (
     <Box role="navigation" aria-label="Primary" sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -45,11 +48,26 @@ export default function Sidebar({ open, onToggle, permanent }: SidebarProps) {
               </ListItemButton>
             </NavItemWrapper>
           </Tooltip>
+          
         ))}
       </List>
-
       <Divider />
-      <Footer sx={{ p: open ? 2 : 1, textAlign: open ? "left" : "center" }}>
+
+      {/* Logout button pinned at the bottom */}
+      <Tooltip
+        title={open ? "" : "Logout"}
+        placement="right"
+        enterDelay={600}
+        disableHoverListener={open}
+      >
+        <NavItemWrapper data-open={open ? "true" : "false"}>
+          <ListItemButton onClick={logout} aria-label="Logout">
+            <ListItemIcon><LogoutIcon /></ListItemIcon>
+            {open && <ListItemText primary="Logout" />}
+          </ListItemButton>
+        </NavItemWrapper>
+      </Tooltip>
+      <Divider />      <Footer sx={{ p: open ? 2 : 1, textAlign: open ? "left" : "center" }}>
         {open ? "v0.1.0" : "v0.1"}
       </Footer>
     </Box>
