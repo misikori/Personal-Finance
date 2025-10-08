@@ -10,6 +10,7 @@ export const AppConfigSchema = z.object({
     }).partial().default({}),
     DEFAULT_CURRENCY: z.string().optional().default("EUR"),
     LOCALE:z.string().optional().default("en-US"),
+    API_BUGET_URL:z.string().min(1)
 })
 
 export type AppConfig = z.infer<typeof AppConfigSchema>;

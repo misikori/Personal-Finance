@@ -1,4 +1,4 @@
-import { Transaction, TransactionFilter, TransactionSortBy } from "../../../../types/transaction";
+import { Transaction, TransactionSortBy, TransactionFilter } from "../../../../domain/budget/types/transactionTypes";
 
 export type TransactionTableProps = {
   rows: Transaction[];

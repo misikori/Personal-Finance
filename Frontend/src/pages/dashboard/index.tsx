@@ -1,9 +1,9 @@
 import * as React from "react";
 import { Grid as Grid, Stack, Typography } from "@mui/material";
-
 import KpiCard from "./components/KpiCard";
 import RecentActivity from "./components/RecentActivity";
 import TopMovers from "./components/TopMovers";
+import { WalletsPanel } from "./components/WalletsPanel";
 import { getKpisMock, getRecentTransactionsMock, getTopMoversMock } from "./dashboardMocks";
 import { Kpi, RecentTransaction, TopMover } from "./types";
 
@@ -11,6 +11,7 @@ export default function DashboardPage() {
   const [kpis, setKpis] = React.useState<Kpi[]>([]);
   const [recent, setRecent] = React.useState<RecentTransaction[]>([]);
   const [movers, setMovers] = React.useState<TopMover[] | null>(null);
+
   React.useEffect(() => {
     let mounted = true;
     (async () => {
@@ -18,16 +19,16 @@ export default function DashboardPage() {
       if (!mounted) return;
       setKpis(k);
       setRecent(r.slice(0, 5));
-
       getTopMoversMock().then(m => mounted && setMovers(m.slice(0, 5)));
     })();
     return () => { mounted = false; };
   }, []);
 
   return (
-    <Stack spacing={3} sx={{maxWidth:'100%'}}>
+    <Stack spacing={3} sx={{ maxWidth: "100%" }}>
       <Typography variant="h5" fontWeight={800}>Dashboard</Typography>
 
+      {/* KPI row */}
       <Grid container spacing={2}>
         {kpis.map(k => (
           <Grid key={k.id} size={{ xs: 12, sm: 6, md: 3 }}>
@@ -36,13 +37,16 @@ export default function DashboardPage() {
         ))}
       </Grid>
 
+      {/* Main area */}
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: 8 }}>
           <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Recent Activity</Typography>
           <RecentActivity rows={recent} />
         </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
+
+        <Grid size={{ xs: 12, md: 4 }} sx={{ display: "grid", gap: 16 }}>
           {movers && <TopMovers movers={movers} />}
+          <WalletsPanel />
         </Grid>
       </Grid>
     </Stack>

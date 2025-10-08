@@ -1,17 +1,20 @@
-import { Typography } from "@mui/material";
+import { useState } from "react";
+import { Button, Stack, Typography } from "@mui/material";
 import TransactionFilters from "./components/TransactionFilters";
 import TransactionsTable from "./components/TransactionsTable";
 import { useTransactions } from "./hooks/useTransactions";
+import TransactionsCreateDialog from "./components/TransactionsCreateDialog";
 
 export default function TransactionsPage() {
-  const {
-    filter, setFilter,
-    items, total, page, pageSize, loading,
-  } = useTransactions();
+  const { filter, setFilter, items, total, page, pageSize, loading } = useTransactions();
+  const [openNew, setOpenNew] = useState(false);
 
   return (
     <div>
-      <Typography variant="h4" sx={{ mb: 2 }}>All Transactions</Typography>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+        <Typography variant="h4">All Transactions</Typography>
+        <Button variant="contained" onClick={() => setOpenNew(true)}>New Transaction</Button>
+      </Stack>
 
       <TransactionFilters value={filter} onChange={setFilter} />
 
@@ -32,6 +35,15 @@ export default function TransactionsPage() {
         }))}
         loading={loading}
         filter={filter}
+      />
+
+      <TransactionsCreateDialog
+        open={openNew}
+        onClose={() => setOpenNew(false)}
+        onCreated={() => {
+
+          setFilter(f => ({ ...f })); 
+        }}
       />
     </div>
   );

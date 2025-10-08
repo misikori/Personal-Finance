@@ -1,30 +1,40 @@
 import { useMemo } from "react";
-import { Box, Stack, TextField, InputLabel, MenuItem, Select, FormControl, OutlinedInput, Checkbox, ListItemText } from "@mui/material";
-import { TransactionFiltersProps } from "./props";
-import { TRANSACTION_ACCOUNTS, TRANSACTION_TYPES } from "../../../../mocks/transactions.mock";
-import { TransactionFilter, TransactionType } from "../../../../types/transaction";
+import {
+  Box, Stack, TextField, InputLabel, MenuItem, Select, FormControl, OutlinedInput
+} from "@mui/material";
 import { formRootSx, rowStackSx } from "./styles";
+import { useWallets } from "../../hooks/useWallets";
+import type { TransactionFilter, TransactionType } from "../../../../domain/budget/types/transactionTypes";
+import { TransactionFiltersProps } from "./props";
+
+
+const TYPE_OPTIONS: (TransactionType | "All")[] = ["All", "Income", "Expense"];
 
 export default function TransactionFilters({ value, onChange }: TransactionFiltersProps) {
-  const accounts = TRANSACTION_ACCOUNTS;
-  const types = TRANSACTION_TYPES;
-
-  const selectedTypes = value.types ?? [];
+  const { wallets } = useWallets();
 
   const handle = (patch: Partial<TransactionFilter>) => onChange({ ...value, ...patch });
 
-  const typeMenuItems = useMemo(() => (
-    types.map((t) => (
-      <MenuItem key={t} value={t}>
-        <Checkbox checked={selectedTypes.includes(t)} />
-        <ListItemText primary={t} />
-      </MenuItem>
-    ))
-  ), [types, selectedTypes]);
+  const walletMenu = useMemo(
+    () => wallets.map(w => <MenuItem key={w.id} value={w.id}>{w.name} ({w.currency})</MenuItem>),
+    [wallets]
+  );
 
   return (
     <Box component="form" noValidate sx={formRootSx}>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={rowStackSx}>
+        <FormControl sx={{ minWidth: 220 }}>
+          <InputLabel id="wallet-label">Wallet</InputLabel>
+          <Select
+            labelId="wallet-label"
+            input={<OutlinedInput label="Wallet" />}
+            value={value.walletId ?? ""}
+            onChange={(e) => handle({ walletId: String(e.target.value), page: 1 })}
+          >
+            {walletMenu}
+          </Select>
+        </FormControl>
+
         <TextField
           className="date-from"
           label="From"
@@ -41,36 +51,26 @@ export default function TransactionFilters({ value, onChange }: TransactionFilte
           value={value.dateTo ?? ""}
           onChange={(e) => handle({ dateTo: e.target.value || undefined, page: 1 })}
         />
-        <FormControl className="types-select">
-          <InputLabel id="types-label">Types</InputLabel>
-          <Select
-            labelId="types-label"
-            multiple
-            input={<OutlinedInput label="Types" />}
-            value={selectedTypes}
-            onChange={(e) => handle({ types: e.target.value as TransactionType[], page: 1 })}
-            renderValue={(sel) => (sel as string[]).join(", ")}
-          >
-            {typeMenuItems}
-          </Select>
-        </FormControl>
+
         <TextField
-          label="Symbol"
-          placeholder="e.g. AAPL"
-          value={value.symbolContains ?? ""}
-          onChange={(e) => handle({ symbolContains: e.target.value || undefined, page: 1 })}
-          inputProps={{ maxLength: 10 }}
+          label="Category"
+          placeholder="e.g. Groceries"
+          value={value.categoryName ?? ""}
+          onChange={(e) => handle({ categoryName: e.target.value || undefined, page: 1 })}
         />
-        <FormControl className="account-select">
-          <InputLabel id="account-label">Account</InputLabel>
+
+        <FormControl sx={{ minWidth: 160 }}>
+          <InputLabel id="type-label">Type</InputLabel>
           <Select
-            labelId="account-label"
-            label="Account"
-            value={value.account ?? ""}
-            onChange={(e) => handle({ account: (e.target.value || undefined) as string | undefined, page: 1 })}
+            labelId="type-label"
+            input={<OutlinedInput label="Type" />}
+            value={value.type ?? "All"}
+            onChange={(e) => {
+              const v = e.target.value as TransactionType | "All";
+              handle({ type: v === "All" ? undefined : v, page: 1 });
+            }}
           >
-            <MenuItem value=""><em>Any</em></MenuItem>
-            {accounts.map(a => <MenuItem key={a} value={a}>{a}</MenuItem>)}
+            {TYPE_OPTIONS.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
           </Select>
         </FormControl>
       </Stack>

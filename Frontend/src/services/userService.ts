@@ -1,4 +1,5 @@
-import BaseService from "../shared/api/BaseService";
+import { BaseService } from "../core/http/BaseService";
+
 
 export type MeDto = { id: string; email: string; roles: string[] };
 

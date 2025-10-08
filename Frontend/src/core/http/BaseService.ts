@@ -1,8 +1,8 @@
-import apiClient from "./apiClient";
-import { logger } from "../utils/logger";
+import type { AxiosInstance } from "axios";
+import { logger } from "../../shared/utils/logger";
 
 export class BaseService<T = unknown> {
-  constructor(protected baseUrl: string = "") {}
+  constructor(protected client: AxiosInstance, protected baseUrl = "") {}
 
   protected buildUrl(endpoint: string): string {
     if (!this.baseUrl) return endpoint;
@@ -26,47 +26,40 @@ export class BaseService<T = unknown> {
 
   async get<TResult = T>(url: string, params?: any): Promise<TResult> {
     return this.safeRequest(async () => {
-      const res = await apiClient.get<TResult>(this.buildUrl(url), { params });
-      return res.data;
+      const res = await this.client.get<TResult>(this.buildUrl(url), { params });
+      return res.data as TResult;
     });
   }
-
   async post<TResult = T>(url: string, body?: any): Promise<TResult> {
     return this.safeRequest(async () => {
-      const res = await apiClient.post<TResult>(this.buildUrl(url), body);
-      return res.data;
+      const res = await this.client.post<TResult>(this.buildUrl(url), body);
+      return res.data as TResult;
     });
   }
-
   async postForm<TResult = T>(url: string, formData: FormData): Promise<TResult> {
     return this.safeRequest(async () => {
-      const res = await apiClient.post<TResult>(this.buildUrl(url), formData, {
+      const res = await this.client.post<TResult>(this.buildUrl(url), formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      return res.data;
+      return res.data as TResult;
     });
   }
-
   async put<TResult = T>(url: string, body: any): Promise<TResult> {
     return this.safeRequest(async () => {
-      const res = await apiClient.put<TResult>(this.buildUrl(url), body);
-      return res.data;
+      const res = await this.client.put<TResult>(this.buildUrl(url), body);
+      return res.data as TResult;
     });
   }
-
   async patch<TResult = T>(url: string, body: any): Promise<TResult> {
     return this.safeRequest(async () => {
-      const res = await apiClient.patch<TResult>(this.buildUrl(url), body);
-      return res.data;
+      const res = await this.client.patch<TResult>(this.buildUrl(url), body);
+      return res.data as TResult;
     });
   }
-
   async delete<TResult = T>(url: string): Promise<TResult> {
     return this.safeRequest(async () => {
-      const res = await apiClient.delete<TResult>(this.buildUrl(url));
-      return res.data;
+      const res = await this.client.delete<TResult>(this.buildUrl(url));
+      return res.data as TResult;
     });
   }
 }
-
-export default BaseService;

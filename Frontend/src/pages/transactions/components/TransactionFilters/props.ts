@@ -1,4 +1,5 @@
-import { TransactionFilter } from "../../../../types/transaction";
+import { TransactionFilter } from "../../../../domain/budget/types/transactionTypes";
+
 
 export type TransactionFiltersProps = {
   value: TransactionFilter;

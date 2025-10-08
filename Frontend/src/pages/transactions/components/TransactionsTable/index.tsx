@@ -3,7 +3,6 @@ import {
   Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, TableSortLabel, Typography, Pagination, Stack, Select, MenuItem
 } from "@mui/material";
-import { TransactionSortBy } from "../../../../types/transaction";
 import { TransactionTableProps } from "./props";
 import { fmtCurrency, fmtTime } from "../../../../shared/utils/format";
 import {
@@ -14,6 +13,7 @@ import {
   amountPositiveSx,
   amountNegativeSx,
 } from "./styles";
+import type { TransactionSortBy } from "../../../../domain/budget/types/transactionTypes";
 
 export default function TransactionsTable({
   rows, total, page, pageSize, onPageChange, onPageSizeChange,
@@ -24,14 +24,12 @@ export default function TransactionsTable({
   const empty = !loading && total === 0;
 
   const header = useMemo(() => ([
-    { id: "ts", label: "Date", sortable: true },
+    { id: "createdAt", label: "Date", sortable: true },
     { id: "type", label: "Type", sortable: false },
-    { id: "symbol", label: "Symbol", sortable: false },
-    { id: "qty", label: "Qty", sortable: false, align: "right" as const },
-    { id: "price", label: "Price", sortable: false, align: "right" as const },
-    { id: "fees", label: "Fees", sortable: false, align: "right" as const },
+    { id: "categoryName", label: "Category", sortable: false },
+    { id: "description", label: "Description", sortable: false },
     { id: "amount", label: "Amount", sortable: true, align: "right" as const },
-    { id: "account", label: "Account", sortable: false },
+    { id: "currency", label: "Currency", sortable: false, align: "right" as const },
   ]), []);
 
   return (
@@ -76,31 +74,23 @@ export default function TransactionsTable({
             )}
 
             {!loading && rows.map((r) => (
-              <TableRow
-                key={r.id}
-                hover
-                tabIndex={0}
-                sx={focusableRowSx}
-              >
-                <TableCell>{fmtTime(r.ts)}</TableCell>
-                <TableCell>{r.type}</TableCell>
-                <TableCell>{r.symbol ?? "—"}</TableCell>
-                <TableCell align="right">{r.qty ?? "—"}</TableCell>
-                <TableCell align="right">{r.price ? fmtCurrency(r.price, r.currency ?? "USD") : "—"}</TableCell>
-                <TableCell align="right">{typeof r.fees === "number" ? fmtCurrency(r.fees, r.currency ?? "USD") : "—"}</TableCell>
+              <TableRow key={String(r.id)} hover tabIndex={0} sx={focusableRowSx}>
+                <TableCell>{fmtTime(r.date)}</TableCell>
+                <TableCell>{r.type ?? "—"}</TableCell>
+                <TableCell>{r.categoryName ?? "—"}</TableCell>
+                <TableCell>{r.description ?? "—"}</TableCell>
                 <TableCell align="right">
                   <Box component="span" sx={r.amount < 0 ? amountNegativeSx : amountPositiveSx}>
-                    {fmtCurrency(r.amount, r.currency ?? "USD")}
+                    {fmtCurrency(r.amount, r.currency)}
                   </Box>
                 </TableCell>
-                <TableCell>{r.account}</TableCell>
+                <TableCell align="right">{r.currency}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {/* Pagination controls */}
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={paginationBarSx}>
         <Typography variant="caption" color="text.secondary">
           {total.toLocaleString()} total

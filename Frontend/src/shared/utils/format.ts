@@ -13,3 +13,6 @@ export const fmtTime = (iso: string) =>
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(iso));
+
+export const formatNumber = (n: number | undefined) =>
+  n ? n.toLocaleString(undefined, { maximumFractionDigits: 2 }) : 0;
