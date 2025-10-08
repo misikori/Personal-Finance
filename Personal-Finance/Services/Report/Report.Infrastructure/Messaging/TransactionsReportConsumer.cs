@@ -34,7 +34,12 @@ namespace Report.Infrastructure.Messaging
             var folder = Path.Combine(AppContext.BaseDirectory, "reports");
             Directory.CreateDirectory(folder);
 
-            var fileName = $"{Guid.NewGuid()}.pdf";
+            var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss");
+            // Path.GetInvalidFileNameChars() returns an array of invalid characters for file names so we can protect ourselves
+            // We eliminate those characters from the username so we can add it to the file name
+            var safeUserName = string.Join("", message.UserName.Split(Path.GetInvalidFileNameChars()));
+            safeUserName = safeUserName.Replace(" ", "").Trim();
+            var fileName = $"Report_{safeUserName}_{timestamp}.pdf";
             var path = Path.Combine(folder, fileName);
 
             await File.WriteAllBytesAsync(path, pdfBytes);
