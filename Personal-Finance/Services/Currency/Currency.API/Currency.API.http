@@ -1,4 +1,4 @@
-@Currency.API_HostAddress = http://localhost:5044
+@Currency.API_HostAddress = http://localhost:8001
 
 ### Get all rates (default RSD)
 GET {{Currency.API_HostAddress}}/api/currency

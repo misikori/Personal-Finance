@@ -7,6 +7,9 @@ services:
   currency-db:
     image: redis:alpine
 
+  rabbitmq:
+    image: rabbitmq:4.1.4-management-alpine
+
   budget-db:
     image: postgres:17-alpine
 
