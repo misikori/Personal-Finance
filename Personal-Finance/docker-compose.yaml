@@ -55,6 +55,13 @@ services:
       context: ..
       dockerfile: MarketGateway/MarketGateway.Core/Dockerfile
 
+  report.api:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Services/Report/Report.API/Dockerfile
+    
+
 volumes:
   mssql_data:
   postgres_data:
