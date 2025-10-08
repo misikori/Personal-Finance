@@ -55,6 +55,7 @@ dotnet_sort_system_directives_first = true
 file_header_template = unset
 
 # Analyzer severity
+
 dotnet_analyzer_diagnostic.category-Style.severity = silent
 dotnet_analyzer_diagnostic.category-Naming.severity = silent
 dotnet_analyzer_diagnostic.category-Maintainability.severity = silent

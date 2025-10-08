@@ -1,4 +1,4 @@
-﻿namespace Currency.API.Configuration
+namespace Currency.API.Configuration
 {
     public class CurrencyApiSettings
     {

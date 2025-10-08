@@ -3,6 +3,7 @@ using MarketGateway.Data.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Serilog;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -12,10 +13,21 @@ public static class DatabaseStartupExtensions
 {
     public static async Task InitDatabaseAsync(this WebApplication app)
     {
-        Directory.CreateDirectory(Path.Combine("..", "MarketGateway.Data", "DataStorage"));
-        Directory.CreateDirectory(Path.Combine("..", "MarketGateway.Data", "logs"));
-        
         using var scope = app.Services.CreateScope();
+        
+        // Get configured storage options
+        var storageOptions = scope.ServiceProvider.GetRequiredService<IOptions<StorageOptions>>().Value;
+        
+        // Create necessary directories from configuration
+        if (!string.IsNullOrEmpty(storageOptions.RootDirectory))
+        {
+            Directory.CreateDirectory(storageOptions.RootDirectory);
+            
+            // Create logs directory if needed
+            var logsDir = Path.Combine(storageOptions.RootDirectory, "logs");
+            Directory.CreateDirectory(logsDir);
+        }
+        
         var env = scope.ServiceProvider.GetRequiredService<IHostEnvironment>();
         var db  = scope.ServiceProvider.GetRequiredService<MarketDbContext>();
         

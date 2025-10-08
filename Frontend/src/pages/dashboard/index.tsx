@@ -11,7 +11,6 @@ export default function DashboardPage() {
   const [kpis, setKpis] = React.useState<Kpi[]>([]);
   const [recent, setRecent] = React.useState<RecentTransaction[]>([]);
   const [movers, setMovers] = React.useState<TopMover[] | null>(null);
-  console.log("Opasno")
   React.useEffect(() => {
     let mounted = true;
     (async () => {
