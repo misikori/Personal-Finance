@@ -1,6 +1,3 @@
-@Report.API_HostAddress = http://localhost:5034
-
-GET {{Report.API_HostAddress}}/weatherforecast/
-Accept: application/json
+@Report.API_HostAddress = http://localhost:8008
 
 ###
