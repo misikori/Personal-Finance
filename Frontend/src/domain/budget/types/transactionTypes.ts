@@ -1,7 +1,7 @@
 import { Guid } from "./budgetServiceTypes";
 
 export type TransactionType = "Income" | "Expense";
-export type TransactionSortBy = "createdAt" | "amount";
+export type TransactionSortBy = "createdAt" | "amount" | "date" | "type";
 export type SortDir = "asc" | "desc";
 
 export type CreateTransactionRequest = {

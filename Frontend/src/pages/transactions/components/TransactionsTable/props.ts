@@ -7,7 +7,7 @@ export type TransactionTableProps = {
   pageSize: number;
   onPageChange: (p: number) => void;
   onPageSizeChange: (ps: number) => void;
-  sortBy: TransactionSortBy;
+  sortBy?: TransactionSortBy;
   sortDir: "asc" | "desc";
   onSortChange: (by: TransactionSortBy) => void;
   loading?: boolean;

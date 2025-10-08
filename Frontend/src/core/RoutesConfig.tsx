@@ -3,6 +3,8 @@ import { RouteMeta } from "./RouteMeta";
 import SpaceDashboardIcon from "@mui/icons-material/SpaceDashboard";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import InventoryIcon from "@mui/icons-material/Inventory"; 
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import ReplayIcon from "@mui/icons-material/Replay";
 
 
 export const ROUTES = {
@@ -15,6 +17,8 @@ export const ROUTES = {
     DASHBOARD: "/dashboard",
     PORTFOLIO: "/portfolio",
     TRANSACTIONS: "/transactions",
+    WALLETS: "/wallets",                
+    RECURRING: "/recurring-transactions", 
   },
 };
 
@@ -37,6 +41,7 @@ export const PUBLIC_ROUTES: RouteMeta[] = [
     guard: "guest",
     label: "Sign Up",
   },
+
 ];
 
 export const USER_ROUTES: RouteMeta[] = [
@@ -67,5 +72,24 @@ export const USER_ROUTES: RouteMeta[] = [
     icon: <InventoryIcon />,
     showInSidebar: true,
   },
+  {
+    path: ROUTES.PRIVATE.WALLETS,
+    Component: lazy(() => import("../pages/wallets")),  
+    guard: "auth",
+    roles: ["User"],
+    label: "Wallets",
+    icon: <AccountBalanceWalletIcon />,
+    showInSidebar: true,
+  },
+  {
+    path: ROUTES.PRIVATE.RECURRING,
+    Component: lazy(() => import("../pages/recurring-transactions")),
+    guard: "auth",
+    roles: ["User"],
+    label: "Recurring",
+    icon: <ReplayIcon />,
+    showInSidebar: true,
+  },
+  
 ];
 

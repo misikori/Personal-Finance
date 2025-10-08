@@ -7,7 +7,6 @@ import { useWallets } from "../../hooks/useWallets";
 import type { TransactionFilter, TransactionType } from "../../../../domain/budget/types/transactionTypes";
 import { TransactionFiltersProps } from "./props";
 
-
 const TYPE_OPTIONS: (TransactionType | "All")[] = ["All", "Income", "Expense"];
 
 export default function TransactionFilters({ value, onChange }: TransactionFiltersProps) {

@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { BudgetService } from "../../../domain/budget/services/BudgetService";
 import type {
-  Transaction, TransactionFilter, TransactionSortBy
+  Transaction,
+  TransactionFilter,
+  TransactionSortBy,
 } from "../../../domain/budget/types/transactionTypes";
 
 type PagedResult<T> = { items: T[]; total: number; page: number; pageSize: number };
 
 const DEFAULTS: Required<Pick<TransactionFilter, "sortBy" | "sortDir" | "page" | "pageSize">> = {
-  sortBy: "createdAt",
+  sortBy: "date",
   sortDir: "desc",
   page: 1,
   pageSize: 10,
@@ -16,31 +18,48 @@ const DEFAULTS: Required<Pick<TransactionFilter, "sortBy" | "sortDir" | "page" |
 export function useTransactions(initial?: TransactionFilter) {
   const [filter, setFilter] = useState<TransactionFilter>({ ...DEFAULTS, ...initial });
   const [data, setData] = useState<PagedResult<Transaction>>({
-    items: [], total: 0, page: DEFAULTS.page, pageSize: DEFAULTS.pageSize
+    items: [],
+    total: 0,
+    page: DEFAULTS.page,
+    pageSize: DEFAULTS.pageSize,
   });
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async (f: TransactionFilter) => {
     if (!f.walletId) {
-      setData({ items: [], total: 0, page: f.page ?? 1, pageSize: f.pageSize ?? 10 });
+      setData({
+        items: [],
+        total: 0,
+        page: f.page ?? DEFAULTS.page,
+        pageSize: f.pageSize ?? DEFAULTS.pageSize,
+      });
       return;
     }
+
     setLoading(true);
     try {
       const raw = await BudgetService.transactions.list(f.walletId, {
         startDate: f.dateFrom,
         endDate: f.dateTo,
         categoryName: f.categoryName,
-        type: f.type,
+
       });
 
+
+      const afterType = f.type ? raw.filter(t => t.type === f.type) : raw;
+
       const dir = f.sortDir === "asc" ? 1 : -1;
-      const sorted = [...raw].sort((a, b) => {
-        if (f.sortBy === "createdAt") {
+      const sorted = [...afterType].sort((a, b) => {
+        const by: TransactionSortBy = (f.sortBy ?? DEFAULTS.sortBy) as TransactionSortBy;
+
+        if (by === "date") {
           return (new Date(a.date).getTime() - new Date(b.date).getTime()) * dir;
         }
-        if (f.sortBy === "amount") {
+        if (by === "amount") {
           return (a.amount - b.amount) * dir;
+        }
+        if (by === "type") {
+          return (a.type ?? "").localeCompare(b.type ?? "") * dir;
         }
         return 0;
       });
@@ -66,3 +85,4 @@ export function useTransactions(initial?: TransactionFilter) {
 
   return { filter, setFilter, ...data, loading };
 }
+

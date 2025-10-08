@@ -24,12 +24,12 @@ export default function TransactionsTable({
   const empty = !loading && total === 0;
 
   const header = useMemo(() => ([
-    { id: "createdAt", label: "Date", sortable: true },
-    { id: "type", label: "Type", sortable: false },
-    { id: "categoryName", label: "Category", sortable: false },
-    { id: "description", label: "Description", sortable: false },
-    { id: "amount", label: "Amount", sortable: true, align: "right" as const },
-    { id: "currency", label: "Currency", sortable: false, align: "right" as const },
+    { id: "createdAt",   label: "Date",       sortable: true },
+    { id: "type",        label: "Type",       sortable: true },
+    { id: "categoryName",label: "Category",   sortable: false },
+    { id: "description", label: "Description",sortable: false },
+    { id: "amount",      label: "Amount",     sortable: true, align: "right" as const },
+    { id: "currency",    label: "Currency",   sortable: false, align: "right" as const },
   ]), []);
 
   return (
@@ -73,20 +73,24 @@ export default function TransactionsTable({
               </TableRow>
             )}
 
-            {!loading && rows.map((r) => (
-              <TableRow key={String(r.id)} hover tabIndex={0} sx={focusableRowSx}>
-                <TableCell>{fmtTime(r.date)}</TableCell>
-                <TableCell>{r.type ?? "—"}</TableCell>
-                <TableCell>{r.categoryName ?? "—"}</TableCell>
-                <TableCell>{r.description ?? "—"}</TableCell>
-                <TableCell align="right">
-                  <Box component="span" sx={r.amount < 0 ? amountNegativeSx : amountPositiveSx}>
-                    {fmtCurrency(r.amount, r.currency)}
-                  </Box>
-                </TableCell>
-                <TableCell align="right">{r.currency}</TableCell>
-              </TableRow>
-            ))}
+            {!loading && rows.map((r) => {
+              const isExpense = r.type === "Expense";
+              return (
+                <TableRow key={String(r.id)} hover tabIndex={0} sx={focusableRowSx}>
+                  <TableCell>{fmtTime(r.date)}</TableCell>
+                  <TableCell>{r.type ?? "—"}</TableCell>
+                  <TableCell>{r.categoryName ?? "—"}</TableCell>
+                  <TableCell>{r.description ?? "—"}</TableCell>
+                  <TableCell align="right">
+                    <Box component="span" sx={isExpense ? amountNegativeSx : amountPositiveSx}>
+                      {isExpense ? "- " : ""}
+                      {fmtCurrency(r.amount, r.currency)}
+                    </Box>
+                  </TableCell>
+                  <TableCell align="right">{r.currency}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

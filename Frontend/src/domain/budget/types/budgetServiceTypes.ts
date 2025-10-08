@@ -1,3 +1,5 @@
+import { TransactionType } from "./transactionTypes";
+
 export type Guid = string;
 
 export interface Category {
@@ -13,15 +15,25 @@ export interface Wallet {
 }
 export interface CreateWalletRequest { userId: Guid; name: string; currency: string; }
 
+export type RecurrenceFrequency =  "Weekly" | "Monthly" | "Yearly"
 
 
 
 
 export interface RecurringTransaction {
-  id: Guid; userId: Guid; walletId: Guid; amount: number; currency: string;
-  cadence: "Daily" | "Weekly" | "Monthly" | "Yearly";
-  nextRun: string; description?: string | null;
-  categoryId?: Guid | null; categoryName?: string | null;
+  id: Guid;
+  userId: Guid; 
+  walletId: Guid; 
+  amount: number; 
+  TransactionType: TransactionType;
+  currency: string;
+  RecurrenceFrequency: RecurrenceFrequency;
+  nextRun: string; 
+  description?: string | null;
+  categoryId?: Guid | null;
+  categoryName?: string | null;
+  startDate: string;
+  endDate:string;
 }
 export type CreateRecurringTransactionRequest =
   Omit<RecurringTransaction, "id">;

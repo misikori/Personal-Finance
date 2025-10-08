@@ -25,13 +25,13 @@ export default function TransactionsPage() {
         pageSize={pageSize}
         onPageChange={(p) => setFilter(f => ({ ...f, page: p }))}
         onPageSizeChange={(ps) => setFilter(f => ({ ...f, pageSize: ps, page: 1 }))}
-        sortBy={filter.sortBy ?? "ts"}
+        sortBy={filter.sortBy}                 
         sortDir={filter.sortDir ?? "desc"}
         onSortChange={(by) => setFilter(f => ({
           ...f,
           sortBy: by,
           sortDir: f.sortBy === by ? (f.sortDir === "asc" ? "desc" : "asc") : "desc",
-          page: 1
+          page: 1,
         }))}
         loading={loading}
         filter={filter}
@@ -40,10 +40,7 @@ export default function TransactionsPage() {
       <TransactionsCreateDialog
         open={openNew}
         onClose={() => setOpenNew(false)}
-        onCreated={() => {
-
-          setFilter(f => ({ ...f })); 
-        }}
+        onCreated={() => setFilter(f => ({ ...f }))} // reload
       />
     </div>
   );
