@@ -31,6 +31,11 @@ public class PortfolioPosition
     public decimal AveragePurchasePrice { get; set; }
     
     /// <summary>
+    /// Currency of the stock (e.g., "USD", "EUR", "GBP")
+    /// </summary>
+    public required string Currency { get; set; }
+    
+    /// <summary>
     /// Total amount invested (Quantity * AveragePurchasePrice)
     /// </summary>
     public decimal TotalInvested => Quantity * AveragePurchasePrice;

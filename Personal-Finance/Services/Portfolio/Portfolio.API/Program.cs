@@ -29,7 +29,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Portfolio API",
         Version = "v1",
-        Description = "Portfolio management service with SQL Server and JWT authentication. NOTE: Budget service is a placeholder.",
+        Description = "Portfolio management service with ML predictions, multi-currency support, and full Budget service integration.",
         Contact = new OpenApiContact
         {
             Name = "Portfolio Service",
@@ -98,10 +98,25 @@ builder.Services.AddAuthorization();
 
 // Configure MarketGateway URL from appsettings
 var marketGatewayUrl = builder.Configuration.GetValue<string>("MarketGatewayUrl") 
-    ?? "http://localhost:5288";
+    ?? throw new InvalidOperationException("MarketGatewayUrl must be configured in appsettings.json");
+
+// Configure Budget service URL from appsettings
+var budgetServiceUrl = builder.Configuration.GetValue<string>("BudgetServiceUrl") 
+    ?? throw new InvalidOperationException("BudgetServiceUrl must be configured in appsettings.json");
+
+// Configure Currency service URL from appsettings
+var currencyServiceUrl = builder.Configuration.GetValue<string>("CurrencyServiceUrl") 
+    ?? throw new InvalidOperationException("CurrencyServiceUrl must be configured in appsettings.json");
 
 // Register repositories (use SQL Server implementations from Portfolio.Data)
 builder.Services.AddScoped<IPortfolioRepository, Portfolio.Data.Repositories.PortfolioRepository>();
+
+// Register Currency service gRPC client
+builder.Services.AddSingleton(sp =>
+{
+    var channel = Grpc.Net.Client.GrpcChannel.ForAddress(currencyServiceUrl);
+    return new Currency.grpc.CurrencyRatesProtoService.CurrencyRatesProtoServiceClient(channel);
+});
 
 // Register services
 builder.Services.AddSingleton<IMarketDataService>(sp => 
@@ -109,12 +124,16 @@ builder.Services.AddSingleton<IMarketDataService>(sp =>
         marketGatewayUrl, 
         sp.GetRequiredService<ILogger<MarketDataService>>()
     ));
+builder.Services.AddScoped<ICurrencyConverter, CurrencyConverterService>();
 builder.Services.AddScoped<IPortfolioService, PortfolioService>();
 builder.Services.AddScoped<IPredictionService, PredictionService>();
 
-// TODO: Replace with actual Budget service client when Budget service is integrated
-// This placeholder currently does nothing (always returns true)
-builder.Services.AddScoped<IBudgetService, BudgetServicePlaceholder>();
+// Budget service integration via gRPC
+builder.Services.AddScoped<IBudgetService>(sp => 
+    new BudgetServiceClient(
+        budgetServiceUrl, 
+        sp.GetRequiredService<ILogger<BudgetServiceClient>>()
+    ));
 
 // Add CORS (if needed for frontend)
 builder.Services.AddCors(options =>

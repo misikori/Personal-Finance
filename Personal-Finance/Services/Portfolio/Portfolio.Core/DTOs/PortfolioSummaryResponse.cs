@@ -11,17 +11,23 @@ public class PortfolioSummaryResponse
     public string Username { get; set; } = string.Empty;
     
     /// <summary>
-    /// Total amount invested across all positions
+    /// Base currency used for total calculations (e.g., "USD", "EUR")
+    /// All totals are converted to this currency
+    /// </summary>
+    public string BaseCurrency { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Total amount invested across all positions (converted to base currency)
     /// </summary>
     public decimal TotalInvested { get; set; }
     
     /// <summary>
-    /// Current market value of the entire portfolio
+    /// Current market value of the entire portfolio (converted to base currency)
     /// </summary>
     public decimal CurrentValue { get; set; }
     
     /// <summary>
-    /// Total gain/loss in dollar amount
+    /// Total gain/loss amount (in base currency)
     /// </summary>
     public decimal TotalGainLoss { get; set; }
     
@@ -62,6 +68,11 @@ public class PositionDetail
     public decimal CurrentPrice { get; set; }
     
     /// <summary>
+    /// Currency of this position (e.g., "USD", "EUR", "GBP")
+    /// </summary>
+    public string Currency { get; set; } = string.Empty;
+    
+    /// <summary>
     /// Total amount invested in this position
     /// </summary>
     public decimal TotalInvested { get; set; }
@@ -72,7 +83,7 @@ public class PositionDetail
     public decimal CurrentValue { get; set; }
     
     /// <summary>
-    /// Gain or loss in dollar amount for this position
+    /// Gain or loss amount for this position
     /// </summary>
     public decimal GainLoss { get; set; }
     

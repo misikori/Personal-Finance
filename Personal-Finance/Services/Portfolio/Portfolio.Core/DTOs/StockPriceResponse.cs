@@ -41,6 +41,11 @@ public class StockPriceResponse
     public decimal Volume { get; set; }
     
     /// <summary>
+    /// Currency of the stock price (e.g., "USD", "EUR", "GBP")
+    /// </summary>
+    public string Currency { get; set; } = string.Empty;
+    
+    /// <summary>
     /// When this price was fetched
     /// </summary>
     public DateTime AsOf { get; set; }

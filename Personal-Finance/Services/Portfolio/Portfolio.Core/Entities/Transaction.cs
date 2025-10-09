@@ -36,6 +36,11 @@ public class Transaction
     public decimal PricePerShare { get; set; }
     
     /// <summary>
+    /// Currency of the transaction (e.g., "USD", "EUR", "GBP")
+    /// </summary>
+    public required string Currency { get; set; }
+    
+    /// <summary>
     /// Total transaction value (Quantity * PricePerShare)
     /// </summary>
     public decimal TotalValue => Quantity * PricePerShare;

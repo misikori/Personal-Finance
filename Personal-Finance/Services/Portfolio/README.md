@@ -1,18 +1,6 @@
 # 🏦 Portfolio Management Service
 
-A microservice for stock portfolio management with **Machine Learning predictions** and **placeholder integration** for Budget service.
-
----
-
-## ⚠️ IMPORTANT: Budget Service Status
-
-**The Budget functionality is currently a PLACEHOLDER.**
-
-- ✅ Portfolio service is fully functional for stock tracking
-- ⚠️ Budget checks are **not enforced** (placeholder always returns `true`)
-- 📝 Budget service integration is ready but waiting for your Budget microservice
-
-See **[BUDGET_INTEGRATION.md](./BUDGET_INTEGRATION.md)** for complete details on how to integrate.
+A microservice for stock portfolio management with **Machine Learning predictions**, **multi-currency support**, and **full Budget service integration**.
 
 ---
 
@@ -25,10 +13,6 @@ docker-compose up -d
 
 # Wait 30 seconds for SQL Server to be ready
 sleep 30
-
-# Mac only: Create database manually (Docker networking workaround)
-docker cp create-portfolio-db.sql mssql:/tmp/
-docker exec mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P MATF12345678rs2 -i /tmp/create-portfolio-db.sql -C
 
 # Start MarketGateway (in separate terminal)
 cd /Users/mradosavljevic/Desktop/Personal-Finance/MarketGateway/MarketGateway.Core
@@ -49,6 +33,8 @@ open http://localhost:5100
 ### Core Features
 - ✅ **Buy/Sell Stocks** - Real-time market prices via MarketGateway
 - ✅ **Portfolio Tracking** - View positions with gains/losses  
+- ✅ **Multi-Currency Support** - Automatic currency conversion via Currency service
+- ✅ **Budget Integration** - Full gRPC integration with Budget service
 - ✅ **Transaction History** - Complete audit trail
 - ✅ **SQL Server Database** - Persistent storage (Positions, Transactions tables)
 - ✅ **JWT Authentication** - Integrated with IdentityServer
@@ -64,10 +50,10 @@ open http://localhost:5100
 - ✅ **Candlestick Charts** - OHLCV data for technical analysis charts
 - ✅ **Pie Charts** - Portfolio distribution with percentages and colors
 
-### Placeholder (Waiting for Budget Service)
-- ⚠️ **Budget Validation** - Currently allows all purchases (no budget check)
-- ⚠️ **Money Tracking** - Selling stocks doesn't add to budget
-- 📝 Ready for integration - see [BUDGET_INTEGRATION.md](./BUDGET_INTEGRATION.md)
+### Budget Integration (via gRPC)
+- ✅ **Budget Validation** - Checks user balance before purchases
+- ✅ **Money Tracking** - Buying deducts from budget, selling adds to budget
+- ✅ **Multi-Currency** - Automatic conversion between stock and wallet currencies
 
 ---
 
@@ -85,8 +71,9 @@ Portfolio/
 │   ├── Services/
 │   │   ├── PortfolioService.cs         # Buy/sell logic
 │   │   ├── PredictionService.cs        # 🤖 ML predictions (FastTree)
-│   │   ├── BudgetServicePlaceholder.cs # Budget placeholder
-│   │   └── MarketDataService.cs        # gRPC client for prices
+│   │   ├── BudgetServiceClient.cs      # Budget gRPC client
+│   │   ├── CurrencyConverterService.cs # Currency gRPC client
+│   │   └── MarketDataService.cs        # MarketGateway gRPC client
 │   ├── Entities/
 │   │   ├── PortfolioPosition.cs
 │   │   └── Transaction.cs
@@ -253,13 +240,6 @@ curl "http://localhost:5100/api/portfolio/recommendations?symbols=AAPL,TSLA,IBM"
 
 ---
 
-## 📚 Documentation
-
-- **[ML_IMPLEMENTATION.md](./ML_IMPLEMENTATION.md)** - 🤖 ML algorithm details and workflow
-- **[BUDGET_INTEGRATION.md](./BUDGET_INTEGRATION.md)** - How to integrate Budget service
-- **[CHANGES_SUMMARY.md](./CHANGES_SUMMARY.md)** - What was changed
-- **[SERVICE_REVIEW.md](./SERVICE_REVIEW.md)** - Comprehensive service review
-
 ---
 
 ## 🎓 **For University Presentation**
@@ -289,17 +269,15 @@ curl "http://localhost:5100/api/portfolio/recommendations?symbols=AAPL,TSLA,IBM"
 
 **What Works:**
 - ✅ Stock portfolio tracking with gains/losses
-- ✅ Buy/sell operations
+- ✅ Buy/sell operations with budget validation
 - ✅ **Machine Learning predictions** (FastTree) 🤖
 - ✅ **Smart recommendations** (ML-powered BUY/SELL)
+- ✅ **Multi-currency support** with automatic conversion
+- ✅ **Budget integration** via gRPC
 - ✅ Transaction history
 - ✅ Visualization data (candlesticks, pie charts)
 - ✅ SQL Server persistence
 - ✅ JWT authentication
-
-**What's Placeholder:**
-- ⚠️ Budget validation (always succeeds)
-- ⚠️ Money tracking (does nothing)
 
 **Perfect for:**
 - ✅ University project demonstration
