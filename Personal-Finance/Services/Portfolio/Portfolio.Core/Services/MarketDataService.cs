@@ -77,6 +77,7 @@ public class MarketDataService : IMarketDataService
                 Low = (decimal)quote.Low,
                 PreviousClose = (decimal)quote.PrevClose,
                 Volume = (decimal)quote.Volume,
+                Currency = quote.Currency,
                 AsOf = quote.Asof?.ToDateTime() ?? DateTime.UtcNow
             };
         }

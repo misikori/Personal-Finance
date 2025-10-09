@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option csharp_namespace = "Budget.GRPC";
+
+service BudgetService {
+    rpc CreateTransaction (CreateTransactionRequest) returns (CreateTransactionResponse);
+
+    rpc GetWalletState (GetWalletStateRequest) returns (GetWalletStateResponse);
+}
+
+message CreateTransactionRequest {
+    string user_id = 1;
+    string wallet_id = 2;
+    double amount = 3;
+    string type = 4; // INCOME or EXPENSE
+    string description = 5;
+    string currency = 6;
+    string category_name = 7;
+}
+
+message CreateTransactionResponse{
+    bool success = 1;
+    string transaction_id = 2;
+    string error_message = 3;
+}
+
+message GetWalletStateRequest{
+    string user_id = 1;
+    string currency = 2;
+}
+
+message GetWalletStateResponse{
+    double current_balance = 1;
+    string currency = 2;
+    repeated SpendingLimitsDetails limits = 3; // list of relevant limits for the current month.
+    string wallet_id = 4;
+}
+
+message SpendingLimitsDetails{
+    string category_name = 1;
+    double limit_amount = 2;
+    double spent_amount = 3;
+}
+

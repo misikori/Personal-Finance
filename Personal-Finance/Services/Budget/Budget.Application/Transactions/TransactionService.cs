@@ -15,7 +15,7 @@ namespace Budget.Application.Transactions
         public async Task<Transaction?> CreateTransactionAsync(CreateTransactionDto transactionDto)
         {
             var wallet = await this._walletRepository.GetByIdAsync(transactionDto.WalletId) ??
-                throw new Exception("Wallet not found.");
+                throw new KeyNotFoundException($"Wallet with ID {transactionDto.WalletId} not found.");
 
             if (!Enum.TryParse(transactionDto.Type, true, out TransactionType transactionType))
             {
@@ -67,6 +67,7 @@ namespace Budget.Application.Transactions
             this._walletRepository.Update(wallet);
 
             await this._transactionRepository.SaveChangesAsync();
+            await this._walletRepository.SaveChangesAsync();
             return transaction;
         }
 

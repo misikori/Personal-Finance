@@ -26,4 +26,11 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 # Copy Vendor YAML configuration files
 COPY --from=build /src/MarketGateway/MarketGateway.Providers/Configuration/Vendors ./Configuration/Vendors
+
+# Switch to root to create data directory with proper permissions
+USER root
+RUN mkdir -p /app/data && chown -R $APP_UID:$APP_UID /app/data
+# Switch back to non-root user
+USER $APP_UID
+
 ENTRYPOINT ["dotnet", "MarketGateway.Core.dll"]

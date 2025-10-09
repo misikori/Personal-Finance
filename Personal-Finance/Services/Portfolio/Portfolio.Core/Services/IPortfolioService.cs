@@ -20,18 +20,19 @@ public interface IPortfolioService
     
     /// <summary>
     /// Gets complete portfolio summary with current values and gains/losses
+    /// All values are converted to the specified base currency
     /// </summary>
-    Task<PortfolioSummaryResponse> GetPortfolioSummaryAsync(string username);
+    Task<PortfolioSummaryResponse> GetPortfolioSummaryAsync(string username, string baseCurrency = "USD");
     
     /// <summary>
     /// Gets portfolio distribution for pie chart visualization
     /// Returns percentage breakdown of holdings by current value
+    /// All values are converted to the specified base currency
     /// </summary>
-    Task<PortfolioDistributionResponse> GetPortfolioDistributionAsync(string username);
+    Task<PortfolioDistributionResponse> GetPortfolioDistributionAsync(string username, string baseCurrency = "USD");
     
     /// <summary>
     /// Checks if user has sufficient budget to buy stocks
-    /// NOTE: This will integrate with Budget service when available
     /// </summary>
-    Task<bool> CheckBudgetAsync(string username, decimal amount);
+    Task<bool> CheckBudgetAsync(string username, decimal amount, string currency);
 }
