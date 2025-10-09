@@ -108,6 +108,10 @@ var budgetServiceUrl = builder.Configuration.GetValue<string>("BudgetServiceUrl"
 var currencyServiceUrl = builder.Configuration.GetValue<string>("CurrencyServiceUrl") 
     ?? throw new InvalidOperationException("CurrencyServiceUrl must be configured in appsettings.json");
 
+// Configure IdentityServer URL from appsettings
+var identityServerUrl = builder.Configuration.GetValue<string>("IdentityServerUrl") 
+    ?? throw new InvalidOperationException("IdentityServerUrl must be configured in appsettings.json");
+
 // Register repositories (use SQL Server implementations from Portfolio.Data)
 builder.Services.AddScoped<IPortfolioRepository, Portfolio.Data.Repositories.PortfolioRepository>();
 
@@ -116,6 +120,13 @@ builder.Services.AddSingleton(sp =>
 {
     var channel = Grpc.Net.Client.GrpcChannel.ForAddress(currencyServiceUrl);
     return new Currency.grpc.CurrencyRatesProtoService.CurrencyRatesProtoServiceClient(channel);
+});
+
+// Register IdentityServer HTTP client for user resolution
+builder.Services.AddHttpClient<IUserService, UserService>(client =>
+{
+    client.BaseAddress = new Uri(identityServerUrl);
+    client.Timeout = TimeSpan.FromSeconds(10);
 });
 
 // Register services
@@ -128,10 +139,11 @@ builder.Services.AddScoped<ICurrencyConverter, CurrencyConverterService>();
 builder.Services.AddScoped<IPortfolioService, PortfolioService>();
 builder.Services.AddScoped<IPredictionService, PredictionService>();
 
-// Budget service integration via gRPC
+// Budget service integration via gRPC (with username → userId resolution)
 builder.Services.AddScoped<IBudgetService>(sp => 
     new BudgetServiceClient(
-        budgetServiceUrl, 
+        budgetServiceUrl,
+        sp.GetRequiredService<IUserService>(),
         sp.GetRequiredService<ILogger<BudgetServiceClient>>()
     ));
 

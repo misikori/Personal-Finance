@@ -102,11 +102,13 @@ services:
       - "MarketGatewayUrl=http://marketgateway.core:8080"
       - "BudgetServiceUrl=http://budget.grpc:8080"
       - "CurrencyServiceUrl=http://currency.grpc:8080"
+      - "IdentityServerUrl=http://identityserver:8080"
     depends_on:
       - mssql
       - marketgateway.core
       - budget.grpc
       - currency.grpc
+      - identityserver
     ports:
       - "8006:8080"
 
