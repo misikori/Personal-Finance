@@ -300,9 +300,6 @@ sleep 60
 
 # Check all services are running
 docker-compose ps
-
-# View logs
-docker-compose logs -f
 ```
 
 ### 2. Access Services
@@ -543,30 +540,6 @@ ServiceUrls:CurrencyService: http://currency.grpc:8080
 
 ---
 
-## 🧪 Testing
-
-### Run Integration Tests
-```bash
-# Test stock purchase flow
-curl -X POST http://localhost:8006/api/portfolio/buy \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","symbol":"TSLA","quantity":5}'
-
-# Verify budget was deducted
-docker exec -it budget-db psql -h localhost -U admin -d BudgetDb
-BudgetDb=# SELECT * FROM "Transactions" ORDER BY "Date" DESC LIMIT 5;
-
-# Check portfolio
-curl "http://localhost:8006/api/portfolio/summary/testuser"
-
-# Test ML predictions
-curl http://localhost:8006/api/portfolio/predict/AAPL
-
-# Test multi-currency
-curl "http://localhost:8006/api/portfolio/distribution/testuser?baseCurrency=EUR"
-```
-
----
 
 ## 📈 Performance Characteristics
 
@@ -777,15 +750,12 @@ Academic project - MATF (Faculty of Mathematics, University of Belgrade)
 
 ## 👥 Team
 
-Built with ❤️ by students passionate about software engineering and finance.
+Built by students passionate about software engineering and finance.
 
 ---
 
 ## 🌟 Star Features
 
-- ✅ **Production-grade architecture** with clean code
-- ✅ **Zero hardcoded values** - Everything configurable
-- ✅ **Zero TODOs** - Complete implementation
 - ✅ **Comprehensive error handling** - Graceful failures
 - ✅ **Multi-currency support** - Real-world complexity
 - ✅ **Machine Learning** - Cutting-edge tech
