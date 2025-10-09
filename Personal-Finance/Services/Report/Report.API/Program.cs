@@ -22,7 +22,6 @@ builder.Services.AddMassTransit(x =>
     {
         cfg.Host(builder.Configuration["EventBusSettings:HostAddress"]);
 
-        // ovo da može da prima plain JSON (bez MassTransit envelope-a) radi testiranja
         cfg.ClearMessageDeserializers();
         cfg.UseRawJsonSerializer();
 
