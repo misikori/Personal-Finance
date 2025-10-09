@@ -1,8 +1,8 @@
 # 💰 Personal Finance Platform
 
-A full-stack **microservices-based personal finance management platform** with real-time stock portfolio tracking, budget management, currency conversion, and **Machine Learning-powered investment predictions**.
+A full-stack **microservices-based personal finance management platform** with real-time stock portfolio tracking, budget management, currency conversion, **Machine Learning-powered investment predictions**, and **async report generation**.
 
-Built with **.NET 8**, **React**, **gRPC**, **PostgreSQL**, **SQL Server**, **Redis**, and **ML.NET**.
+Built with **.NET 8**, **React**, **gRPC**, **RabbitMQ**, **PostgreSQL**, **SQL Server**, **Redis**, and **ML.NET**.
 
 ---
 
@@ -27,6 +27,12 @@ Built with **.NET 8**, **React**, **gRPC**, **PostgreSQL**, **SQL Server**, **Re
 - **30+ currencies** - Support for all major world currencies
 - **Redis caching** - Sub-millisecond conversion speeds
 - **Historical rates** - Track exchange rate changes over time
+
+### 🧾 Report Generation
+- **Async PDF reports** - Generate transaction history reports
+- **RabbitMQ integration** - Event-driven report processing
+- **Clean Architecture** - Stateless microservice design
+- **QuestPDF library** - Professional PDF formatting
 
 ### 🔐 Security & Identity
 - **JWT Authentication** - Secure token-based auth
@@ -65,19 +71,23 @@ Built with **.NET 8**, **React**, **gRPC**, **PostgreSQL**, **SQL Server**, **Re
 │  • SQLite Cache  │               │   • External API    │
 └──────────────────┘               └─────────────────────┘
                     
-                    ┌─────────────────────┐
-                    │  IdentityServer     │
-                    │  (Authentication)   │
-                    │   • JWT Tokens      │
-                    │   • User Management │
-                    │   • MSSQL Database  │
-                    └─────────────────────┘
+        ┌─────────────────────┐           ┌──────────────────┐
+        │  IdentityServer     │           │  Report Service  │
+        │  (Authentication)   │           │  (PDF Reports)   │
+        │   • JWT Tokens      │           │   • RabbitMQ     │
+        │   • User Management │           │   • QuestPDF     │
+        │   • MSSQL Database  │           │   • Async Jobs   │
+        └─────────────────────┘           └──────────────────┘
+                                                   ▲
+                                                   │ RabbitMQ
+                                                   │
+                                            (Event Publishers)
 ```
 
 ### Communication Protocols
 - **REST APIs** - Frontend ↔ Services (HTTP/JSON)
 - **gRPC** - Service ↔ Service (HTTP/2, Protocol Buffers)
-- **Message Queue** - RabbitMQ for async events (coming soon)
+- **Message Queue** - RabbitMQ for async events (Report generation)
 
 ---
 
@@ -185,7 +195,37 @@ Fetch    # Get quote or OHLCV data for symbols
 
 ---
 
-### 5. **IdentityServer** 🔐
+### 5. **Report Service** 🧾
+**Technology:** .NET 8, MassTransit, RabbitMQ, QuestPDF  
+**Database:** None (stateless service)  
+**Ports:** `8008` (REST API)
+
+**Features:**
+- Asynchronous PDF report generation
+- RabbitMQ message consumption
+- Transaction history reports
+- Clean Architecture implementation
+- Automatic file storage
+- Email-ready report delivery
+
+**Key Capabilities:**
+```
+TransactionsReportConsumer    # Consumes transaction report events
+GeneratePdfReport            # Creates formatted PDF reports
+SaveReportLocally           # Stores reports in /app/reports
+```
+
+**Message Queue:**
+```
+Queue: transactionsreport-queue
+Event: TransactionsReportEvent
+  - UserId, UserName, EmailAddress
+  - TransactionItems[] (Amount, Date, Category, etc.)
+```
+
+---
+
+### 6. **IdentityServer** 🔐
 **Technology:** ASP.NET Identity, JWT  
 **Database:** Microsoft SQL Server  
 **Ports:** `8003` (REST API)
@@ -215,6 +255,7 @@ GET    /api/v1/user/{username}               # Get user details
 | Budget | C# (.NET 8) | ASP.NET Core | PostgreSQL | REST + gRPC Server |
 | Currency | C# (.NET 8) | ASP.NET Core | Redis | REST + gRPC Server |
 | MarketGateway | C# (.NET 8) | ASP.NET Core | SQLite | gRPC Server |
+| Report | C# (.NET 8) | ASP.NET Core | None (stateless) | RabbitMQ Consumer |
 | IdentityServer | C# (.NET 8) | ASP.NET Identity | SQL Server | REST |
 
 ### Frontend
@@ -273,7 +314,9 @@ docker-compose logs -f
 | **Portfolio Swagger** | http://localhost:8006/swagger | API documentation |
 | **Budget API** | http://localhost:8004 | Budget management |
 | **Currency API** | http://localhost:8001 | Exchange rates |
+| **Report API** | http://localhost:8008 | Report generation service |
 | **IdentityServer** | http://localhost:8003 | Authentication |
+| **RabbitMQ Dashboard** | http://localhost:15672 | Message queue management |
 
 ### 3. Run Frontend (Development)
 
@@ -315,7 +358,11 @@ Frontend
         └── IdentityServer (user resolution)
 
 Budget gRPC
-  └── Currency gRPC (conversion)
+  ├── Currency gRPC (conversion)
+  └── RabbitMQ (publish report events)
+
+Report Service
+  └── RabbitMQ (consume report events)
 
 Currency gRPC
   └── Redis (cache)
@@ -346,6 +393,13 @@ IdentityServer
 ### 4. **Portfolio ↔ IdentityServer Integration**
 - Username → UserId resolution
 - User details cached for performance
+
+### 5. **Budget ↔ Report Service Integration**
+- **Async report generation** via RabbitMQ message queue
+- **Event-driven architecture** - Budget publishes `TransactionsReportEvent`
+- **PDF generation** with QuestPDF library
+- **Stateless service** - Reports saved to `/app/reports` directory
+- **Email-ready** - Reports can be attached to email notifications
 
 ---
 
@@ -544,9 +598,12 @@ curl "http://localhost:8006/api/portfolio/distribution/testuser?baseCurrency=EUR
 | 8005 | Budget.GRPC | gRPC | Budget service |
 | 8006 | Portfolio.API | REST | Stock portfolio |
 | 8007 | MarketGateway | gRPC | Market data |
+| 8008 | Report.API | REST | Report generation |
 | 1435 | MSSQL | TCP | SQL Server |
 | 5432 | PostgreSQL | TCP | Budget database |
 | 6379 | Redis | TCP | Currency cache |
+| 5672 | RabbitMQ | AMQP | Message queue |
+| 15672 | RabbitMQ UI | HTTP | Management dashboard |
 
 ---
 
@@ -556,6 +613,7 @@ Each service has detailed documentation:
 - `Services/Portfolio/README.md` - Portfolio service guide
 - `Services/Budget/README.md` - Budget service guide
 - `Services/Currency/README.md` - Currency service guide
+- `Services/Report/README.md` - Report service guide
 - `MarketGateway/Readme.md` - MarketGateway guide
 
 ---
@@ -621,11 +679,17 @@ curl http://localhost:8004/weatherforecast
 # Currency
 curl http://localhost:8001/api/currency/rates
 
+# Report
+curl http://localhost:8008/swagger
+
 # IdentityServer
 curl http://localhost:8003/health
 
 # MarketGateway
 curl http://localhost:8007/health
+
+# RabbitMQ Management UI
+open http://localhost:15672  # guest/guest
 ```
 
 ---
@@ -688,10 +752,11 @@ npm run dev  # Port 3000
 
 ## 📊 System Metrics
 
-- **Total Services:** 8 microservices
+- **Total Services:** 9 microservices (Portfolio, Budget, Currency, MarketGateway, Report, IdentityServer + infrastructure)
 - **Total Databases:** 4 (SQL Server, PostgreSQL, SQLite, Redis)
 - **API Endpoints:** 40+ REST endpoints
 - **gRPC Services:** 6 gRPC service definitions
+- **Message Queues:** RabbitMQ with async event processing
 - **Lines of Code:** ~15,000+ (backend) + ~5,000+ (frontend)
 - **Supported Currencies:** 30+
 - **ML Models:** FastTree with 100 decision trees
