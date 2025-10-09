@@ -28,7 +28,7 @@ public sealed class ProtoMappingProfile : Profile
             .ForMember(d => d.Volume,
                 m => m.MapFrom(s => (double?)s.Volume ?? 0d))
             .ForMember(d => d.Currency,
-                m => m.MapFrom(s => s.Currency ?? ""))
+                m => m.MapFrom(s => string.IsNullOrWhiteSpace(s.Currency) ? "USD" : s.Currency))
             .ForMember(d => d.Vendor,
                 m => m.MapFrom(s => s.Vendor))
             .ForMember(d => d.Asof,
