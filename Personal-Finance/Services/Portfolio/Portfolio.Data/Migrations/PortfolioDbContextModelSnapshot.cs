@@ -32,6 +32,10 @@ namespace Portfolio.Data.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("FirstPurchaseDate")
                         .HasColumnType("datetime2");
 
@@ -65,6 +69,10 @@ namespace Portfolio.Data.Migrations
                     b.Property<string>("Id")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("PricePerShare")
                         .HasPrecision(18, 4)

@@ -47,6 +47,9 @@ public class PortfolioController : ControllerBase
         try
         {
             // Input validation
+            if (string.IsNullOrWhiteSpace(request.Username))
+                return BadRequest(new { error = "Username is required" });
+
             if (string.IsNullOrWhiteSpace(request.Symbol))
                 return BadRequest(new { error = "Stock symbol is required" });
 
@@ -102,22 +105,24 @@ public class PortfolioController : ControllerBase
 
     /// <summary>
     /// Get complete portfolio summary for a user
+    /// All values are converted to the specified base currency for accurate totals
     /// </summary>
     /// <param name="username">Username of the portfolio owner</param>
+    /// <param name="baseCurrency">Base currency for calculations (default: USD)</param>
     /// <returns>Portfolio summary with all positions and performance metrics</returns>
     /// <response code="200">Portfolio summary retrieved successfully</response>
     [HttpGet("summary/{username}")]
     [ProducesResponseType(typeof(PortfolioSummaryResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetPortfolioSummary(string username)
+    public async Task<IActionResult> GetPortfolioSummary(string username, [FromQuery] string baseCurrency = "USD")
     {
         try
         {
             if (string.IsNullOrWhiteSpace(username))
                 return BadRequest(new { error = "Username is required" });
 
-            _logger.LogInformation("Fetching portfolio summary for {Username}", username);
+            _logger.LogInformation("Fetching portfolio summary for {Username} in {BaseCurrency}", username, baseCurrency);
 
-            var summary = await _portfolioService.GetPortfolioSummaryAsync(username);
+            var summary = await _portfolioService.GetPortfolioSummaryAsync(username, baseCurrency);
             return Ok(summary);
         }
         catch (Exception ex)
@@ -159,23 +164,25 @@ public class PortfolioController : ControllerBase
     /// Get portfolio distribution for pie chart visualization
     /// Returns percentage breakdown of each stock holding by current value
     /// Perfect for rendering pie charts in the frontend
+    /// All values are converted to the specified base currency for accurate comparison
     /// </summary>
     /// <param name="username">Username of the portfolio owner</param>
+    /// <param name="baseCurrency">Base currency for calculations (default: USD)</param>
     /// <returns>Portfolio distribution with percentages and suggested colors</returns>
     /// <response code="200">Distribution data retrieved successfully</response>
     [HttpGet("distribution/{username}")]
     [ProducesResponseType(typeof(PortfolioDistributionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetPortfolioDistribution(string username)
+    public async Task<IActionResult> GetPortfolioDistribution(string username, [FromQuery] string baseCurrency = "USD")
     {
         try
         {
             if (string.IsNullOrWhiteSpace(username))
                 return BadRequest(new { error = "Username is required" });
 
-            _logger.LogInformation("Fetching portfolio distribution for {Username}", username);
+            _logger.LogInformation("Fetching portfolio distribution for {Username} in {BaseCurrency}", username, baseCurrency);
 
-            var distribution = await _portfolioService.GetPortfolioDistributionAsync(username);
+            var distribution = await _portfolioService.GetPortfolioDistributionAsync(username, baseCurrency);
             return Ok(distribution);
         }
         catch (Exception ex)

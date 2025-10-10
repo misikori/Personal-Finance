@@ -18,6 +18,13 @@ services:
     ports:
       - "6379:6379"
 
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
+
   budget-db:
     container_name: budget-db
     restart: on-failure
@@ -66,10 +73,11 @@ services:
     container_name: budget.api
     environment:
       - "ConnectionStrings:DefaultConnection=Host=budget-db;Port=5432;Database=BudgetDb;Username=admin;Password=admin1234"
+      - "ServiceUrls:CurrencyService=http://currency.grpc:8080"
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       - budget-db
-
+      - currency.grpc
     ports:
       - "8004:8080"
 
@@ -78,9 +86,55 @@ services:
     container_name: budget.grpc
     environment:
       - "ConnectionStrings:DefaultConnection=Host=budget-db;Port=5432;Database=BudgetDb;Username=admin;Password=admin1234"
+      - "ServiceUrls:CurrencyService=http://currency.grpc:8080"
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       - budget-db
-
+      - currency.grpc
     ports:
       - "8005:8080"
+
+  portfolio.api:
+    container_name: portfolio.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings:PortfolioDb=Server=mssql;Database=PortfolioDb;User Id=sa;Password=MATF12345678rs2;TrustServerCertificate=True;Encrypt=False;Timeout=30;"
+      - "MarketGatewayUrl=http://marketgateway.core:8080"
+      - "BudgetServiceUrl=http://budget.grpc:8080"
+      - "CurrencyServiceUrl=http://currency.grpc:8080"
+      - "IdentityServerUrl=http://identityserver:8080"
+    depends_on:
+      - mssql
+      - marketgateway.core
+      - budget.grpc
+      - currency.grpc
+      - identityserver
+    ports:
+      - "8006:8080"
+
+  marketgateway.core:
+    container_name: marketgateway.core
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "Storage:Mode=Database"
+      - "Storage:DatabasePath=/app/data/market.db"
+      - "Storage:RootDirectory=/app/data"
+      - "ConnectionStrings:MarketDb=Data Source=/app/data/market.db"
+      - "Vendors:Folder=./Configuration/Vendors"
+      - "ALPHAVANTAGE_API_KEY=demo"
+      - "FINNHUB_API_KEY=demo"
+    volumes:
+      - marketgateway_data:/app/data
+    ports:
+      - "8007:8080"
+
+  report.api:
+    container_name: report.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
+    volumes:
+      - ./reports:/app/reports
+    ports:
+      - "8008:8080"
+        

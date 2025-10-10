@@ -29,15 +29,26 @@ builder.Services.AddScoped<ICategoryService,  CategoryService>();
 builder.Services.AddScoped<ISpendingLimitService, SpendingLimitService>();
 
 builder.Services.AddScoped<ICurrencyConverter, GrpcCurrencyConverter>();
+
+var currencyServiceUrl = builder.Configuration["ServiceUrls:CurrencyService"]
+    ?? throw new InvalidOperationException("ServiceUrls:CurrencyService must be configured in appsettings.json");
+
 builder.Services.AddGrpcClient<CurrencyRatesProtoService.CurrencyRatesProtoServiceClient>(options =>
 {
-    var currencyServiceUrl = builder.Configuration["ServiceUrls:CurrencyService"];
     options.Address = new Uri(currencyServiceUrl);
 });
 // Add services to the container.
 builder.Services.AddGrpc();
 
 var app = builder.Build();
+
+// Run migrations on startup in Development
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<BudgetDbContext>();
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<BudgetGrpcService>();

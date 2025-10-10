@@ -2,37 +2,67 @@ services:
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
 
   currency-db:
     image: redis:alpine
+
+  rabbitmq:
+    image: rabbitmq:4.1.4-management-alpine
 
   budget-db:
     image: postgres:17-alpine
 
   currency.api:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Services/Currency/Currency.API/Dockerfile
 
   currency.grpc:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Services/Currency/Currency.GRPC/Dockerfile
 
   identityserver:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Security/IdentityServer/Dockerfile
 
   budget.api:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Services/Budget/Budget.API/Dockerfile
 
   budget.grpc:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Services/Budget/Budget.GRPC/Dockerfile
+
+  portfolio.api:
+    platform: linux/amd64
+    build:
+      context: ..
+      dockerfile: Personal-Finance/Services/Portfolio/Portfolio.API/Dockerfile
+
+  marketgateway.core:
+    platform: linux/amd64
+    build:
+      context: ..
+      dockerfile: MarketGateway/MarketGateway.Core/Dockerfile
+
+  report.api:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Services/Report/Report.API/Dockerfile
+    
+
 volumes:
   mssql_data:
   postgres_data:
+  marketgateway_data:

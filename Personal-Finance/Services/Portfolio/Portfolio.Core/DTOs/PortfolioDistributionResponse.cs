@@ -11,7 +11,13 @@ public class PortfolioDistributionResponse
     public string Username { get; set; } = string.Empty;
 
     /// <summary>
-    /// Total portfolio value in dollars
+    /// Base currency used for calculations (e.g., "USD", "EUR")
+    /// All values are converted to this currency
+    /// </summary>
+    public string BaseCurrency { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Total portfolio value (converted to base currency)
     /// </summary>
     public decimal TotalValue { get; set; }
 
@@ -37,7 +43,7 @@ public class StockDistribution
     public decimal Quantity { get; set; }
 
     /// <summary>
-    /// Current value of this position in dollars
+    /// Current value of this position (converted to base currency)
     /// </summary>
     public decimal Value { get; set; }
 
@@ -45,11 +51,21 @@ public class StockDistribution
     /// Percentage of total portfolio (0-100)
     /// </summary>
     public decimal Percentage { get; set; }
+    
+    /// <summary>
+    /// Original currency of this stock
+    /// </summary>
+    public string OriginalCurrency { get; set; } = string.Empty;
 
     /// <summary>
     /// Current price per share
     /// </summary>
     public decimal CurrentPrice { get; set; }
+    
+    /// <summary>
+    /// Currency of this position (e.g., "USD", "EUR", "GBP")
+    /// </summary>
+    public string Currency { get; set; } = string.Empty;
 
     /// <summary>
     /// Suggested color for pie chart (hex color code)
