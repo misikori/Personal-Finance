@@ -22,9 +22,6 @@ builder.Services.AddMassTransit(x =>
     {
         cfg.Host(builder.Configuration["EventBusSettings:HostAddress"]);
 
-        cfg.ClearMessageDeserializers();
-        cfg.UseRawJsonSerializer();
-
         cfg.ReceiveEndpoint(EventBusConstants.TansactionsReportQueue, e =>
         {
             e.ConfigureConsumer<TransactionsReportConsumer>(context);

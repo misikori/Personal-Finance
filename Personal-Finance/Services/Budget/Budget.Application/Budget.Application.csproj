@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Budget.Domain\Budget.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Common\EventBus.Messages\EventBus.Messages.csproj" />
   </ItemGroup>
 
 </Project>

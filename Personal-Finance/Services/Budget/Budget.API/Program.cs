@@ -1,13 +1,16 @@
 using Budget.Application.Categories;
 using Budget.Application.Interfaces;
+using Budget.Application.Reports;
 using Budget.Application.SpendingLimits;
 using Budget.Application.Transactions;
 using Budget.Application.Wallets;
 using Budget.Infrastructure.ExternalServices;
+using Budget.Infrastructure.Messaging;
 using Budget.Infrastructure.Persistence;
 using Budget.Infrastructure.Persistence.Repositories;
 using Currency.grpc;
 using Grpc.Net.Client;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -29,6 +32,18 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ISpendingLimitRepository, SpendingLimitRepository>();
 builder.Services.AddScoped<ISpendingLimitService, SpendingLimitService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IMessagePublisher, RabbitMqMessagePublisher>();
+
+builder.Services.AddMassTransit(busConfigurator =>
+{
+    busConfigurator.UsingRabbitMq((context, cfg) =>
+    {
+        var hostAddress = builder.Configuration["EventBusSettings:HostAddress"];
+        cfg.Host(new Uri(hostAddress!));
+    });
+});
+
 builder.Services.AddSingleton(sp =>
 {
     string? currencyServiceUrl = builder.Configuration["ServiceUrls:CurrencyService"];
