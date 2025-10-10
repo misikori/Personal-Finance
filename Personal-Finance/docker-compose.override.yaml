@@ -137,4 +137,6 @@ services:
       - ./reports:/app/reports
     ports:
       - "8008:8080"
-        
+
+    depends_on:
+        - rabbitmq
