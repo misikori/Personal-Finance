@@ -29,4 +29,5 @@ export interface TradeRequest {
 username: string;
 symbol: string;
 quantity: number;
+walletId: string;
 }

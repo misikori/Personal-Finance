@@ -10,11 +10,9 @@ import Grid from "@mui/material/Grid";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { tradeService } from "../../domain/portfolio/services/TradesService";
 import { walletsService } from "../../domain/budget/services/WalletsService";
-import { transactionsService } from "../../domain/budget/services/TransactionsService";
 import type { TransactionDto, TradeRequest } from "../../domain/portfolio/types/transaction";
 import type { Wallet, Guid } from "../../domain/budget/types/budgetServiceTypes";
 import { getCurrentUser } from "../../auth/store/authStore";
-import { mapTradeToBudget } from "../../domain/portfolio/utils/mapTradeToBudget";
 
 const schema = z.object({
   side: z.enum(["Buy", "Sell"]),
@@ -82,15 +80,12 @@ const {
         username,
         symbol: values.symbol,
         quantity: values.quantity,
+        walletId: values.walletId,  // Pass walletId to Portfolio API
       };
 
-      // 1) portfolio trade
+      // Portfolio API handles both the trade AND budget deduction
       const trade: TransactionDto =
         values.side === "Buy" ? await tradeService.buy(req) : await tradeService.sell(req);
-
-      // 2) mirror in Budget
-      const budgetReq = mapTradeToBudget(trade, values.walletId as unknown as Guid);
-      await transactionsService.create(budgetReq);
 
       setSuccess(`${values.side} ${trade.quantity} ${trade.symbol} completed. Budget updated.`);
       reset({ ...values, symbol: "", quantity: 1 }); // keep side/wallet
