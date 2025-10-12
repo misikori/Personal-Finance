@@ -11,6 +11,7 @@ import { transactionsService } from "../../../../domain/budget/services/Transact
 import { walletsService } from "../../../../domain/budget/services/WalletsService";
 import { Wallet, Category } from "../../../../domain/budget/types/budgetServiceTypes";
 import type { TransactionType } from "../../../../domain/budget/types/transactionTypes";
+import { useCurrencies } from "../../../../domain/currency/hooks/useCurrency";
 
 type Props = { open: boolean; onClose: () => void; onCreated?: () => void; };
 
@@ -19,6 +20,7 @@ export default function TransactionsCreateDialog({ open, onClose, onCreated }: P
   const [cats, setCats] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
+  const allCurrencySymbols = useCurrencies("USD").currencies.map((c: { code: any; }) => c.code);
 
   const [form, setForm] = useState({
     walletId: "",
@@ -142,10 +144,15 @@ export default function TransactionsCreateDialog({ open, onClose, onCreated }: P
           />
 
           <TextField
+            select
             label="Currency"
             value={form.currency}
             onChange={(e) => setForm(f => ({ ...f, currency: e.target.value }))}
-          />
+          >
+            {allCurrencySymbols.map(ccy => (
+              <MenuItem key={ccy} value={ccy}>{ccy}</MenuItem>
+            ))}
+          </TextField>
 
           <TextField
             label="Category"
