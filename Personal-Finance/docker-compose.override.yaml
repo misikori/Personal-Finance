@@ -1,7 +1,8 @@
+
 services:
 
   mssql:
-    container_name: mssql
+    container_name: baza
     user: root
     environment:
       - SA_PASSWORD=MATF12345678rs2

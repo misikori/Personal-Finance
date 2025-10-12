@@ -6,7 +6,7 @@ import { ROUTES } from "../../core/RoutesConfig";
 
 export default function Login() {
   const { login, isLoading } = useAuth();
-  const [userName, setUserName] = useState("demo@demo.test");
+  const [userName, setUserName] = useState("demo");
   const [password, setPassword] = useState("demo123!");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();

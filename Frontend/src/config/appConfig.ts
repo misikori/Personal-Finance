@@ -6,7 +6,12 @@ declare global {
   }
 }
 
-const defaults: AppConfig = AppConfigSchema.parse({ API_BASE_URL: "/api",API_BUGET_URL:"/api" });
+const defaults: AppConfig = AppConfigSchema.parse({
+   API_BASE_URL: "/api",
+   API_BUGET_URL:"/api",
+   API_PORTFOLIO_URL:"/api",
+   API_CURRENCY_URL:"/api",
+   });
 
 export const loadAppConfig = (): AppConfig => {
   const raw = { ...(window.__APP_CONFIG__ ?? {}) };

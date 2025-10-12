@@ -4,6 +4,7 @@ import SpaceDashboardIcon from "@mui/icons-material/SpaceDashboard";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import InventoryIcon from "@mui/icons-material/Inventory"; 
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp"; 
 import ReplayIcon from "@mui/icons-material/Replay";
 
 
@@ -19,6 +20,7 @@ export const ROUTES = {
     TRANSACTIONS: "/transactions",
     WALLETS: "/wallets",                
     RECURRING: "/recurring-transactions", 
+    TRADE: "/portfolio/trade",
   },
 };
 
@@ -90,6 +92,15 @@ export const USER_ROUTES: RouteMeta[] = [
     icon: <ReplayIcon />,
     showInSidebar: true,
   },
+  {
+  path: ROUTES.PRIVATE.TRADE,
+  Component: lazy(() => import("../pages/trade")), // we created index.tsx
+  guard: "auth",
+  roles: ["User"],
+  label: "Trade",
+  icon: <TrendingUpIcon />,
+  showInSidebar: true,
+},
   
 ];
 

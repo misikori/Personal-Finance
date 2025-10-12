@@ -18,6 +18,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+const string DevCors = "DevCors";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(DevCors, policy =>
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+    );
+});
+
 WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -26,9 +38,9 @@ if (app.Environment.IsDevelopment())
     _ = app.UseSwagger();
     _ = app.UseSwaggerUI();
 }
-
+app.UseRouting();
+app.UseCors(DevCors);
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

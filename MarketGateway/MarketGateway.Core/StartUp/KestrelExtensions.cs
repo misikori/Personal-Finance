@@ -10,14 +10,9 @@ public static class KestrelExtensions
     {
         builder.WebHost.ConfigureKestrel(options =>
         {
-            options.ListenAnyIP(5288, o =>
+            options.ListenAnyIP(8080, listenOptions =>
             {
-                o.Protocols = HttpProtocols.Http2;
-            });
-            
-            options.ListenAnyIP(8080, listen =>
-            {
-                listen.Protocols = HttpProtocols.Http1;
+                listenOptions.Protocols = HttpProtocols.Http2;
             });
         });
     }

@@ -1,25 +1,57 @@
 import * as React from "react";
-import { Grid as Grid, Stack, Typography } from "@mui/material";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 import KpiCard from "./components/KpiCard";
 import RecentActivity from "./components/RecentActivity";
-import TopMovers from "./components/TopMovers";
+// import TopMovers from "./components/TopMovers";
 import { WalletsPanel } from "./components/WalletsPanel";
-import { getKpisMock, getRecentTransactionsMock, getTopMoversMock } from "./dashboardMocks";
-import { Kpi, RecentTransaction, TopMover } from "./types";
+import { CurrencyRatesPanel } from "./components/CurrencyRatesPanel";
+import { CurrencyConvertPanel } from "./components/CurrencyConvertPanel";
+import { portfolioData } from "../../domain/portfolio/services/PortfolioDataService";
+// import { marketService } from "../../domain/portfolio/services/MarketDataService";
+import { Kpi, RecentTransaction } from "./types";
+import { getCurrentUser } from "../../auth/store/authStore";
 
 export default function DashboardPage() {
   const [kpis, setKpis] = React.useState<Kpi[]>([]);
   const [recent, setRecent] = React.useState<RecentTransaction[]>([]);
-  const [movers, setMovers] = React.useState<TopMover[] | null>(null);
+  // Removed unused movers and loading state
 
   React.useEffect(() => {
     let mounted = true;
     (async () => {
-      const [k, r] = await Promise.all([getKpisMock(), getRecentTransactionsMock()]);
-      if (!mounted) return;
-      setKpis(k);
-      setRecent(r.slice(0, 5));
-      getTopMoversMock().then(m => mounted && setMovers(m.slice(0, 5)));
+      try {
+        // Replace with real service calls
+        // Example: get current user from wallet panel logic
+        const username = getCurrentUser()?.id ?? "demo";
+        // Portfolio summary for KPIs
+        const summary = await portfolioData.summary("niko");
+        setKpis([
+          { id: "totalBalance", label: "Total Balance", value: summary.currentValue.toLocaleString(), trend: summary.gainLossPercentage > 0 ? "up" : "down", sublabel: `GL: ${summary.gainLossPercentage.toFixed(2)}%` },
+          { id: "dailyPL", label: "Daily P/L", value: "-", trend: "flat" },
+          { id: "mtdReturn", label: "MTD Return %", value: "-", trend: "flat" },
+          { id: "cash", label: "Cash", value: summary.totalInvested.toLocaleString() },
+        ]);
+        // Transactions
+        const txs = await portfolioData.transactions("niko");
+        setRecent(txs.slice(0, 5).map(tx => ({
+          id: tx.id,
+          ts: tx.transactionDate,
+          symbol: tx.symbol,
+          side: tx.type === "Buy" ? "BUY" : "SELL",
+          qty: tx.quantity,
+          price: tx.pricePerShare,
+          amount: tx.totalValue,
+        })));
+        // Top movers (fallback to mock if not available)
+        // If marketService.price or similar is available, fetch real movers
+  // Removed TopMovers (no real data)
+      } catch (e) {
+        setKpis([]);
+        setRecent([]);
+  // Removed TopMovers (no real data)
+      } finally {
+  // Removed loading state
+      }
     })();
     return () => { mounted = false; };
   }, []);
@@ -27,28 +59,28 @@ export default function DashboardPage() {
   return (
     <Stack spacing={3} sx={{ maxWidth: "100%" }}>
       <Typography variant="h5" fontWeight={800}>Dashboard</Typography>
-
-      {/* KPI row */}
-      <Grid container spacing={2}>
+      {/* KPI Cards Row - Flexbox */}
+      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
         {kpis.map(k => (
-          <Grid key={k.id} size={{ xs: 12, sm: 6, md: 3 }}>
+          <Box key={k.id} sx={{ flex: '1 1 220px', minWidth: 220 }}>
             <KpiCard label={k.label} value={k.value} sublabel={k.sublabel} trend={k.trend} />
-          </Grid>
+          </Box>
         ))}
-      </Grid>
-
-      {/* Main area */}
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, md: 8 }}>
+      </Box>
+      {/* Main area - Flexbox */}
+      <Box sx={{ display: 'flex', gap: 2, flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
+        <Box sx={{ flex: 2, minWidth: 300 }}>
           <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Recent Activity</Typography>
           <RecentActivity rows={recent} />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 4 }} sx={{ display: "grid", gap: 16 }}>
-          {movers && <TopMovers movers={movers} />}
-          <WalletsPanel />
-        </Grid>
-      </Grid>
+        </Box>
+        <Box sx={{ flex: 1, minWidth: 280 }}>
+          <Stack spacing={2}>
+            <WalletsPanel />
+            <CurrencyRatesPanel />
+            <CurrencyConvertPanel />
+          </Stack>
+        </Box>
+      </Box>
     </Stack>
   );
 }
