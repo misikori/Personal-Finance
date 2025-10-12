@@ -1,4 +1,4 @@
-import { Typography, Box, Stack } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 import AllocationChart from "./components/AllocationChart";
 import PortfolioSummary from "./components/PortfolioSummary";
 import PositionsTable from "./components/PositionsTable";
@@ -8,13 +8,13 @@ import { usePortfolioSummary, usePortfolioDistribution } from "../../domain/port
 
 export default function PortfolioPage() {
   const user = getCurrentUser();
-  const username = user?.id ?? user?.email ?? "";
+  const username = user?.username ?? user?.email ?? "";
   // You can make baseCurrency dynamic if needed
   const baseCurrency = "USD";
 
   // Fetch summary and allocation using new hooks
-  const summaryQ = usePortfolioSummary("niko", { baseCurrency });
-  const allocationQ = usePortfolioDistribution("niko", { baseCurrency });
+  const summaryQ = usePortfolioSummary(username, { baseCurrency });
+  const allocationQ = usePortfolioDistribution(username, { baseCurrency });
 
   // Format positions for table
   const positionsRaw = summaryQ.data?.positions ?? [];

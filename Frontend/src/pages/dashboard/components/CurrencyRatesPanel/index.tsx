@@ -2,14 +2,13 @@ import * as React from "react";
 import { Card, CardContent, CardHeader, Typography, Stack, Divider } from "@mui/material";
 
 import { ratesPanelStyles } from "./style";
-import type { CurrencyRatesPanelProps } from "./types";
 import { useCurrencies } from "../../../../domain/currency/hooks/useCurrency";
 
 
 import { TextField, MenuItem, InputAdornment, IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
-export function CurrencyRatesPanel(props: CurrencyRatesPanelProps) {
+export function CurrencyRatesPanel() {
   const [baseCurrency, setBaseCurrency] = React.useState("RSD");
   const [search, setSearch] = React.useState("");
   const { currencies, loading, error } = useCurrencies(baseCurrency);
@@ -68,7 +67,7 @@ export function CurrencyRatesPanel(props: CurrencyRatesPanelProps) {
                 <React.Fragment key={c.code}>
                   <Stack direction="row" justifyContent="space-between">
                     <Typography fontWeight={600}>{c.code}</Typography>
-                    <Typography>{c.exchangeMiddle}</Typography>
+                    <Typography>{Number(c.exchangeMiddle).toFixed(2)}</Typography>
                   </Stack>
                   <Divider />
                 </React.Fragment>

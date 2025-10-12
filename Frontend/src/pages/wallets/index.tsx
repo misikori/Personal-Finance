@@ -23,7 +23,7 @@ import { getCurrentUser } from "../../auth/store/authStore";
 export default function WalletsPage() {
   const { wallets, loading: walletsLoading } = useWallets();
   const [byWallet, setByWallet] = useState<Record<string, Transaction[]>>({});
-  
+  console.log("WalletsPage render", { wallets, byWallet });
   const currentUser = getCurrentUser();
   useEffect(() => {
     let alive = true;
@@ -74,10 +74,6 @@ export default function WalletsPage() {
       <Stack spacing={1.5}>
         {wallets.map((w) => {
           const items = byWallet[w.id] ?? [];
-          const balance = items.reduce(
-            (acc, t) => acc + (t.type === "Expense" ? -t.amount : t.amount),
-            0
-          );
 
           return (
             <Accordion
@@ -99,7 +95,7 @@ export default function WalletsPage() {
 
                   <Chip
                     size="small"
-                    label={`Balance: ${fmtCurrency(balance, w.currency)}`}
+                    label={`Balance: ${fmtCurrency(w.currentBalance, w.currency)}`}
                     sx={{
                       fontWeight: 600,
                       bgcolor: (theme) => theme.palette.mode === "dark" ? "grey.800" : "grey.100",

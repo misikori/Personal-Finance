@@ -11,7 +11,7 @@ export interface CreateCategoryRequest {
 }
 
 export interface Wallet {
-  id: Guid; userId: Guid; name: string; currency: string; createdAt?: string;   currentBalance?: number;
+  id: Guid; userId: Guid; name: string; currency: string; createdAt?: string;   currentBalance: number;
 }
 export interface CreateWalletRequest { userId: Guid; name: string; currency: string; }
 
@@ -27,7 +27,7 @@ export interface RecurringTransaction {
   amount: number; 
   TransactionType: TransactionType;
   currency: string;
-  RecurrenceFrequency: RecurrenceFrequency;
+  frequency: RecurrenceFrequency;
   nextRun: string; 
   description?: string | null;
   categoryId?: Guid | null;

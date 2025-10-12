@@ -27,7 +27,7 @@ export const ROUTES = {
 export const PUBLIC_ROUTES: RouteMeta[] = [
   {
     path: ROUTES.PUBLIC.LANDING,
-    Component: lazy(() => import("../pages/LandingPage")),
+    Component: lazy(() => import("../pages/landingpage")),
     guard: "public",
     label: "Home",
   },

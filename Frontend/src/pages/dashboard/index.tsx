@@ -22,9 +22,9 @@ export default function DashboardPage() {
       try {
         // Replace with real service calls
         // Example: get current user from wallet panel logic
-        const username = getCurrentUser()?.id ?? "demo";
+        const username = getCurrentUser()?.username ?? "demo";
         // Portfolio summary for KPIs
-        const summary = await portfolioData.summary("niko");
+        const summary = await portfolioData.summary(username);
         setKpis([
           { id: "totalBalance", label: "Total Balance", value: summary.currentValue.toLocaleString(), trend: summary.gainLossPercentage > 0 ? "up" : "down", sublabel: `GL: ${summary.gainLossPercentage.toFixed(2)}%` },
           { id: "dailyPL", label: "Daily P/L", value: "-", trend: "flat" },

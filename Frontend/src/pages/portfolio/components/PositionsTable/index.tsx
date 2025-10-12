@@ -1,7 +1,6 @@
 import {
   Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Typography, Box
 } from "@mui/material";
-import type { Position } from "../../../../types/portfolio";
 import { fmtCurrency, fmtPct } from "../../../../shared/utils/format";
 import { containerSx, paperSx, footerRowSx, plPosSx, plNegSx, headerCellSx } from "./styles";
 

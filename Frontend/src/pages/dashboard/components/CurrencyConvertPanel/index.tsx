@@ -1,10 +1,9 @@
 import * as React from "react";
 import { Card, CardContent, CardHeader, Typography, Stack, Button, TextField, MenuItem } from "@mui/material";
 import { convertPanelStyles } from "./style";
-import type { CurrencyConvertPanelProps } from "./types";
 import { useCurrencies, useCurrencyConvert } from "../../../../domain/currency/hooks/useCurrency";
 
-export function CurrencyConvertPanel(props: CurrencyConvertPanelProps) {
+export function CurrencyConvertPanel() {
   const { currencies } = useCurrencies("USD");
   const { result, loading, error, convert } = useCurrencyConvert();
   const [from, setFrom] = React.useState("");
@@ -56,7 +55,7 @@ export function CurrencyConvertPanel(props: CurrencyConvertPanelProps) {
           {error && <Typography color="error">{error}</Typography>}
           {result && (
             <Typography>
-              {result.amount} {result.from} = {result.converted} {result.to} (Rate: {result.rate})
+              {Number(result.amount).toFixed(2)} {result.from} = {Number(result.converted).toFixed(2)} {result.to} (Rate: {Number(result.rate).toFixed(2)})
             </Typography>
           )}
         </Stack>
