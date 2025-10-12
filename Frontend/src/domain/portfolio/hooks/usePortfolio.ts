@@ -34,10 +34,13 @@ export function usePortfolioDistribution(username: string, opts: { baseCurrency:
   });
 }
 
-export function useRecommendations() {
+export function useRecommendations(options?: { symbols?: string[]; enabled?: boolean }) {
+  const keySymbols = (options?.symbols ?? []).slice().sort().join(","); // stable cache key
   return useQuery<RecommendationsDto>({
-    queryKey: keys.recommendations(),
-    queryFn: () => PortfolioService.portfolio.recommendations()
+    queryKey: [...keys.recommendations(), keySymbols],
+    queryFn: () => PortfolioService.portfolio.recommendations(options?.symbols),
+    enabled: options?.enabled ?? true,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

@@ -2,9 +2,9 @@ Vendor: AlphaVantage
 ApiKey: "${ALPHAVANTAGE_API_KEY}"
 
 RateLimits:
-  PerMinute: 5
-  PerHour: 0
-  PerDay: 25
+  PerMinute: 20
+  PerHour: 100
+  PerDay: 200
 
 BaseUrl: "https://www.alphavantage.co/query"
 
@@ -30,17 +30,17 @@ Endpoints:
         Low: "04. low"
         Open: "02. open"
         Volume: "06. volume"
-        
+
   DailyTimeSeries:
-    DataType: OHLCV 
+    DataType: OHLCV
     Function: TIME_SERIES_DAILY
     HttpMethod: GET
     QueryParams:
       Required:
         symbol: "{symbol}"
       Optional:
-        outputsize: "full" 
-        datatype: "{datatype}"      
+        outputsize: "full"
+        datatype: "{datatype}"
     Metadata:
       TemporalResolutions: ["1d"]
       Notes: "Raw, unadjusted daily OHLCV. Use TIME_SERIES_DAILY_ADJUSTED for split/dividend-adjusted."

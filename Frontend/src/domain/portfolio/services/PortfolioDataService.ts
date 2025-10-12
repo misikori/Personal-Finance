@@ -26,10 +26,12 @@ class PortfolioDataService extends BaseService {
             `/distribution/${encodeURIComponent(username)}?baseCurrency=${encodeURIComponent(baseCurrency)}`
         );
     }
-
-    async recommendations(): Promise<RecommendationsDto> {
-        return await this.get<RecommendationsDto>(`/recommendations`);
-    }
+  async recommendations(symbols?: string[]): Promise<RecommendationsDto> {
+    const qs = symbols?.length
+      ? `?symbols=${encodeURIComponent(symbols.join(","))}`
+      : "";
+    return await this.get<RecommendationsDto>(`/recommendations${qs}`);
+  }
 }
 
 export const portfolioData = new PortfolioDataService();
