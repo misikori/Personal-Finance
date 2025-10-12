@@ -30,25 +30,26 @@ export function useTransactions(initial?: TransactionFilter) {
   const load = useCallback(async (f: TransactionFilter) => {
     setLoading(true);
     try {
+      const userId = getCurrentUser()?.id;
+      if (!userId) {
+        setData({
+          items: [],
+          total: 0,
+          page: f.page ?? DEFAULTS.page,
+          pageSize: f.pageSize ?? DEFAULTS.pageSize,
+        });
+        setWallets([]);
+        return;
+      }
+
+      // Always fetch wallets to display wallet names
+      const userWallets = await BudgetService.wallets.getByUser(userId);
+      setWallets(userWallets);
+
       let raw: Transaction[] = [];
 
       // If no wallet selected, fetch from ALL wallets
       if (!f.walletId) {
-        const userId = getCurrentUser()?.id;
-        if (!userId) {
-          setData({
-            items: [],
-            total: 0,
-            page: f.page ?? DEFAULTS.page,
-            pageSize: f.pageSize ?? DEFAULTS.pageSize,
-          });
-          return;
-        }
-
-        // Get all wallets for the user
-        const userWallets = await BudgetService.wallets.getByUser(userId);
-        setWallets(userWallets);
-        
         // Fetch transactions from all wallets and merge
         const allTransactions = await Promise.all(
           userWallets.map(wallet => 
