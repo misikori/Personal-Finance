@@ -48,12 +48,10 @@ public class BudgetServiceClient : IBudgetService
     /// <summary>
     /// Gets user's primary wallet ID from Budget service via GetWalletState gRPC
     /// </summary>
-    private async Task<string> GetUserWalletIdAsync(string username, string currency)
+    private async Task<string> GetUserWalletIdAsync(string userId, string currency)
     {
         try
         {
-            // Resolve username to userId via IdentityServer
-            var userId = await _userService.GetUserIdAsync(username);
             
             var request = new GetWalletStateRequest
             {
@@ -66,19 +64,19 @@ public class BudgetServiceClient : IBudgetService
             
             if (string.IsNullOrEmpty(response.WalletId))
             {
-                _logger.LogError("No wallet ID returned for user {Username} (UserId: {UserId})", username, userId);
-                throw new InvalidOperationException($"User {username} has no wallets in Budget service");
+                _logger.LogError("No wallet ID returned for UserId {UserId}", userId);
+                throw new InvalidOperationException($"User {userId} has no wallets in Budget service");
             }
             
-            _logger.LogDebug("Using wallet {WalletId} (Currency: {Currency}) for user {Username} (UserId: {UserId})", 
-                response.WalletId, response.Currency, username, userId);
+            _logger.LogDebug("Using wallet {WalletId} (Currency: {Currency}) for UserId {UserId}", 
+                response.WalletId, response.Currency, userId);
             
             return response.WalletId;
         }
         catch (RpcException ex)
         {
-            _logger.LogError(ex, "gRPC error getting wallet for user {Username}. Status: {Status}", 
-                username, ex.StatusCode);
+            _logger.LogError(ex, "gRPC error getting wallet for UserId {UserId}. Status: {Status}", 
+                userId, ex.StatusCode);
             throw new InvalidOperationException($"Budget service gRPC error: {ex.Status.Detail}", ex);
         }
     }
@@ -87,12 +85,10 @@ public class BudgetServiceClient : IBudgetService
     /// Checks if user has sufficient funds by calling GetWalletState gRPC
     /// Converts budget balance to the requested currency for comparison
     /// </summary>
-    public async Task<bool> HasSufficientFundsAsync(string username, decimal amount, string currency)
+    public async Task<bool> HasSufficientFundsAsync(string userId, decimal amount, string currency)
     {
         try
         {
-            // Resolve username to userId via IdentityServer
-            var userId = await _userService.GetUserIdAsync(username);
             
             var request = new GetWalletStateRequest 
             { 
@@ -106,16 +102,16 @@ public class BudgetServiceClient : IBudgetService
             var hasEnough = (decimal)response.CurrentBalance >= amount;
             
             _logger.LogInformation(
-                "Budget check for {Username} (UserId: {UserId}): Balance={Balance} {Currency}, Required={Required}, HasEnough={HasEnough}",
-                username, userId, response.CurrentBalance, currency, amount, hasEnough);
+                "Budget check for UserId {UserId}: Balance={Balance} {Currency}, Required={Required}, HasEnough={HasEnough}",
+                userId, response.CurrentBalance, currency, amount, hasEnough);
             
             return hasEnough;
         }
         catch (RpcException ex)
         {
             _logger.LogError(ex, 
-                "gRPC error checking funds for {Username}. Status: {Status}",
-                username, ex.StatusCode);
+                "gRPC error checking funds for UserId {UserId}. Status: {Status}",
+                userId, ex.StatusCode);
             throw new InvalidOperationException($"Budget service unavailable: {ex.Status.Detail}", ex);
         }
     }
@@ -124,19 +120,17 @@ public class BudgetServiceClient : IBudgetService
     /// Deducts amount from user's budget by creating an EXPENSE transaction
     /// Calls Budget service CreateTransaction with type="EXPENSE"
     /// </summary>
-    public async Task<bool> DeductFromBudgetAsync(string username, decimal amount, string currency)
+    public async Task<bool> DeductFromBudgetAsync(string userId, decimal amount, string currency)
     {
         try
         {
+            
             _logger.LogInformation(
-                "Deducting {Amount} {Currency} from budget for user {Username} via Budget service",
-                amount, currency, username);
-
-            // Resolve username to userId
-            var userId = await _userService.GetUserIdAsync(username);
+                "Deducting {Amount} {Currency} from budget for UserId {UserId} via Budget service",
+                amount, currency, userId);
             
             // Get user's wallet ID from Budget service
-            var walletId = await GetUserWalletIdAsync(username, currency);
+            var walletId = await GetUserWalletIdAsync(userId, currency);
 
             var request = new CreateTransactionRequest
             {
@@ -155,31 +149,31 @@ public class BudgetServiceClient : IBudgetService
             if (response.Success)
             {
                 _logger.LogInformation(
-                    "Successfully deducted ${Amount} from budget for {Username}. Transaction ID: {TransactionId}",
-                    amount, username, response.TransactionId);
+                    "Successfully deducted ${Amount} from budget for UserId {UserId}. Transaction ID: {TransactionId}",
+                    amount, userId, response.TransactionId);
                 return true;
             }
             else
             {
                 _logger.LogWarning(
-                    "Failed to deduct from budget for {Username}: {Error}",
-                    username, response.ErrorMessage);
+                    "Failed to deduct from budget for UserId {UserId}: {Error}",
+                    userId, response.ErrorMessage);
                 return false;
             }
         }
         catch (RpcException ex)
         {
             _logger.LogError(ex, 
-                "gRPC error deducting from budget for {Username}. Status: {Status}",
-                username, ex.StatusCode);
-            
+                "gRPC error deducting from budget for UserId {UserId}. Status: {Status}",
+                userId, ex.StatusCode);
+
             throw new InvalidOperationException($"Budget service unavailable: {ex.Status.Detail}", ex);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, 
-                "Error deducting ${Amount} from budget for {Username}",
-                amount, username);
+                "Error deducting ${Amount} from budget for UserId {UserId}",
+                amount, userId);
             throw;
         }
     }
@@ -188,19 +182,17 @@ public class BudgetServiceClient : IBudgetService
     /// Adds amount to user's budget by creating an INCOME transaction
     /// Calls Budget service CreateTransaction with type="INCOME"
     /// </summary>
-    public async Task<bool> AddToBudgetAsync(string username, decimal amount, string currency)
+    public async Task<bool> AddToBudgetAsync(string userId, decimal amount, string currency)
     {
         try
         {
+            
             _logger.LogInformation(
-                "Adding {Amount} {Currency} to budget for user {Username} via Budget service",
-                amount, currency, username);
-
-            // Resolve username to userId
-            var userId = await _userService.GetUserIdAsync(username);
+                "Adding {Amount} {Currency} to budget for UserId {UserId} via Budget service",
+                amount, currency, userId);
             
             // Get user's wallet ID from Budget service
-            var walletId = await GetUserWalletIdAsync(username, currency);
+            var walletId = await GetUserWalletIdAsync(userId, currency);
 
             var request = new CreateTransactionRequest
             {
@@ -219,31 +211,31 @@ public class BudgetServiceClient : IBudgetService
             if (response.Success)
             {
                 _logger.LogInformation(
-                    "Successfully added ${Amount} to budget for {Username}. Transaction ID: {TransactionId}",
-                    amount, username, response.TransactionId);
+                    "Successfully added ${Amount} to budget for UserId {UserId}. Transaction ID: {TransactionId}",
+                    amount, userId, response.TransactionId);
                 return true;
             }
             else
             {
                 _logger.LogWarning(
-                    "Failed to add to budget for {Username}: {Error}",
-                    username, response.ErrorMessage);
+                    "Failed to add to budget for UserId {UserId}: {Error}",
+                    userId, response.ErrorMessage);
                 return false;
             }
         }
         catch (RpcException ex)
         {
             _logger.LogError(ex, 
-                "gRPC error adding to budget for {Username}. Status: {Status}",
-                username, ex.StatusCode);
+                "gRPC error adding to budget for UserId {UserId}. Status: {Status}",
+                userId, ex.StatusCode);
             
             throw new InvalidOperationException($"Budget service unavailable: {ex.Status.Detail}", ex);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, 
-                "Error adding ${Amount} to budget for {Username}",
-                amount, username);
+                "Error adding ${Amount} to budget for UserId {UserId}",
+                amount, userId);
             throw;
         }
     }

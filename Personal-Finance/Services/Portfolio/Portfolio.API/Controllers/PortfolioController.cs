@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portfolio.Core.DTOs;
 using Portfolio.Core.Services;
@@ -8,6 +9,7 @@ namespace Portfolio.API.Controllers;
 /// <summary>
 /// Portfolio management API - buy/sell stocks, view portfolio, get prices
 /// </summary>
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class PortfolioController : ControllerBase
@@ -33,31 +35,46 @@ public class PortfolioController : ControllerBase
     }
 
     /// <summary>
-    /// Buy stocks for a user
+    /// Buy stocks for authenticated user (userId from JWT token)
     /// </summary>
-    /// <param name="request">Buy request containing username, symbol, and quantity</param>
+    /// <param name="request">Buy request containing symbol and quantity (username ignored, userId from JWT)</param>
     /// <returns>Transaction details including price and total cost</returns>
     /// <response code="200">Stock purchased successfully</response>
     /// <response code="400">Invalid request (insufficient budget, invalid symbol, etc.)</response>
+    /// <response code="401">Unauthorized - valid JWT token required</response>
     [HttpPost("buy")]
     [ProducesResponseType(typeof(Core.Entities.Transaction), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> BuyStock([FromBody] BuyStockRequest request)
     {
         try
         {
-            // Input validation
-            if (string.IsNullOrWhiteSpace(request.Username))
-                return BadRequest(new { error = "Username is required" });
+            // Extract userId from JWT token
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                       ?? User.FindFirst("sub")?.Value;
+            
+            if (string.IsNullOrEmpty(userId))
+            {
+                var allClaims = string.Join(", ", User.Claims.Select(c => $"{c.Type}={c.Value}"));
+                _logger.LogError("Buy request REJECTED: No userId found. Claims: {Claims}", allClaims);
+                return Unauthorized(new { 
+                    error = "User ID not found in token. Please re-authenticate."
+                });
+            }
+            
+            // Set userId from JWT token (any value sent in request body is ignored)
+            request.UserId = userId;
 
+            // Input validation
             if (string.IsNullOrWhiteSpace(request.Symbol))
                 return BadRequest(new { error = "Stock symbol is required" });
 
             if (request.Quantity <= 0)
                 return BadRequest(new { error = "Quantity must be greater than zero" });
 
-            _logger.LogInformation("Received BUY request from {Username} for {Quantity} shares of {Symbol}", 
-                request.Username, request.Quantity, request.Symbol);
+            _logger.LogInformation("Received BUY request from UserId {UserId} for {Quantity} shares of {Symbol}", 
+                userId, request.Quantity, request.Symbol);
 
             var transaction = await _portfolioService.BuyStockAsync(request);
             return Ok(transaction);
@@ -70,19 +87,35 @@ public class PortfolioController : ControllerBase
     }
 
     /// <summary>
-    /// Sell stocks from user's portfolio
+    /// Sell stocks from authenticated user's portfolio (userId from JWT token)
     /// </summary>
-    /// <param name="request">Sell request containing username, symbol, and quantity</param>
+    /// <param name="request">Sell request containing symbol and quantity (username ignored, userId from JWT)</param>
     /// <returns>Transaction details including sale price and gain/loss</returns>
     /// <response code="200">Stock sold successfully</response>
     /// <response code="400">Invalid request (insufficient shares, user doesn't own stock, etc.)</response>
+    /// <response code="401">Unauthorized - valid JWT token required</response>
     [HttpPost("sell")]
     [ProducesResponseType(typeof(Core.Entities.Transaction), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> SellStock([FromBody] SellStockRequest request)
     {
         try
         {
+            // Extract userId from JWT token
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                       ?? User.FindFirst("sub")?.Value;
+            
+            if (string.IsNullOrEmpty(userId))
+            {
+                var availableClaims = string.Join(", ", User.Claims.Select(c => $"{c.Type}={c.Value}"));
+                _logger.LogWarning("Sell request rejected: No userId found in JWT token. Available claims: {Claims}", availableClaims);
+                return Unauthorized(new { error = "User ID not found in token. Please re-authenticate." });
+            }
+
+            // Set userId from JWT token (any value sent in request body is ignored)
+            request.UserId = userId;
+
             // Input validation
             if (string.IsNullOrWhiteSpace(request.Symbol))
                 return BadRequest(new { error = "Stock symbol is required" });
@@ -90,8 +123,8 @@ public class PortfolioController : ControllerBase
             if (request.Quantity <= 0)
                 return BadRequest(new { error = "Quantity must be greater than zero" });
 
-            _logger.LogInformation("Received SELL request from {Username} for {Quantity} shares of {Symbol}", 
-                request.Username, request.Quantity, request.Symbol);
+            _logger.LogInformation("Received SELL request from UserId {UserId} for {Quantity} shares of {Symbol}", 
+                userId, request.Quantity, request.Symbol);
 
             var transaction = await _portfolioService.SellStockAsync(request);
             return Ok(transaction);

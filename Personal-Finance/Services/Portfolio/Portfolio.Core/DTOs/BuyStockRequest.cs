@@ -6,9 +6,9 @@ namespace Portfolio.Core.DTOs;
 public class BuyStockRequest
 {
     /// <summary>
-    /// Username of the buyer
+    /// User ID (extracted from JWT token, not from request body)
     /// </summary>
-    public string Username { get; set; } = string.Empty;
+    public string UserId { get; set; } = string.Empty;
     
     /// <summary>
     /// Stock symbol to purchase (e.g., "AAPL", "TSLA")

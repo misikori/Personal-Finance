@@ -45,34 +45,34 @@ public class PortfolioService : IPortfolioService
             throw new ArgumentException("Quantity must be greater than zero");
         }
 
-        if (string.IsNullOrWhiteSpace(request.Username))
+        if (string.IsNullOrWhiteSpace(request.UserId))
         {
-            throw new ArgumentException("Username is required");
+            throw new ArgumentException("UserId is required");
         }
 
-        _logger.LogInformation("Processing BUY order: {Username} buying {Quantity} shares of {Symbol}", 
-            request.Username, request.Quantity, request.Symbol);
+        _logger.LogInformation("Processing BUY order: UserId {UserId} buying {Quantity} shares of {Symbol}", 
+            request.UserId, request.Quantity, request.Symbol);
 
         // Get current market price
         var priceInfo = await _marketDataService.GetCurrentPriceAsync(request.Symbol);
         var totalCost = priceInfo.Price * request.Quantity;
 
         // Check if user has sufficient funds
-        var hasEnoughMoney = await _budgetService.HasSufficientFundsAsync(request.Username, totalCost, priceInfo.Currency);
+        var hasEnoughMoney = await _budgetService.HasSufficientFundsAsync(request.UserId, totalCost, priceInfo.Currency);
         if (!hasEnoughMoney)
         {
             throw new InvalidOperationException($"Insufficient funds. Required: {totalCost:F2} {priceInfo.Currency}");
         }
 
         // Deduct from budget
-        var deductSuccess = await _budgetService.DeductFromBudgetAsync(request.Username, totalCost, priceInfo.Currency);
+        var deductSuccess = await _budgetService.DeductFromBudgetAsync(request.UserId, totalCost, priceInfo.Currency);
         if (!deductSuccess)
         {
             throw new InvalidOperationException($"Failed to deduct {totalCost:F2} {priceInfo.Currency} from budget");
         }
 
         // Get existing position or create new one
-        var existingPosition = await _repository.GetPositionAsync(request.Username, request.Symbol);
+        var existingPosition = await _repository.GetPositionAsync(request.UserId, request.Symbol);
 
         PortfolioPosition position;
         
@@ -86,7 +86,7 @@ public class PortfolioService : IPortfolioService
             position = new PortfolioPosition
             {
                 Id = existingPosition.Id,
-                Username = request.Username,
+                Username = request.UserId,
                 Symbol = request.Symbol,
                 Quantity = totalShares,
                 AveragePurchasePrice = totalValue / totalShares,
@@ -100,7 +100,7 @@ public class PortfolioService : IPortfolioService
             // Create new position
             position = new PortfolioPosition
             {
-                Username = request.Username,
+                Username = request.UserId,
                 Symbol = request.Symbol,
                 Quantity = request.Quantity,
                 AveragePurchasePrice = priceInfo.Price,
@@ -115,7 +115,7 @@ public class PortfolioService : IPortfolioService
         // Record transaction
         var transaction = new Transaction
         {
-            Username = request.Username,
+            Username = request.UserId,
             Symbol = request.Symbol,
             Type = "BUY",
             Quantity = request.Quantity,
@@ -145,20 +145,20 @@ public class PortfolioService : IPortfolioService
             throw new ArgumentException("Quantity must be greater than zero");
         }
 
-        if (string.IsNullOrWhiteSpace(request.Username))
+        if (string.IsNullOrWhiteSpace(request.UserId))
         {
-            throw new ArgumentException("Username is required");
+            throw new ArgumentException("UserId is required");
         }
 
-        _logger.LogInformation("Processing SELL order: {Username} selling {Quantity} shares of {Symbol}", 
-            request.Username, request.Quantity, request.Symbol);
+        _logger.LogInformation("Processing SELL order: UserId {UserId} selling {Quantity} shares of {Symbol}", 
+            request.UserId, request.Quantity, request.Symbol);
 
         // Check if user owns this stock
-        var existingPosition = await _repository.GetPositionAsync(request.Username, request.Symbol);
+        var existingPosition = await _repository.GetPositionAsync(request.UserId, request.Symbol);
         
         if (existingPosition == null)
         {
-            throw new InvalidOperationException($"User {request.Username} doesn't own any {request.Symbol} shares.");
+            throw new InvalidOperationException($"User {request.UserId} doesn't own any {request.Symbol} shares.");
         }
 
         if (existingPosition.Quantity < request.Quantity)
@@ -171,15 +171,15 @@ public class PortfolioService : IPortfolioService
         var saleProceeds = priceInfo.Price * request.Quantity;
 
         // Add proceeds to budget
-        await _budgetService.AddToBudgetAsync(request.Username, saleProceeds, priceInfo.Currency);
+        await _budgetService.AddToBudgetAsync(request.UserId, saleProceeds, priceInfo.Currency);
 
         // Update or delete position
         if (existingPosition.Quantity == request.Quantity)
         {
             // Selling all shares - remove position
-            await _repository.DeletePositionAsync(request.Username, request.Symbol);
-            _logger.LogInformation("Removed position for {Username} - {Symbol} (sold all shares)", 
-                request.Username, request.Symbol);
+            await _repository.DeletePositionAsync(request.UserId, request.Symbol);
+            _logger.LogInformation("Removed position for UserId {UserId} - {Symbol} (sold all shares)", 
+                request.UserId, request.Symbol);
         }
         else
         {
@@ -192,7 +192,7 @@ public class PortfolioService : IPortfolioService
         // Record transaction
         var transaction = new Transaction
         {
-            Username = request.Username,
+            Username = request.UserId,
             Symbol = request.Symbol,
             Type = "SELL",
             Quantity = request.Quantity,
