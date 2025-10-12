@@ -5,8 +5,8 @@ public record GenerateReportRequest(
     string Username,
     string EmailAddress,
     Guid WalletId,
-    DateTime StartDate,
-    DateTime EndDate
+    DateTime? StartDate,
+    DateTime? EndDate
 );
 
 public interface IReportService

@@ -23,7 +23,14 @@ export function GenerateReportButton({ userId, username, emailAddress }: {
     e.preventDefault();
     setLoading(true);
     try {
-      const payload = { userId, walletId, username, emailAddress, startDate, endDate };
+      const payload = { 
+        userId, 
+        walletId, 
+        username, 
+        emailAddress, 
+        startDate: startDate || undefined, 
+        endDate: endDate || undefined 
+      };
       const result = await BudgetService.reports.transactionsReport(payload);
       alert("Report generated! Check console for result.");
       console.log(result);
@@ -58,29 +65,29 @@ export function GenerateReportButton({ userId, username, emailAddress }: {
               ))}
             </TextField>
             <TextField
-              label="Start Date"
+              label="Start Date (optional)"
               type="date"
               value={startDate}
               onChange={e => setStartDate(e.target.value)}
               fullWidth
               margin="normal"
               InputLabelProps={{ shrink: true }}
-              required
+              helperText="Leave empty for entire history"
             />
             <TextField
-              label="End Date"
+              label="End Date (optional - inclusive)"
               type="date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
               fullWidth
               margin="normal"
               InputLabelProps={{ shrink: true }}
-              required
+              helperText="Leave empty for all transactions up to today"
             />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} disabled={loading}>Cancel</Button>
-            <Button type="submit" variant="contained" disabled={loading || !walletId || !startDate || !endDate}>
+            <Button type="submit" variant="contained" disabled={loading || !walletId}>
               Generate
             </Button>
           </DialogActions>
