@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { BudgetService } from "../../../domain/budget/services/BudgetService";
+import { getCurrentUser } from "../../../auth/store/authStore";
 import type {
   Transaction,
   TransactionFilter,
@@ -24,27 +25,50 @@ export function useTransactions(initial?: TransactionFilter) {
     pageSize: DEFAULTS.pageSize,
   });
   const [loading, setLoading] = useState(false);
+  const [wallets, setWallets] = useState<Array<{ id: string; name: string; currency: string }>>([]);
 
   const load = useCallback(async (f: TransactionFilter) => {
-    if (!f.walletId) {
-      setData({
-        items: [],
-        total: 0,
-        page: f.page ?? DEFAULTS.page,
-        pageSize: f.pageSize ?? DEFAULTS.pageSize,
-      });
-      return;
-    }
-
     setLoading(true);
     try {
-      const raw = await BudgetService.transactions.list(f.walletId, {
-        startDate: f.dateFrom,
-        endDate: f.dateTo,
-        categoryName: f.categoryName,
+      let raw: Transaction[] = [];
 
-      });
+      // If no wallet selected, fetch from ALL wallets
+      if (!f.walletId) {
+        const userId = getCurrentUser()?.id;
+        if (!userId) {
+          setData({
+            items: [],
+            total: 0,
+            page: f.page ?? DEFAULTS.page,
+            pageSize: f.pageSize ?? DEFAULTS.pageSize,
+          });
+          return;
+        }
 
+        // Get all wallets for the user
+        const userWallets = await BudgetService.wallets.getByUser(userId);
+        setWallets(userWallets);
+        
+        // Fetch transactions from all wallets and merge
+        const allTransactions = await Promise.all(
+          userWallets.map(wallet => 
+            BudgetService.transactions.list(wallet.id, {
+              startDate: f.dateFrom,
+              endDate: f.dateTo,
+              categoryName: f.categoryName,
+            })
+          )
+        );
+        
+        raw = allTransactions.flat();
+      } else {
+        // Fetch from specific wallet only
+        raw = await BudgetService.transactions.list(f.walletId, {
+          startDate: f.dateFrom,
+          endDate: f.dateTo,
+          categoryName: f.categoryName,
+        });
+      }
 
       const afterType = f.type ? raw.filter(t => t.type === f.type) : raw;
 
@@ -83,6 +107,6 @@ export function useTransactions(initial?: TransactionFilter) {
     return () => { cancelled = true; clearTimeout(id); };
   }, [filter, load]);
 
-  return { filter, setFilter, ...data, loading };
+  return { filter, setFilter, ...data, loading, wallets };
 }
 

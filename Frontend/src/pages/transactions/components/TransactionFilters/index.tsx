@@ -27,9 +27,10 @@ export default function TransactionFilters({ value, onChange }: TransactionFilte
           <Select
             labelId="wallet-label"
             input={<OutlinedInput label="Wallet" />}
-            value={value.walletId ?? ""}
-            onChange={(e) => handle({ walletId: String(e.target.value), page: 1 })}
+            value={value.walletId || "ALL"}
+            onChange={(e) => handle({ walletId: e.target.value === "ALL" ? undefined : e.target.value, page: 1 })}
           >
+            <MenuItem value="ALL">All Wallets</MenuItem>
             {walletMenu}
           </Select>
         </FormControl>

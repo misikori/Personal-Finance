@@ -12,4 +12,5 @@ export type TransactionTableProps = {
   onSortChange: (by: TransactionSortBy) => void;
   loading?: boolean;
   filter: TransactionFilter;
+  wallets?: Array<{ id: string; name: string; currency: string }>;
 };

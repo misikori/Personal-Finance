@@ -17,20 +17,32 @@ import type { TransactionSortBy } from "../../../../domain/budget/types/transact
 
 export default function TransactionsTable({
   rows, total, page, pageSize, onPageChange, onPageSizeChange,
-  sortBy, sortDir, onSortChange, loading
+  sortBy, sortDir, onSortChange, loading, filter, wallets = []
 }: TransactionTableProps) {
 
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const empty = !loading && total === 0;
+  const showWalletColumn = !filter.walletId; // Show wallet column when viewing all wallets
 
-  const header = useMemo(() => ([
-    { id: "createdAt",   label: "Date",       sortable: true },
-    { id: "type",        label: "Type",       sortable: true },
-    { id: "categoryName",label: "Category",   sortable: false },
-    { id: "description", label: "Description",sortable: false },
-    { id: "amount",      label: "Amount",     sortable: true, align: "right" as const },
-    { id: "currency",    label: "Currency",   sortable: false, align: "right" as const },
-  ]), []);
+  const header = useMemo(() => {
+    const cols: Array<{ id: string; label: string; sortable: boolean; align?: "right" }> = [
+      { id: "createdAt",   label: "Date",       sortable: true },
+      { id: "type",        label: "Type",       sortable: true },
+      { id: "categoryName",label: "Category",   sortable: false },
+      { id: "description", label: "Description",sortable: false },
+    ];
+    
+    if (showWalletColumn) {
+      cols.push({ id: "wallet", label: "Wallet", sortable: false });
+    }
+    
+    cols.push(
+      { id: "amount",      label: "Amount",     sortable: true, align: "right" },
+      { id: "currency",    label: "Currency",   sortable: false, align: "right" }
+    );
+    
+    return cols;
+  }, [showWalletColumn]);
 
   return (
     <Paper variant="outlined" sx={tablePaperSx}>
@@ -75,12 +87,14 @@ export default function TransactionsTable({
 
             {!loading && rows.map((r) => {
               const isExpense = r.type === "Expense";
+              const walletName = wallets.find(w => w.id === r.walletId)?.name ?? "—";
               return (
                 <TableRow key={String(r.id)} hover tabIndex={0} sx={focusableRowSx}>
                   <TableCell>{fmtTime(r.date)}</TableCell>
                   <TableCell>{r.type ?? "—"}</TableCell>
                   <TableCell>{r.categoryName ?? "—"}</TableCell>
                   <TableCell>{r.description ?? "—"}</TableCell>
+                  {showWalletColumn && <TableCell>{walletName}</TableCell>}
                   <TableCell align="right">
                     <Box component="span" sx={isExpense ? amountNegativeSx : amountPositiveSx}>
                       {isExpense ? "- " : ""}

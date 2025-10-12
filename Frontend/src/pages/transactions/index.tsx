@@ -6,7 +6,7 @@ import { useTransactions } from "./hooks/useTransactions";
 import TransactionsCreateDialog from "./components/TransactionsCreateDialog";
 
 export default function TransactionsPage() {
-  const { filter, setFilter, items, total, page, pageSize, loading } = useTransactions();
+  const { filter, setFilter, items, total, page, pageSize, loading, wallets } = useTransactions();
   const [openNew, setOpenNew] = useState(false);
 
   return (
@@ -35,6 +35,7 @@ export default function TransactionsPage() {
         }))}
         loading={loading}
         filter={filter}
+        wallets={wallets}
       />
 
       <TransactionsCreateDialog
