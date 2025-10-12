@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Grid, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import KpiCard from "./components/KpiCard";
 import RecentActivity from "./components/RecentActivity";
 // import TopMovers from "./components/TopMovers";
@@ -70,14 +70,18 @@ export default function DashboardPage() {
       {/* Main area - Flexbox */}
       <Box sx={{ display: 'flex', gap: 2, flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
         <Box sx={{ flex: 2, minWidth: 300 }}>
+          <Stack spacing={2}>
           <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Recent Activity</Typography>
           <RecentActivity rows={recent} />
+          <Box sx={{ display: 'flex', gap: 2,borderSpacing:2, flexWrap: { xs: 'wrap', md: 'nowrap'} }}>
+            <CurrencyRatesPanel />
+            <CurrencyConvertPanel />
+          </Box>
+          </Stack>
         </Box>
         <Box sx={{ flex: 1, minWidth: 280 }}>
           <Stack spacing={2}>
             <WalletsPanel />
-            <CurrencyRatesPanel />
-            <CurrencyConvertPanel />
           </Stack>
         </Box>
       </Box>

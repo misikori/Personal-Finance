@@ -6,7 +6,7 @@ export type LoginRequest = { userName: string; password: string };
 export type LoginResponse = {
   accessToken: string;
   refreshToken: string;
-  user: { id: string; email: string; roles: string[] };
+  user: { id: string; email: string; username:string; roles: string[] };
 };
 export type SignupRequest = {
   email: string;
@@ -22,6 +22,7 @@ export type UserInfoResponse = {
   firstName: string;
   lastName: string;
   email: string;
+  username: string;
 
 };
 const buildSignupPayload = (req: SignupRequest) => ({
