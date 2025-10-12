@@ -6,11 +6,12 @@ import {
 } from "@mui/material";
 import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
-import Grid from "@mui/material/Grid";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { tradeService } from "../../domain/portfolio/services/TradesService";
 import { walletsService } from "../../domain/budget/services/WalletsService";
+import { marketService } from "../../domain/portfolio/services/MarketDataService";
 import type { TransactionDto, TradeRequest } from "../../domain/portfolio/types/transaction";
+import type { PriceQuoteDto } from "../../domain/portfolio/types/basic";
 import type { Wallet, Guid } from "../../domain/budget/types/budgetServiceTypes";
 import { getCurrentUser } from "../../auth/store/authStore";
 
@@ -40,6 +41,9 @@ const {
   const [wLoading, setWLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [priceQuote, setPriceQuote] = useState<PriceQuoteDto | null>(null);
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [priceError, setPriceError] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -95,6 +99,34 @@ const {
   };
 
   const side = watch("side");
+  const symbol = watch("symbol");
+  const quantity = watch("quantity");
+
+  const checkPrice = async () => {
+    setPriceError(null);
+    setPriceQuote(null);
+    
+    const symbolToCheck = symbol?.trim().toUpperCase();
+    if (!symbolToCheck) {
+      setPriceError("Please enter a stock symbol");
+      return;
+    }
+
+    setPriceLoading(true);
+    try {
+      const quote = await marketService.price(symbolToCheck);
+      setPriceQuote(quote);
+    } catch (e: any) {
+      setPriceError(e?.message ?? "Failed to fetch price");
+    } finally {
+      setPriceLoading(false);
+    }
+  };
+
+  const estimatedTotal = useMemo(() => {
+    if (!priceQuote || !quantity || quantity <= 0) return null;
+    return priceQuote.price * quantity;
+  }, [priceQuote, quantity]);
 
   const walletMenu = useMemo(
     () =>
@@ -131,20 +163,36 @@ const {
                 </RadioGroup>
               </FormControl>
 
-              <Grid container spacing={2}>
-                <Grid>
-                  <TextField
-                    label="Symbol"
-                    placeholder="AAPL"
-                    fullWidth
-                    {...register("symbol")}
-                    error={!!errors.symbol}
-                    helperText={errors.symbol?.message}
-                    inputProps={{ style: { textTransform: "uppercase" } }}
-                  />
-                </Grid>
+              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                <Box sx={{ flex: '1 1 300px', minWidth: '250px' }}>
+                  <Stack direction="row" spacing={1}>
+                    <TextField
+                      label="Symbol"
+                      placeholder="AAPL"
+                      fullWidth
+                      {...register("symbol", {
+                        onChange: () => {
+                          // Clear price when symbol changes
+                          setPriceQuote(null);
+                          setPriceError(null);
+                        }
+                      })}
+                      error={!!errors.symbol}
+                      helperText={errors.symbol?.message}
+                      inputProps={{ style: { textTransform: "uppercase" } }}
+                    />
+                    <Button
+                      variant="outlined"
+                      onClick={checkPrice}
+                      disabled={priceLoading || !symbol}
+                      sx={{ minWidth: 'auto', px: 2 }}
+                    >
+                      {priceLoading ? <CircularProgress size={20} /> : "Check Price"}
+                    </Button>
+                  </Stack>
+                </Box>
 
-                <Grid  >
+                <Box sx={{ flex: '1 1 200px', minWidth: '150px' }}>
                   <TextField
                     type="number"
                     label="Quantity"
@@ -155,9 +203,9 @@ const {
                     helperText={errors.quantity?.message}
                     inputProps={{ min: 1, step: 1 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid >
+                <Box sx={{ flex: '1 1 250px', minWidth: '200px' }}>
                   <FormControl fullWidth error={!!errors.walletId}>
                     <InputLabel id="wallet-select-label">Wallet</InputLabel>
                     <Select
@@ -180,8 +228,56 @@ const {
                       </Typography>
                     )}
                   </FormControl>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
+
+              {/* Price Information */}
+              {priceError && <Alert severity="error">{priceError}</Alert>}
+              {priceQuote && (
+                <Card variant="outlined" sx={{ bgcolor: 'action.hover' }}>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      {priceQuote.symbol} Price Information
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                      <Box sx={{ flex: '1 1 150px' }}>
+                        <Typography variant="caption" color="text.secondary">Current Price</Typography>
+                        <Typography variant="h6" color="primary">
+                          {priceQuote.price.toFixed(2)} {priceQuote.currency}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ flex: '1 1 150px' }}>
+                        <Typography variant="caption" color="text.secondary">Previous Close</Typography>
+                        <Typography variant="body1">
+                          {priceQuote.previousClose.toFixed(2)}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ flex: '1 1 150px' }}>
+                        <Typography variant="caption" color="text.secondary">Day Range</Typography>
+                        <Typography variant="body2">
+                          {priceQuote.low.toFixed(2)} - {priceQuote.high.toFixed(2)}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ flex: '1 1 150px' }}>
+                        <Typography variant="caption" color="text.secondary">Open</Typography>
+                        <Typography variant="body1">
+                          {priceQuote.open.toFixed(2)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    {estimatedTotal && (
+                      <Box sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Estimated Total for {quantity} {quantity === 1 ? 'share' : 'shares'}:
+                        </Typography>
+                        <Typography variant="h5" color="primary">
+                          {estimatedTotal.toFixed(2)} {priceQuote.currency}
+                        </Typography>
+                      </Box>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
               <Stack direction="row" spacing={2}>
                 <Button type="submit" variant="contained" disabled={isSubmitting || wLoading}>
