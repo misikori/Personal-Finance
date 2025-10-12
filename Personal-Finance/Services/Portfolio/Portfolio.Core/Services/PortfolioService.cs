@@ -50,25 +50,30 @@ public class PortfolioService : IPortfolioService
             throw new ArgumentException("UserId is required");
         }
 
-        _logger.LogInformation("Processing BUY order: UserId {UserId} buying {Quantity} shares of {Symbol}", 
-            request.UserId, request.Quantity, request.Symbol);
+        if (string.IsNullOrWhiteSpace(request.WalletId))
+        {
+            throw new ArgumentException("WalletId is required");
+        }
+
+        _logger.LogInformation("Processing BUY order: UserId {UserId} buying {Quantity} shares of {Symbol} from wallet {WalletId}", 
+            request.UserId, request.Quantity, request.Symbol, request.WalletId);
 
         // Get current market price
         var priceInfo = await _marketDataService.GetCurrentPriceAsync(request.Symbol);
         var totalCost = priceInfo.Price * request.Quantity;
 
-        // Check if user has sufficient funds
-        var hasEnoughMoney = await _budgetService.HasSufficientFundsAsync(request.UserId, totalCost, priceInfo.Currency);
+        // Check if wallet has sufficient funds
+        var hasEnoughMoney = await _budgetService.HasSufficientFundsAsync(request.WalletId, totalCost);
         if (!hasEnoughMoney)
         {
             throw new InvalidOperationException($"Insufficient funds. Required: {totalCost:F2} {priceInfo.Currency}");
         }
 
-        // Deduct from budget
-        var deductSuccess = await _budgetService.DeductFromBudgetAsync(request.UserId, totalCost, priceInfo.Currency);
+        // Deduct from wallet
+        var deductSuccess = await _budgetService.DeductFromBudgetAsync(request.UserId, request.WalletId, totalCost, priceInfo.Currency);
         if (!deductSuccess)
         {
-            throw new InvalidOperationException($"Failed to deduct {totalCost:F2} {priceInfo.Currency} from budget");
+            throw new InvalidOperationException($"Failed to deduct {totalCost:F2} {priceInfo.Currency} from wallet");
         }
 
         // Get existing position or create new one
@@ -150,8 +155,13 @@ public class PortfolioService : IPortfolioService
             throw new ArgumentException("UserId is required");
         }
 
-        _logger.LogInformation("Processing SELL order: UserId {UserId} selling {Quantity} shares of {Symbol}", 
-            request.UserId, request.Quantity, request.Symbol);
+        if (string.IsNullOrWhiteSpace(request.WalletId))
+        {
+            throw new ArgumentException("WalletId is required");
+        }
+
+        _logger.LogInformation("Processing SELL order: UserId {UserId} selling {Quantity} shares of {Symbol} to wallet {WalletId}", 
+            request.UserId, request.Quantity, request.Symbol, request.WalletId);
 
         // Check if user owns this stock
         var existingPosition = await _repository.GetPositionAsync(request.UserId, request.Symbol);
@@ -170,8 +180,8 @@ public class PortfolioService : IPortfolioService
         var priceInfo = await _marketDataService.GetCurrentPriceAsync(request.Symbol);
         var saleProceeds = priceInfo.Price * request.Quantity;
 
-        // Add proceeds to budget
-        await _budgetService.AddToBudgetAsync(request.UserId, saleProceeds, priceInfo.Currency);
+        // Add proceeds to wallet
+        await _budgetService.AddToBudgetAsync(request.UserId, request.WalletId, saleProceeds, priceInfo.Currency);
 
         // Update or delete position
         if (existingPosition.Quantity == request.Quantity)
@@ -391,10 +401,10 @@ public class PortfolioService : IPortfolioService
     }
 
     /// <summary>
-    /// Checks if user has sufficient budget for a purchase
+    /// Checks if wallet has sufficient funds for a purchase
     /// </summary>
-    public async Task<bool> CheckBudgetAsync(string username, decimal amount, string currency)
+    public async Task<bool> CheckBudgetAsync(string walletId, decimal amount)
     {
-        return await _budgetService.HasSufficientFundsAsync(username, amount, currency);
+        return await _budgetService.HasSufficientFundsAsync(walletId, amount);
     }
 }

@@ -70,6 +70,9 @@ public class PortfolioController : ControllerBase
             if (string.IsNullOrWhiteSpace(request.Symbol))
                 return BadRequest(new { error = "Stock symbol is required" });
 
+            if (string.IsNullOrWhiteSpace(request.WalletId))
+                return BadRequest(new { error = "Wallet ID is required" });
+
             if (request.Quantity <= 0)
                 return BadRequest(new { error = "Quantity must be greater than zero" });
 
@@ -119,6 +122,9 @@ public class PortfolioController : ControllerBase
             // Input validation
             if (string.IsNullOrWhiteSpace(request.Symbol))
                 return BadRequest(new { error = "Stock symbol is required" });
+
+            if (string.IsNullOrWhiteSpace(request.WalletId))
+                return BadRequest(new { error = "Wallet ID is required" });
 
             if (request.Quantity <= 0)
                 return BadRequest(new { error = "Quantity must be greater than zero" });

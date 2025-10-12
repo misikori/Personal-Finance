@@ -63,51 +63,27 @@ public class BudgetGrpcService : BudgetService.BudgetServiceBase
     {
         try
         {
-            var userId = Guid.Parse(request.UserId);
+            var walletId = Guid.Parse(request.WalletId);
             
-            // Get user's wallets
-            var wallets = await this._walletRepository.GetByUserIdAsync(userId);
-            var walletsList = wallets.ToList();
+            // Get the specific wallet
+            var wallet = await this._walletRepository.GetByIdAsync(walletId);
             
-            if (!walletsList.Any())
+            if (wallet == null)
             {
                 throw new RpcException(new Status(StatusCode.NotFound, 
-                    $"No wallets found for user {request.UserId}"));
-            }
-            
-            // Use first wallet as primary
-            var primaryWallet = walletsList.First();
-            
-            // If no currency specified, use primary wallet's currency
-            var requestedCurrency = string.IsNullOrEmpty(request.Currency) 
-                ? primaryWallet.Currency 
-                : request.Currency;
-            
-            // Calculate total balance in requested currency
-            decimal totalBalance = 0;
-            foreach (var wallet in walletsList)
-            {
-                decimal convertedBalance = wallet.CurrentBalance;
-                if (wallet.Currency != requestedCurrency)
-                {
-                    convertedBalance = await this._currencyConverter.ConvertAsync(
-                        wallet.Currency, 
-                        requestedCurrency, 
-                        wallet.CurrentBalance);
-                }
-                totalBalance += convertedBalance;
+                    $"Wallet {request.WalletId} not found"));
             }
             
             // Get spending limits for current month
             var currentMonth = DateTime.Now.Month;
             var currentYear = DateTime.Now.Year;
-            var limits = await this._limitRepository.GetLimitsForWalletAsync(primaryWallet.Id);
+            var limits = await this._limitRepository.GetLimitsForWalletAsync(wallet.Id);
             
             var limitsList = new List<SpendingLimitsDetails>();
             foreach (var limit in limits.Where(l => l.Month == currentMonth && l.Year == currentYear))
             {
                 var spent = await this._limitRepository.GetSpentAmountForMonthAsync(
-                    primaryWallet.Id, 
+                    wallet.Id, 
                     limit.CategoryName, 
                     currentMonth, 
                     currentYear);
@@ -122,20 +98,20 @@ public class BudgetGrpcService : BudgetService.BudgetServiceBase
             
             return new GetWalletStateResponse
             {
-                CurrentBalance = (double)totalBalance,
-                Currency = requestedCurrency,
-                WalletId = primaryWallet.Id.ToString(),
+                CurrentBalance = (double)wallet.CurrentBalance,
+                Currency = wallet.Currency,
+                WalletId = wallet.Id.ToString(),
                 Limits = { limitsList }
             };
         }
         catch (FormatException)
         {
             throw new RpcException(new Status(StatusCode.InvalidArgument, 
-                "Invalid UserId format. Expected GUID."));
+                "Invalid WalletId format. Expected GUID."));
         }
         catch (Exception e)
         {
-            this._logger.LogError(e, "Error getting wallet state for User {UserId}", request.UserId);
+            this._logger.LogError(e, "Error getting wallet state for Wallet {WalletId}", request.WalletId);
             throw new RpcException(new Status(StatusCode.Internal, 
                 $"Error getting wallet state: {e.Message}"));
         }

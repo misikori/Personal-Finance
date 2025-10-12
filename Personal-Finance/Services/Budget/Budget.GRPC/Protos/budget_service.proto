@@ -25,8 +25,7 @@ message CreateTransactionResponse{
 }
 
 message GetWalletStateRequest{
-    string user_id = 1;
-    string currency = 2;
+    string wallet_id = 1;
 }
 
 message GetWalletStateResponse{

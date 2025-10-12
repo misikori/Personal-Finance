@@ -17,6 +17,12 @@ namespace Budget.Application.Transactions
             var wallet = await this._walletRepository.GetByIdAsync(transactionDto.WalletId) ??
                 throw new KeyNotFoundException($"Wallet with ID {transactionDto.WalletId} not found.");
 
+            // Security check: Ensure the wallet belongs to the user
+            if (wallet.UserId != transactionDto.UserId)
+            {
+                throw new UnauthorizedAccessException($"Wallet {transactionDto.WalletId} does not belong to user {transactionDto.UserId}.");
+            }
+
             if (!Enum.TryParse(transactionDto.Type, true, out TransactionType transactionType))
             {
                 throw new ArgumentException("Invalid transaction type.");
