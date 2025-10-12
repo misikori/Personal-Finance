@@ -4,15 +4,15 @@ import { TradeRequest, TransactionDto } from "../types/transaction";
 
 
 class TradesService extends BaseService{
-    constructor() { super(portfolioApi, ""); }
+    constructor() { super(portfolioApi, "Portfolio"); }
 
     async buy(req: TradeRequest): Promise<TransactionDto> {
-    return await this.post<TransactionDto>(`api/buy`, req);
+    return await this.post<TransactionDto>(`buy`, req);
 }
 
 
 async sell(req: TradeRequest): Promise<TransactionDto> {
-return await this.post<TransactionDto>(`/api/sell`, req);
+return await this.post<TransactionDto>(`sell`, req);
 }
 
 }

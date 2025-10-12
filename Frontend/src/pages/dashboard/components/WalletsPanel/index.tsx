@@ -44,7 +44,9 @@ const onCreate = async (payload: { name: string; currency: string; }) => {
 
   const totalsByCurrency = React.useMemo(() => {
     const acc: Record<string, number> = {};
-    for (const w of wallets) acc[w.currency] = (acc[w.currency] ?? 0) ;
+    for (const w of wallets) {
+      acc[w.currency] = (acc[w.currency] ?? 0) + (w.currentBalance ?? 0);
+    }
     return acc;
   }, [wallets]);
 
@@ -84,7 +86,7 @@ const onCreate = async (payload: { name: string; currency: string; }) => {
                       secondary={w.currency}
                     />
                     <Typography fontWeight={700}>
-                      {formatNumber(w.balance)} {w.currency}
+                      {formatNumber(w.currentBalance)} {w.currency}
                     </Typography>
                   </ListItem>
                   <Divider component="li" />

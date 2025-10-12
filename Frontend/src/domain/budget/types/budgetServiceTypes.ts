@@ -11,7 +11,7 @@ export interface CreateCategoryRequest {
 }
 
 export interface Wallet {
-  id: Guid; userId: Guid; name: string; currency: string; createdAt?: string;   balance?: number;
+  id: Guid; userId: Guid; name: string; currency: string; createdAt?: string;   currentBalance?: number;
 }
 export interface CreateWalletRequest { userId: Guid; name: string; currency: string; }
 

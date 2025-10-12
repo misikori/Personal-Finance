@@ -3,8 +3,8 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Button, TextField, Stack, MenuItem
 } from "@mui/material";
+import { useCurrencies } from "../../../../domain/currency/hooks/useCurrency";
 
-const CURRENCIES = ["USD", "EUR", "RSD", "CHF", "GBP"];
 
 export function WalletCreateDialog({
   open,
@@ -20,6 +20,7 @@ export function WalletCreateDialog({
   const [name, setName] = React.useState("");
   const [currency, setCurrency] = React.useState("USD");
   const [startingBalance, setStartingBalance] = React.useState<string>("");
+  const allCurrencySymbols = useCurrencies("USD").currencies.map((c: { code: any; }) => c.code);
 
   const canSubmit = name.trim().length > 0 && currency;
 
@@ -60,7 +61,7 @@ export function WalletCreateDialog({
             fullWidth
             required
           >
-            {CURRENCIES.map(ccy => (
+            {allCurrencySymbols.map(ccy => (
               <MenuItem key={ccy} value={ccy}>{ccy}</MenuItem>
             ))}
           </TextField>

@@ -11,17 +11,20 @@ import {
   ListItemText,
   Divider
 } from "@mui/material";
+import { GenerateReportButton } from "./components/GenerateReportButton";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useEffect, useState } from "react";
 import type { Transaction } from "../../domain/budget/types/transactionTypes";
 import { fmtCurrency, fmtTime } from "../../shared/utils/format";
 import { useWallets } from "../transactions/hooks/useWallets";
 import { BudgetService } from "../../domain/budget/services/BudgetService";
+import { getCurrentUser } from "../../auth/store/authStore";
 
 export default function WalletsPage() {
   const { wallets, loading: walletsLoading } = useWallets();
   const [byWallet, setByWallet] = useState<Record<string, Transaction[]>>({});
-
+  
+  const currentUser = getCurrentUser();
   useEffect(() => {
     let alive = true;
 
@@ -52,10 +55,20 @@ export default function WalletsPage() {
 
   return (
     <Box sx={{ width: "50vw", mx: "auto", py: 2 }}>
+
       {/* ---------- Page Header ---------- */}
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
         <Typography variant="h4" fontWeight={600}>Wallets</Typography>
       </Stack>
+
+      {/* ---------- Generate Report Button ---------- */}
+      <Box sx={{ mb: 2 }}>
+        <GenerateReportButton
+          userId={currentUser?.id || ""}
+          username={currentUser?.email || ""}
+          emailAddress={currentUser?.email || ""}
+        />
+      </Box>
 
       {/* ---------- Wallets Accordion List ---------- */}
       <Stack spacing={1.5}>
