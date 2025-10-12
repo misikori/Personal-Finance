@@ -8,6 +8,7 @@ namespace Budget.Application.RecurringTransactions
         string Description,
         string Currency,
         string Frequency,
+        string Category,
         DateTime StartDate,
         DateTime? EndDate
     );
