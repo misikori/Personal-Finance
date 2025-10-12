@@ -76,9 +76,11 @@ services:
       - "ConnectionStrings:DefaultConnection=Host=budget-db;Port=5432;Database=BudgetDb;Username=admin;Password=admin1234"
       - "ServiceUrls:CurrencyService=http://currency.grpc:8080"
       - ASPNETCORE_ENVIRONMENT=Development
+      - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
     depends_on:
       - budget-db
       - currency.grpc
+      - rabbitmq
     ports:
       - "8004:8080"
 
@@ -138,4 +140,5 @@ services:
       - ./reports:/app/reports
     ports:
       - "8008:8080"
-        
+    depends_on:
+        - rabbitmq
