@@ -1,65 +1,103 @@
-
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PortfolioService } from "../services/PortfolioService";
 import type {
   PortfolioSummaryDto,
-  PortfolioDistributionDto,
+  PortfolioDistributionDto
 } from "../types/portfolio";
 import type { RecommendationsDto } from "../types/recomendation";
-import type { TransactionDto } from "../types/transaction";
-import { qk } from "./queryKeys";
+import type { CandlestickResponseDto, PriceQuoteDto } from "../types/basic";
+import type { PredictionDto, TradeRequest, TransactionDto } from "../types/transaction";
 
-type CurrencyParams = { baseCurrency?: string };
-type QueryOpts = { enabled?: boolean; staleTime?: number; gcTime?: number };
+const keys = {
+  summary: (u: string, c: string) => ["portfolio","summary",u,c] as const,
+  distribution: (u: string, c: string) => ["portfolio","distribution",u,c] as const,
+  recommendations: () => ["portfolio","recommendations"] as const,
+  transactions: (u: string) => ["portfolio","transactions",u] as const,
+  price: (s: string) => ["market","price",s] as const,
+  candles: (s: string, days: number) => ["market","candles",s,days] as const,
+  prediction: (s: string) => ["market","prediction",s] as const,
+};
 
-export function usePortfolioSummary(
-  username: string,
-  params?: CurrencyParams,
-  opts?: QueryOpts
-) {
+export function usePortfolioSummary(username: string, opts: { baseCurrency: string }) {
   return useQuery<PortfolioSummaryDto>({
-    queryKey: qk.portfolio.summary(username, params?.baseCurrency),
-    queryFn: () => PortfolioService.portfolio.summary(username, params),
-    enabled: !!username && (opts?.enabled ?? true),
-    staleTime: opts?.staleTime ?? 30_000,
-    gcTime: opts?.gcTime ?? 10 * 60_000,
+    queryKey: keys.summary(username, opts.baseCurrency),
+    queryFn: () => PortfolioService.portfolio.summary(username, opts.baseCurrency),
+    enabled: !!username
   });
 }
 
-export function usePortfolioTransactions(
-  username: string,
-  opts?: QueryOpts
-) {
-  return useQuery<TransactionDto[]>({
-    queryKey: qk.portfolio.transactions(username),
-    queryFn: () => PortfolioService.portfolio.transactions(username),
-    enabled: !!username && (opts?.enabled ?? true),
-    staleTime: opts?.staleTime ?? 10_000,
-    gcTime: opts?.gcTime ?? 5 * 60_000,
-  });
-}
-
-export function usePortfolioDistribution(
-  username: string,
-  params?: CurrencyParams,
-  opts?: QueryOpts
-) {
+export function usePortfolioDistribution(username: string, opts: { baseCurrency: string }) {
   return useQuery<PortfolioDistributionDto>({
-    queryKey: qk.portfolio.distribution(username, params?.baseCurrency),
-    queryFn: () => PortfolioService.portfolio.distribution(username, params),
-    enabled: !!username && (opts?.enabled ?? true),
-    staleTime: opts?.staleTime ?? 60_000,
-    gcTime: opts?.gcTime ?? 10 * 60_000,
+    queryKey: keys.distribution(username, opts.baseCurrency),
+    queryFn: () => PortfolioService.portfolio.distribution(username, opts.baseCurrency),
+    enabled: !!username
   });
 }
 
-export function useRecommendations(opts?: QueryOpts) {
+export function useRecommendations() {
   return useQuery<RecommendationsDto>({
-    queryKey: qk.portfolio.recommendations(),
-    queryFn: () => PortfolioService.portfolio.recommendations(),
-    enabled: opts?.enabled ?? true,
-    staleTime: opts?.staleTime ?? 60_000,
-    gcTime: opts?.gcTime ?? 10 * 60_000,
+    queryKey: keys.recommendations(),
+    queryFn: () => PortfolioService.portfolio.recommendations()
   });
 }
 
+export function useTransactions(username: string) {
+  return useQuery<TransactionDto[]>({
+    queryKey: keys.transactions(username),
+    queryFn: () => PortfolioService.portfolio.transactions(username),
+    enabled: !!username
+  });
+}
+
+export function usePrice(symbol: string) {
+  return useQuery<PriceQuoteDto>({
+    queryKey: keys.price(symbol),
+    queryFn: () => PortfolioService.market.price(symbol),
+    enabled: !!symbol
+  });
+}
+
+export function useCandlesticks(symbol: string, days = 30) {
+  return useQuery<CandlestickResponseDto>({
+    queryKey: keys.candles(symbol, days),
+    queryFn: () => PortfolioService.market.candlesticks(symbol, days),
+    enabled: !!symbol
+  });
+}
+
+export function usePrediction(symbol: string) {
+  return useQuery<PredictionDto>({
+    queryKey: keys.prediction(symbol),
+    queryFn: () => PortfolioService.market.predict(symbol),
+    enabled: !!symbol
+  });
+}
+
+export function useBuyTrade() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (req: TradeRequest) => PortfolioService.trades.buy(req),
+    onSuccess: (_res, req) => {
+      // optimistic refetch: summary, distribution, transactions
+      if (req.username) {
+        qc.invalidateQueries({ queryKey: ["portfolio","summary", req.username] });
+        qc.invalidateQueries({ queryKey: ["portfolio","distribution", req.username] });
+        qc.invalidateQueries({ queryKey: ["portfolio","transactions", req.username] });
+      }
+    }
+  });
+}
+
+export function useSellTrade() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (req: TradeRequest) => PortfolioService.trades.sell(req),
+    onSuccess: (_res, req) => {
+      if (req.username) {
+        qc.invalidateQueries({ queryKey: ["portfolio","summary", req.username] });
+        qc.invalidateQueries({ queryKey: ["portfolio","distribution", req.username] });
+        qc.invalidateQueries({ queryKey: ["portfolio","transactions", req.username] });
+      }
+    }
+  });
+}

@@ -6,34 +6,29 @@ import { TransactionDto } from "../types/transaction";
 
 
 
-class PortfolioDataService extends BaseService{
-    constructor() { super(portfolioApi, ""); }
+class PortfolioDataService extends BaseService {
+    constructor() { super(portfolioApi, "/api/Portfolio"); }
 
-        async summary(username: string, params?: { baseCurrency?: string }): Promise<PortfolioSummaryDto> {
-            return await this.get<PortfolioSummaryDto>(
-                `api/Portfolio/summary/${encodeURIComponent(username)}`,
-                { params }
-            );
-        }
-
+    async summary(username: string, baseCurrency: string = "USD"): Promise<PortfolioSummaryDto> {
+        return await this.get<PortfolioSummaryDto>(
+            `/summary/${encodeURIComponent(username)}?baseCurrency=${encodeURIComponent(baseCurrency)}`
+        );
+    }
 
     async transactions(username: string): Promise<TransactionDto[]> {
-    return await this.get<TransactionDto[]>(
-    `api/Portfolio/transactions/${encodeURIComponent(username)}`
-    );
+        return await this.get<TransactionDto[]>(
+            `/transactions/${encodeURIComponent(username)}`
+        );
     }
 
-
-    async distribution(username: string, params?: { baseCurrency?: string }): Promise<PortfolioDistributionDto> {
-    return await this.get<PortfolioDistributionDto>(
-    `api/Portfolio/distribution/${encodeURIComponent(username)}`,
-    { params }
-    );
+    async distribution(username: string, baseCurrency: string = "USD"): Promise<PortfolioDistributionDto> {
+        return await this.get<PortfolioDistributionDto>(
+            `/distribution/${encodeURIComponent(username)}?baseCurrency=${encodeURIComponent(baseCurrency)}`
+        );
     }
-
 
     async recommendations(): Promise<RecommendationsDto> {
-    return await this.get<RecommendationsDto>(`api/recommendations`);
+        return await this.get<RecommendationsDto>(`/recommendations`);
     }
 }
 

@@ -3,7 +3,6 @@ import { fmtCurrency } from "../../../../shared/utils/format";
 import { PortfolioSummaryProps } from "./PortfolioSummaryProps";
 
 
-
 export default function PortfolioSummary({ totalMarketValue, positionsCount }: PortfolioSummaryProps) {
   return (
     <Paper variant="outlined" sx={{ p: 2 }}>

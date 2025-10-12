@@ -30,7 +30,7 @@ export default function Login() {
           {error && <Alert severity="error">{error}</Alert>}
           <TextField
             label="Username"
-            type="password"
+            type="username"
             required fullWidth
             value={userName}
             onChange={e => setUserName(e.target.value)} 
