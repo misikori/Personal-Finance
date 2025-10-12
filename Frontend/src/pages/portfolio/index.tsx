@@ -1,36 +1,50 @@
-import { Grid, Typography } from "@mui/material";
+import { Typography, Box, Stack } from "@mui/material";
 import AllocationChart from "./components/AllocationChart";
 import PortfolioSummary from "./components/PortfolioSummary";
 import PositionsTable from "./components/PositionsTable";
-import { usePortfolio } from "./hooks/usePortfolio";
+import { getCurrentUser } from "../../auth/store/authStore";
+import { usePortfolioSummary, usePortfolioDistribution } from "../../domain/portfolio/hooks/usePortfolio";
 
 
 export default function PortfolioPage() {
-  const { positions, allocation, totalMV, loading } = usePortfolio();
+  const user = getCurrentUser();
+  const username = user?.id ?? user?.email ?? "";
+  // You can make baseCurrency dynamic if needed
+  const baseCurrency = "USD";
+
+  // Fetch summary and allocation using new hooks
+  const summaryQ = usePortfolioSummary("niko", { baseCurrency });
+  const allocationQ = usePortfolioDistribution("niko", { baseCurrency });
+
+  // Format positions for table
+  const positionsRaw = summaryQ.data?.positions ?? [];
+  const totalMV = summaryQ.data?.currentValue ?? 0;
+  const positionsWithWeights = positionsRaw.map(p => ({
+    ...p,
+    weightPct: totalMV ? (p.currentValue / totalMV) * 100 : 0,
+  }));
+  const allocation = allocationQ.data?.holdings?.map(h => ({
+    label: h.symbol,
+    value: h.percentage,
+    color: h.color,
+  })) ?? [];
+  const loading = summaryQ.isLoading || allocationQ.isLoading;
 
   return (
-    <div>
+    <Box>
       <Typography variant="h4" sx={{ mb: 2 }}>Portfolio</Typography>
-
-      {/* Summary on top */}
-      <Grid container spacing={2} columns={{ xs: 1, md: 12 }} sx={{ mb: 1 }}>
-        <Grid size={{ xs: 1, md: 12 }}>
-          <PortfolioSummary totalMarketValue={totalMV} positionsCount={positions.length} />
-        </Grid>
-      </Grid>
-
-      {/* Main content: table + chart */}
-      <Grid container spacing={2} columns={{ xs: 1, md: 6 }}>
-        <Grid size={{ xs: 1, md: 8 }}>
-          <PositionsTable rows={positions} />
-        </Grid>
-      </Grid>
-        <Grid size={{ xs: 1, md: 4 }}>
-          <Grid>
+      <Box sx={{ mb: 2 }}>
+          <PortfolioSummary totalMarketValue={totalMV} positionsCount={positionsWithWeights.length} />
+      </Box>
+      <Box sx={{ display: 'flex', gap: 2, flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
+        <Box sx={{ flex: 2, minWidth: 300 }}>
+          <PositionsTable rows={positionsWithWeights} />
+        </Box>
+        <Box sx={{ flex: 1, minWidth: 280 }}>
           <AllocationChart data={allocation} title="Allocation by Sector" />
-          </Grid>
-        </Grid>
+        </Box>
+      </Box>
       {loading && <Typography sx={{ mt: 2 }} color="text.secondary">Loading…</Typography>}
-    </div>
+    </Box>
   );
 }

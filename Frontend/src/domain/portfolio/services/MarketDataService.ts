@@ -5,10 +5,10 @@ import { PredictionDto } from "../types/transaction";
 
 
 class MarketService extends BaseService{
-    constructor() { super(portfolioApi, ""); }
+    constructor() { super(portfolioApi, "Portfolio"); }
 
 async price(symbol: string): Promise<PriceQuoteDto> {
-return await this.get<PriceQuoteDto>(`api/price/${encodeURIComponent(symbol)}`);
+return await this.get<PriceQuoteDto>(`price/${encodeURIComponent(symbol)}`);
 }
 
 
@@ -21,7 +21,7 @@ return  await this.get<CandlestickResponseDto>(
 
 
 async predict(symbol: string): Promise<PredictionDto> {
-return await this.get<PredictionDto>(`api/predict/${encodeURIComponent(symbol)}`);
+return await this.get<PredictionDto>(`predict/${encodeURIComponent(symbol)}`);
 
 }
 
