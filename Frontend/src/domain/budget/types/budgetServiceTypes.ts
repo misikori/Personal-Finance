@@ -13,7 +13,7 @@ export interface CreateCategoryRequest {
 export interface Wallet {
   id: Guid; userId: Guid; name: string; currency: string; createdAt?: string;   currentBalance: number;
 }
-export interface CreateWalletRequest { userId: Guid; name: string; currency: string; }
+export interface CreateWalletRequest { userId: Guid; name: string; currency: string; initialBalance?: number; }
 
 export type RecurrenceFrequency =  "Weekly" | "Monthly" | "Yearly"
 

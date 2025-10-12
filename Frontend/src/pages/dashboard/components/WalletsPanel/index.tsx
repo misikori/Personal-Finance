@@ -31,12 +31,13 @@ export function WalletsPanel() {
 
   React.useEffect(() => { load(); }, [load]);
 
-const onCreate = async (payload: { name: string; currency: string; }) => {
+const onCreate = async (payload: { name: string; currency: string; startingBalance?: number }) => {
   if (!user?.id) return;
   await BudgetService.wallets.create({
     userId: user.id,
     name: payload.name,
     currency: payload.currency,
+    initialBalance: payload.startingBalance,
   });
   setOpen(false);
   await load();

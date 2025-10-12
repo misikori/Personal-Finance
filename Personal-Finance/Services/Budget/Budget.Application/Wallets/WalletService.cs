@@ -14,7 +14,7 @@ namespace Budget.Application.Wallets
                 UserId = walletDto.UserId,
                 Name = walletDto.Name,
                 Currency = walletDto.Currency,
-                CurrentBalance = 0
+                CurrentBalance = walletDto.InitialBalance ?? 0
             };
 
             await this._walletRepo.AddAsync(newWallet);
