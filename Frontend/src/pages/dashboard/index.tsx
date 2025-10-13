@@ -1,50 +1,119 @@
 import * as React from "react";
-import { Grid as Grid, Stack, Typography } from "@mui/material";
-
+import { Box, Stack, Typography, Skeleton } from "@mui/material";
 import KpiCard from "./components/KpiCard";
 import RecentActivity from "./components/RecentActivity";
-import TopMovers from "./components/TopMovers";
-import { getKpisMock, getRecentTransactionsMock, getTopMoversMock } from "./dashboardMocks";
-import { Kpi, RecentTransaction, TopMover } from "./types";
+// import TopMovers from "./components/TopMovers";
+import { WalletsPanel } from "./components/WalletsPanel";
+import { CurrencyRatesPanel } from "./components/CurrencyRatesPanel";
+import { CurrencyConvertPanel } from "./components/CurrencyConvertPanel";
+import { portfolioData } from "../../domain/portfolio/services/PortfolioDataService";
+import { Kpi, RecentTransaction } from "./types";
+import { getCurrentUser } from "../../auth/store/authStore";
 
 export default function DashboardPage() {
   const [kpis, setKpis] = React.useState<Kpi[]>([]);
   const [recent, setRecent] = React.useState<RecentTransaction[]>([]);
-  const [movers, setMovers] = React.useState<TopMover[] | null>(null);
-  React.useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const [k, r] = await Promise.all([getKpisMock(), getRecentTransactionsMock()]);
-      if (!mounted) return;
-      setKpis(k);
-      setRecent(r.slice(0, 5));
+  const [loading, setLoading] = React.useState(true);
 
-      getTopMoversMock().then(m => mounted && setMovers(m.slice(0, 5)));
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const username = getCurrentUser()?.id ?? getCurrentUser()?.email ?? "demo";
+        const summary = await portfolioData.summary(username);
+        const txs = await portfolioData.transactions(username);
+
+        setKpis([
+          {
+            id: "totalBalance",
+            label: "Total Balance",
+            value: summary.currentValue.toLocaleString(undefined, { maximumFractionDigits: 2 }),
+            trend: summary.gainLossPercentage > 0 ? "up" : summary.gainLossPercentage < 0 ? "down" : "flat",
+            sublabel: `GL: ${summary.gainLossPercentage.toFixed(2)}%`,
+          },
+          {
+            id: "dailyPL",
+            label: "P/L",
+            value: summary.gainLossPercentage.toFixed(2) + "%",
+             trend: "flat",
+            sublabel: undefined,
+          },
+          {
+            id: "mtdReturn",
+            label: "MTD Return %",
+            value: summary.totalGainLoss.toFixed(2), 
+            trend: summary.totalGainLoss > 0 ? "up" : summary.totalGainLoss < 0 ? "down" : "flat",
+            sublabel: undefined,
+          },
+          {
+            id: "cash",
+            label: "Total Invested",
+            value: summary.totalInvested.toLocaleString(undefined, { maximumFractionDigits: 2 }),
+            trend: "flat",
+          },
+        ]);
+
+        setRecent(
+          (txs ?? []).slice(0, 5).map(tx => ({
+            id: tx.id,
+            ts: tx.transactionDate,
+            symbol: tx.symbol,
+            side: (tx.type?.toUpperCase?.() === "BUY") ? "BUY" : "SELL",
+            qty: tx.quantity,
+            price: tx.pricePerShare,
+            amount: tx.totalValue,
+          }))
+        );
+      } catch {
+        setKpis([]);
+        setRecent([]);
+      } finally {
+        setLoading(false);
+      }
     })();
-    return () => { mounted = false; };
   }, []);
 
   return (
-    <Stack spacing={3} sx={{maxWidth:'100%'}}>
-      <Typography variant="h5" fontWeight={800}>Dashboard</Typography>
+    <Stack spacing={2.25} sx={{ maxWidth: "100%" }}>
+      <Typography variant="h6" fontWeight={800}>Dashboard</Typography>
 
-      <Grid container spacing={2}>
-        {kpis.map(k => (
-          <Grid key={k.id} size={{ xs: 12, sm: 6, md: 3 }}>
-            <KpiCard label={k.label} value={k.value} sublabel={k.sublabel} trend={k.trend} />
-          </Grid>
+      {/* KPI Cards Row */}
+      <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
+        {loading && Array.from({ length: 4 }).map((_, i) => (
+          <Box key={i} sx={{ flex: "1 1 220px", minWidth: 220 }}>
+            <Skeleton variant="rounded" height={92} />
+          </Box>
         ))}
-      </Grid>
+        {!loading && kpis.map(k => (
+          <Box key={k.id} sx={{ flex: "1 1 220px", minWidth: 220 }}>
+            <KpiCard label={k.label} value={k.value} sublabel={k.sublabel} trend={k.trend} />
+          </Box>
+        ))}
+      </Box>
 
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, md: 8 }}>
-          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Recent Activity</Typography>
-          <RecentActivity rows={recent} />
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          {movers && <TopMovers movers={movers} />}
-        </Grid>
-      </Grid>
+      {/* Main area */}
+      <Box sx={{ display: "flex", gap: 1.5, flexWrap: { xs: "wrap", md: "nowrap" } }}>
+        <Box sx={{ flex: 2, minWidth: 300 }}>
+          <Stack spacing={1.25}>
+            <Typography variant="subtitle2" fontWeight={700}>Recent Activity</Typography>
+            {loading ? (
+              <Skeleton variant="rounded" height={240} />
+            ) : (
+              <RecentActivity rows={recent} />
+            )}
+            <Box sx={{ display: "flex", gap: 1.5, flexWrap: { xs: "wrap", md: "nowrap" } }}>
+              <CurrencyRatesPanel />
+              <CurrencyConvertPanel />
+            </Box>
+          </Stack>
+        </Box>
+
+        <Box sx={{ flex: 1, minWidth: 280 }}>
+          <Stack spacing={1.25}>
+            <WalletsPanel />
+            {/* <TopMovers movers={...} /> */}
+          </Stack>
+        </Box>
+      </Box>
     </Stack>
   );
 }

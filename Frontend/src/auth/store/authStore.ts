@@ -3,7 +3,7 @@ import { decodeJwt, getEmailFromPayload, getNameFromPayload, getRolesFromPayload
 export type AuthSnapshot = {
   accessToken: string | null;
   refreshToken: string | null;
-  user: { id: string; email: string; roles: string[] } | null;
+  user: { id: string; email: string; username: string, roles: string[] } | null;
 };
 
 const STORAGE_KEY = "auth:snapshot";
@@ -92,6 +92,6 @@ export function setTokensAndUserFromToken(accessToken: string | null, refreshTok
     const name  = getNameFromPayload(payload) ?? email ?? "";
     const id = payload.sub ?? payload.sid ?? email ?? name ?? crypto.randomUUID();
 
-    authStore.setUser({ id: String(id), email: String(email), roles });
+    authStore.setUser({ id: String(id), email: String(email),username:name,  roles });
   }
 }

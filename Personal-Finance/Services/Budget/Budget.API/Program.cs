@@ -63,6 +63,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+const string DevCors = "DevCors";
+builder.Services.AddCors(options =>
+        {
+        options.AddPolicy(DevCors, policy =>
+            policy
+                .WithOrigins("http://localhost:5173") 
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+        );
+        });
 WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -75,7 +85,8 @@ if (app.Environment.IsDevelopment())
     var db = scope.ServiceProvider.GetRequiredService<BudgetDbContext>();
     db.Database.Migrate();
 }
-
+app.UseRouting();
+app.UseCors(DevCors);  
 app.UseAuthorization();
 
 app.MapControllers();

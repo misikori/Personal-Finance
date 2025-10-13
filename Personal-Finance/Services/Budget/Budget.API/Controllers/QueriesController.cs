@@ -31,6 +31,7 @@ public class QueriesController : ControllerBase
 
         var transactionDtos = transactions.Select(t => new TransactionDto(
             t.Id,
+            t.WalletId,
             t.Amount,
             t.TransactionType.ToString(),
             t.Description,

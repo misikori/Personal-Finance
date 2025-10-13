@@ -32,7 +32,7 @@ public interface IPortfolioService
     Task<PortfolioDistributionResponse> GetPortfolioDistributionAsync(string username, string baseCurrency = "USD");
     
     /// <summary>
-    /// Checks if user has sufficient budget to buy stocks
+    /// Checks if wallet has sufficient funds to buy stocks
     /// </summary>
-    Task<bool> CheckBudgetAsync(string username, decimal amount, string currency);
+    Task<bool> CheckBudgetAsync(string walletId, decimal amount);
 }

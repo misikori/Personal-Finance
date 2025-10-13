@@ -1,4 +1,4 @@
-import { Transaction, TransactionFilter, TransactionSortBy } from "../../../../types/transaction";
+import { Transaction, TransactionSortBy, TransactionFilter } from "../../../../domain/budget/types/transactionTypes";
 
 export type TransactionTableProps = {
   rows: Transaction[];
@@ -7,9 +7,10 @@ export type TransactionTableProps = {
   pageSize: number;
   onPageChange: (p: number) => void;
   onPageSizeChange: (ps: number) => void;
-  sortBy: TransactionSortBy;
+  sortBy?: TransactionSortBy;
   sortDir: "asc" | "desc";
   onSortChange: (by: TransactionSortBy) => void;
   loading?: boolean;
   filter: TransactionFilter;
+  wallets?: Array<{ id: string; name: string; currency: string }>;
 };

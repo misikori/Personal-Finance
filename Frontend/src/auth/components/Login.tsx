@@ -6,8 +6,8 @@ import { ROUTES } from "../../core/RoutesConfig";
 
 export default function Login() {
   const { login, isLoading } = useAuth();
-  const [userName, setUserName] = useState("demo@demo.test");
-  const [password, setPassword] = useState("demo123!");
+  const [userName, setUserName] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -30,7 +30,7 @@ export default function Login() {
           {error && <Alert severity="error">{error}</Alert>}
           <TextField
             label="Username"
-            type="text"                                  
+            type="username"
             required fullWidth
             value={userName}
             onChange={e => setUserName(e.target.value)} 
@@ -39,7 +39,13 @@ export default function Login() {
             label="Password" type="password" required fullWidth
             value={password} onChange={e => setPassword(e.target.value)}
           />
-          <Button variant="contained" type="submit" disabled={isLoading}>Sign in</Button>
+            <Button variant="contained" type="submit" disabled={isLoading}>Sign in</Button>
+            <Box textAlign="center" sx={{ mt: 2 }}>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Don't have an account?
+              </Typography>
+              <Button variant="text" onClick={() => navigate(ROUTES.PUBLIC.SIGNUP)}>Sign Up</Button>
+            </Box>
         </Stack>
       </Box>
     </Container>

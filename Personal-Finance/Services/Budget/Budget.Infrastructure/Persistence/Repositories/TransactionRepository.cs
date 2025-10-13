@@ -23,7 +23,9 @@ namespace Budget.Infrastructure.Persistence.Repositories
 
             if (endDate.HasValue)
             {
-                query = query.Where(t => t.Date <= endDate.Value);
+                // Add 1 day to make the end date inclusive (all transactions on that day)
+                var inclusiveEndDate = endDate.Value.AddDays(1);
+                query = query.Where(t => t.Date < inclusiveEndDate);
             }
 
             if (categoryName != null)

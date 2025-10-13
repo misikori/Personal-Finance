@@ -6,9 +6,15 @@ namespace Portfolio.Core.DTOs;
 public class SellStockRequest
 {
     /// <summary>
-    /// Username of the seller
+    /// User ID (extracted from JWT token, not from request body)
+    /// Required for: portfolio position tracking, transaction history, and security validation (wallet ownership)
     /// </summary>
-    public string Username { get; set; } = string.Empty;
+    public string UserId { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Wallet ID to add proceeds to (must belong to the authenticated user)
+    /// </summary>
+    public string WalletId { get; set; } = string.Empty;
     
     /// <summary>
     /// Stock symbol to sell (e.g., "AAPL")
