@@ -25,13 +25,12 @@ export interface RecurringTransaction {
   userId: Guid; 
   walletId: Guid; 
   amount: number; 
-  TransactionType: TransactionType;
+  transactionType: TransactionType;
   currency: string;
   frequency: RecurrenceFrequency;
-  nextRun: string; 
+  nextDueDate: string; 
   description?: string | null;
-  categoryId?: Guid | null;
-  categoryName?: string | null;
+  category?: string | null;
   startDate: string;
   endDate:string;
 }

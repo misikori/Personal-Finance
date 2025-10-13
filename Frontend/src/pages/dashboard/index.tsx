@@ -32,14 +32,16 @@ export default function DashboardPage() {
           },
           {
             id: "dailyPL",
-            label: "Daily P/L",
-            value: "-", trend: "flat",
+            label: "P/L",
+            value: summary.gainLossPercentage.toFixed(2) + "%",
+             trend: "flat",
             sublabel: undefined,
           },
           {
             id: "mtdReturn",
             label: "MTD Return %",
-            value: "-", trend: "flat",
+            value: summary.totalGainLoss.toFixed(2), 
+            trend: summary.totalGainLoss > 0 ? "up" : summary.totalGainLoss < 0 ? "down" : "flat",
             sublabel: undefined,
           },
           {

@@ -1,108 +1,125 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, TextField, MenuItem, FormControlLabel, Switch, Stack
+  Button, TextField, MenuItem, Stack
 } from "@mui/material";
-import { decodeJwt, getEmailFromPayload } from "../../../../auth/jwt";
-import { authStore, getCurrentUser } from "../../../../auth/store/authStore";
-import { categoriesService } from "../../../../domain/budget/services/CategoriesService";
-import { recurringTransactionsService } from "../../../../domain/budget/services/RecurringTransactionsService";
 import { transactionsService } from "../../../../domain/budget/services/TransactionsService";
 import { walletsService } from "../../../../domain/budget/services/WalletsService";
-import { Wallet, Category } from "../../../../domain/budget/types/budgetServiceTypes";
+import { Wallet } from "../../../../domain/budget/types/budgetServiceTypes";
 import type { TransactionType } from "../../../../domain/budget/types/transactionTypes";
 import { useCurrencies } from "../../../../domain/currency/hooks/useCurrency";
 
+import { useForm, SubmitHandler, Resolver } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { getCurrentUser } from "../../../../auth/store/authStore";
+
 type Props = { open: boolean; onClose: () => void; onCreated?: () => void; };
+
+const typeOptions: TransactionType[] = ["Income", "Expense"];
+
+const makeSchema = (allowedCurrencies: string[]) =>
+  z.object({
+    walletId: z.string().min(1, "Wallet is required"),
+    type: z.enum(["Income", "Expense"] as const), // <-- no required_error here
+    amount: z.coerce.number().positive("Amount must be greater than 0"),
+    currency: z
+      .string()
+      .min(1, "Currency is required")
+      .refine(v => allowedCurrencies.includes(v), "Invalid currency"),
+    categoryName: z.string().trim().max(80, "Max 80 characters").optional().or(z.literal("")),
+    description: z.string().trim().max(200, "Max 200 characters").optional().or(z.literal("")),
+    dateLocal: z
+      .string()
+      .min(1, "Date & Time is required")
+      .refine(v => !Number.isNaN(new Date(v).getTime()), "Invalid date/time"),
+  });
+
+type FormValues = z.infer<ReturnType<typeof makeSchema>>;
 
 export default function TransactionsCreateDialog({ open, onClose, onCreated }: Props) {
   const [wallets, setWallets] = useState<Wallet[]>([]);
-  const [cats, setCats] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isRecurring, setIsRecurring] = useState(false);
-  const allCurrencySymbols = useCurrencies("USD").currencies.map((c: { code: any; }) => c.code);
 
-  const [form, setForm] = useState({
-    walletId: "",
-    amount: "",
-    currency: "",
-    categoryName: "",
-    description: "",
-    dateLocal: new Date().toISOString().slice(0, 16), // yyyy-MM-ddTHH:mm
-    type: "Expense" as TransactionType,
-    // recurring
-    cadence: "Monthly",
-    nextRun: new Date().toISOString().slice(0, 16),
+  const currencies = useCurrencies("USD").currencies as { code: string }[];
+  const currencyCodes = currencies.map(c => c.code);
+  const schema = useMemo(() => makeSchema(currencyCodes), [currencyCodes]);
+
+  const nowLocal = useMemo(() => new Date().toISOString().slice(0, 16), []);
+  const resolver = zodResolver(schema) as Resolver<FormValues>;
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    watch,
+    formState: { errors, isValid, isSubmitting },
+  } = useForm<FormValues>({
+    resolver,           // <-- typed resolver
+    mode: "onChange",
+    defaultValues: {
+      walletId: "",
+      type: "Expense",
+      amount: 0,
+      currency: "",
+      categoryName: "",
+      description: "",
+      dateLocal: nowLocal,
+    },
   });
+
+  const selectedWalletId = watch("walletId");
 
   useEffect(() => {
     if (!open) return;
     let mounted = true;
     (async () => {
       try {
-        const userId = getCurrentUser()?.id || "";
-        const [ws, cs] = await Promise.all([
-          walletsService.getByUser(userId),
-          categoriesService.listByUser(userId),
-        ]);
+        const user = getCurrentUser();
+        if (!user) return;
+        const ws = await walletsService.getByUser(user?.id); // supply userId if your service requires
         if (!mounted) return;
         setWallets(ws);
-        setCats(cs);
         if (ws.length) {
-          setForm(f => ({ ...f, walletId: ws[0].id, currency: ws[0].currency }));
+          setValue("walletId", ws[0].id, { shouldValidate: true });
+          setValue("currency", ws[0].currency, { shouldValidate: true });
         }
-      } catch {}
+      } catch {
+        /* ignore */
+      }
     })();
-    return () => { mounted = false; };
-  }, [open]);
+    return () => {
+      mounted = false;
+    };
+  }, [open, setValue]);
+
+  // sync currency when wallet changes
+  useEffect(() => {
+    if (!selectedWalletId) return;
+    const w = wallets.find(x => x.id === selectedWalletId);
+    if (w?.currency) setValue("currency", w.currency, { shouldValidate: true });
+  }, [selectedWalletId, wallets, setValue]);
 
   const walletOptions = useMemo(
     () => wallets.map(w => <MenuItem key={w.id} value={w.id}>{w.name} ({w.currency})</MenuItem>),
     [wallets]
   );
 
-  const submit = async () => {
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setLoading(true);
     try {
-      const amount = Math.abs(Number(form.amount));
-      const currentUser = getCurrentUser();
-      // fallback: try JWT sub if your store lacks id (optional)
-      const fallbackUserId = (() => {
-        try { return (decodeJwt(authStore.accessToken)?.sub as string) || ""; } catch { return ""; }
-      })();
-      const userId = currentUser?.id || fallbackUserId;
-
-      // Convert `datetime-local` (local wall time) -> ISO Z
-      // This preserves the exact instant the user picked.
-      const dateIso = new Date(form.dateLocal).toISOString();
-
-      if (!isRecurring) {
-        await transactionsService.create({
-          walletId: form.walletId,
-          amount,
-          type: form.type,
-          description: form.description || undefined,
-          date: dateIso, // <-- API expects `date`
-          currency: form.currency || (wallets.find(w => w.id === form.walletId)?.currency ?? "USD"),
-          categoryName: form.categoryName || undefined,
-        });
-      } else {
-        const p = decodeJwt(authStore.accessToken);
-        const emailUserId = getEmailFromPayload(p) as string; // if your recurring API wants email; adjust if it needs GUID
-        await recurringTransactionsService.create({
-          userId: emailUserId,
-          walletId: form.walletId,
-          amount,
-          currency: form.currency || (wallets.find(w => w.id === form.walletId)?.currency ?? "USD"),
-          description: form.description || undefined,
-          categoryName: form.categoryName || undefined,
-          cadence: form.cadence as any,
-          nextRun: new Date(form.nextRun).toISOString(),
-          // add `type: form.type` here if your backend supports it for recurring
-        } as any);
-      }
-      onClose();
+      await transactionsService.create({
+        walletId: data.walletId,
+        amount: Math.abs(data.amount),
+        type: data.type as TransactionType,
+        description: data.description || undefined,
+        date: new Date(data.dateLocal).toISOString(), // UTC instant
+        currency: data.currency,
+        categoryName: data.categoryName || undefined,
+      });
       onCreated?.();
+      onClose();
+      reset();
     } finally {
       setLoading(false);
     }
@@ -110,76 +127,79 @@ export default function TransactionsCreateDialog({ open, onClose, onCreated }: P
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>New {isRecurring ? "Recurring " : ""}Transaction</DialogTitle>
+      <DialogTitle>New Transaction</DialogTitle>
       <DialogContent dividers sx={{ pt: 2 }}>
         <Stack spacing={2}>
-          <FormControlLabel
-            control={<Switch checked={isRecurring} onChange={e => setIsRecurring(e.target.checked)} />}
-            label="Recurring"
-          />
           <TextField
-            select label="Wallet" value={form.walletId}
-            onChange={(e) => {
-              const walletId = String(e.target.value);
-              const currency = wallets.find(w => w.id === walletId)?.currency ?? form.currency;
-              setForm(f => ({ ...f, walletId, currency }));
-            }}
-          >{walletOptions}</TextField>
+            select
+            label="Wallet"
+            {...register("walletId")}
+            error={!!errors.walletId}
+            helperText={errors.walletId?.message}
+          >
+            {walletOptions}
+          </TextField>
 
           <TextField
             select
             label="Type"
-            value={form.type}
-            onChange={(e) => setForm(f => ({ ...f, type: e.target.value as TransactionType }))}
+            {...register("type")}
+            error={!!errors.type}
+            helperText={errors.type?.message}
           >
-            {["Income", "Expense"].map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+            {typeOptions.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
           </TextField>
 
           <TextField
             label="Amount"
             type="number"
-            inputProps={{ step: "0.01" }}
-            value={form.amount}
-            onChange={(e) => setForm(f => ({ ...f, amount: e.target.value }))}
+            inputProps={{ step: "0.01", min: "0" }}
+            {...register("amount")}
+            error={!!errors.amount}
+            helperText={errors.amount?.message}
           />
 
           <TextField
             select
             label="Currency"
-            value={form.currency}
-            onChange={(e) => setForm(f => ({ ...f, currency: e.target.value }))}
+            {...register("currency")}
+            error={!!errors.currency}
+            helperText={errors.currency?.message}
           >
-            {allCurrencySymbols.map(ccy => (
-              <MenuItem key={ccy} value={ccy}>{ccy}</MenuItem>
-            ))}
+            {currencyCodes.map(ccy => <MenuItem key={ccy} value={ccy}>{ccy}</MenuItem>)}
           </TextField>
 
           <TextField
             label="Category"
-            value={form.categoryName}
-            onChange={(e) => setForm(f => ({ ...f, categoryName: String(e.target.value) }))}
+            {...register("categoryName")}
+            error={!!errors.categoryName}
+            helperText={errors.categoryName?.message}
           />
+
           <TextField
             label="Description"
-            value={form.description}
-            onChange={(e) => setForm(f => ({ ...f, description: String(e.target.value) }))}
+            {...register("description")}
+            error={!!errors.description}
+            helperText={errors.description?.message}
           />
 
           <TextField
             label="Date & Time"
             type="datetime-local"
             InputLabelProps={{ shrink: true }}
-            value={form.dateLocal}
-            onChange={(e) => setForm(f => ({ ...f, dateLocal: e.target.value }))}
+            {...register("dateLocal")}
+            error={!!errors.dateLocal}
+            helperText={errors.dateLocal?.message}
           />
         </Stack>
       </DialogContent>
+
       <DialogActions>
-        <Button onClick={onClose} disabled={loading}>Cancel</Button>
+        <Button onClick={onClose} disabled={loading || isSubmitting}>Cancel</Button>
         <Button
-          onClick={submit}
+          onClick={handleSubmit(onSubmit)}
           variant="contained"
-          disabled={loading || !form.walletId || !form.amount}
+          disabled={loading || isSubmitting || !isValid}
         >
           Create
         </Button>

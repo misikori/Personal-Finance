@@ -33,7 +33,7 @@ export function GenerateReportButton({ userId, username, emailAddress }: {
       };
       const result = await BudgetService.reports.transactionsReport(payload);
       alert("Report generated! Check console for result.");
-      console.log(result);
+
       setOpen(false);
     } catch (e) {
       alert("Failed to generate report");

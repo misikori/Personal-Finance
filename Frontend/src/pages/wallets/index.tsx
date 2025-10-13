@@ -23,7 +23,6 @@ import { getCurrentUser } from "../../auth/store/authStore";
 export default function WalletsPage() {
   const { wallets, loading: walletsLoading } = useWallets();
   const [byWallet, setByWallet] = useState<Record<string, Transaction[]>>({});
-  console.log("WalletsPage render", { wallets, byWallet });
   const currentUser = getCurrentUser();
   useEffect(() => {
     let alive = true;
