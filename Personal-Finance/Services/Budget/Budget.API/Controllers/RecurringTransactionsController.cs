@@ -27,6 +27,7 @@ namespace Budget.API.Controllers
                 Amount = recurringDto.Amount,
                 TransactionType = transactionType,
                 Description = recurringDto.Description,
+                Category = recurringDto.Category,
                 Currency = recurringDto.Currency,
                 RecurrenceFrequency = frequency,
                 StartDate = recurringDto.StartDate,
