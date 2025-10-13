@@ -1,3 +1,4 @@
+using Budget.API.BackgroundWorker;
 using Budget.Application.Categories;
 using Budget.Application.Interfaces;
 using Budget.Application.Reports;
@@ -34,6 +35,7 @@ builder.Services.AddScoped<ISpendingLimitRepository, SpendingLimitRepository>();
 builder.Services.AddScoped<ISpendingLimitService, SpendingLimitService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IMessagePublisher, RabbitMqMessagePublisher>();
+builder.Services.AddHostedService<RecurringTransactionWorker>();
 
 builder.Services.AddMassTransit(busConfigurator =>
 {
