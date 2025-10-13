@@ -2,14 +2,14 @@
 services:
 
   mssql:
-    container_name: baza
+    container_name: mssql
     user: root
     environment:
       - SA_PASSWORD=MATF12345678rs2
       - ACCEPT_EULA=Y
     restart: always
     ports:
-      - "1435:1433"
+      - "1433:1433"
     volumes:
       - mssql_data:/var/opt/mssql/data
 
