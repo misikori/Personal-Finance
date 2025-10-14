@@ -26,6 +26,12 @@ services:
       - 5672:5672
       - 15672:15672
 
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   budget-db:
     container_name: budget-db
     restart: on-failure
@@ -38,6 +44,11 @@ services:
     volumes:
         -   postgres_data:/var/lib/postgresql/data
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d BudgetDb"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   currency.api:
     container_name: currency.api
@@ -78,9 +89,12 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
     depends_on:
-      - budget-db
-      - currency.grpc
-      - rabbitmq
+      budget-db:
+        condition: service_healthy
+      currency.grpc:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     ports:
       - "8004:8080"
 
@@ -92,8 +106,10 @@ services:
       - "ServiceUrls:CurrencyService=http://currency.grpc:8080"
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
-      - budget-db
-      - currency.grpc
+      budget-db:
+        condition: service_healthy
+      currency.grpc:
+        condition: service_started
     ports:
       - "8005:8080"
 
@@ -141,4 +157,5 @@ services:
     ports:
       - "8008:8080"
     depends_on:
-        - rabbitmq
+      rabbitmq:
+        condition: service_healthy

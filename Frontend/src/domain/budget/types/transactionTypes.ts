@@ -5,6 +5,7 @@ export type TransactionSortBy = "createdAt" | "amount" | "date" | "type";
 export type SortDir = "asc" | "desc";
 
 export type CreateTransactionRequest = {
+  userId: string | undefined;
   walletId: string;
   amount: number;         // send a positive number; backend derives sign from `type`
   currency: string;

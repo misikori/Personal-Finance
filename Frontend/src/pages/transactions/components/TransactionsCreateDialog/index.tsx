@@ -109,6 +109,7 @@ export default function TransactionsCreateDialog({ open, onClose, onCreated }: P
     setLoading(true);
     try {
       await transactionsService.create({
+        userId: getCurrentUser()?.id,
         walletId: data.walletId,
         amount: Math.abs(data.amount),
         type: data.type as TransactionType,
