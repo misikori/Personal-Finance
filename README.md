@@ -6,6 +6,19 @@ Built with **.NET 8**, **React**, **gRPC**, **RabbitMQ**, **PostgreSQL**, **SQL 
 
 ---
 
+## 👥 Team
+
+**Faculty of Mathematics, University of Belgrade**
+
+| Name | Index Number |
+|------|--------------|
+| Stefan Drljevic | 1042/2024 |
+| Lazar Kracunovic | 1038/2024 |
+| Milos Obrenovic | 1041/2024 |
+| Marko Radosavljevic | 1010/2024 |
+
+---
+
 ## 🌟 Features at a Glance
 
 ### 💼 Portfolio Management
@@ -745,12 +758,6 @@ This is a university project demonstrating modern software architecture patterns
 ## 📝 License
 
 Academic project - MATF (Faculty of Mathematics, University of Belgrade)
-
----
-
-## 👥 Team
-
-Built by students passionate about software engineering and finance.
 
 ---
 
